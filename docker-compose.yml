@@ -1,0 +1,33 @@
+services:
+  redis:
+    image: redis:7
+    network_mode: host
+    command: >
+      redis-server
+      --maxmemory 512mb
+      --maxmemory-policy noeviction
+      --appendonly no
+    restart: always
+
+  ingest:
+    build:
+      context: .
+      dockerfile: ingest/Dockerfile
+    network_mode: host
+    restart: always
+    volumes:
+      - ./config.json:/app/config.json
+    depends_on:
+      - redis
+
+  persistence:
+    build:
+      context: .
+      dockerfile: persistence/Dockerfile
+    network_mode: host
+    restart: always
+    user: "${UID}:${GID}"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redis

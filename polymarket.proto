@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package polymarket;
+
+enum Side {
+    SIDE_UNKNOWN = 0;
+    BUY = 1;
+    SELL = 2;
+}
+
+message PriceLevel {
+    double price = 1;
+    double size = 2;
+}
+
+message PriceChange {
+    string asset_id = 1;
+    double price = 2;
+    double size = 3;
+    Side side = 4;
+    string hash = 5;
+    double best_bid = 6;
+    double best_ask = 7;
+}
+
+message BookSnapshot {
+    string market = 1;
+    string asset_id = 2;
+    int64 exchange_timestamp = 3;
+    string hash = 4;
+    repeated PriceLevel bids = 5;
+    repeated PriceLevel asks = 6;
+    double tick_size = 7;
+    double last_trade_price = 8;
+}
+
+message TradeEvent {
+    string market = 1;
+    int64 exchange_timestamp = 2;
+    repeated PriceChange price_changes = 3;
+}
+
+message MarketEvent {
+    int64 received_timestamp = 1;
+    oneof payload {
+        BookSnapshot book = 2;
+        TradeEvent trade = 3;
+    }
+}

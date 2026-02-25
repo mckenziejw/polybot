@@ -1,0 +1,21 @@
+# Secrets & config
+config.json
+bot_config.json
+.env
+
+# Virtual environment
+.venv/
+
+# Data files (large)
+data/
+
+# Python cache
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log

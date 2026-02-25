@@ -1,0 +1,4 @@
+websocket-client
+redis
+protobuf
+requests

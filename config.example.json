@@ -1,0 +1,28 @@
+{
+  "polymarket": {
+    "host": "https://clob.polymarket.com",
+    "chain_id": 137,
+    "private_key": "",
+    "api_key": "",
+    "api_secret": "",
+    "api_passphrase": "",
+    "proxy_wallet": ""
+  },
+  "trading": {
+    "target_wallet": "",
+    "volume_ratio": 0.1,
+    "monitored_markets": [],
+    "min_trade_size": 1.0,
+    "max_trade_size": 1000.0,
+    "slippage_tolerance": 0.01,
+    "dry_run": true
+  },
+  "monitoring": {
+    "websocket_reconnect_delay": 5,
+    "position_update_interval": 30
+  },
+  "data": {
+    "positions_file": "positions.json",
+    "trades_file": "trades.json"
+  }
+}
