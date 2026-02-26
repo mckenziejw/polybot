@@ -66,6 +66,8 @@ class RedisPublisher:
                     "market": condition_id,
                     "slug": slug,
                     "end_time": end_time,
+                    "up_token_id": up_token_id,
+                    "down_token_id": down_token_id,
                 },
             )
 

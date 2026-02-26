@@ -3,4 +3,6 @@ protobuf
 websocket-client
 redis
 pyarrow
-requestsweb3
+requests
+web3
+telonex[all]gymnasium

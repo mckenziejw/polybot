@@ -1,0 +1,41 @@
+Feb 25Good, now I have the full picture. The architecture is clean — Redis stream decouples ingest from persistence, which is the right design.
+Here's what I'm building:
+persistence/src/writer.py — add a slug column to BOOK_SCHEMA (it's missing, but you need it for analysis), and add a normalize_telonex_snapshot() classmethod that converts a Telonex row to the same schema. No other changes needed.
+data/telonex_backfill.py — new module. Uses the Telonex SDK to fetch book_snapshot_25 for all missing markets, normalizes to your canonical schema, and writes parquet files into data/book_snapshots/ using the same slug-named file convention. Flexible enough to handle any market slug pattern, not just btc-updown-5m.
+Proto — no changes needed. It's a wire format for live data only; Telonex bypasses it entirely.
+market_client.py — one small fix: the on_event callback should also pass the current market slug so the persistence layer can write it into the slug column without having to re-derive it from the asset_id. Currently the slug is in MarketInfo but doesn't flow through to the book row.
+Let me read the current writer schema carefully before coding:Review writer.py to understand current schema before making changesReview writer.py to understand current schema before making changesReview writer.py to understand current schema before making changesDoneGood. I have everything I need. A few design decisions before writing:
+slug column: Missing from BOOK_SCHEMA but your analysis pipeline uses it heavily. The slug is available in _current_slug at write time so adding it is trivial. This is a breaking schema change for existing parquets — your existing files won't have this column. The MarketLoader already handles this gracefully since it infers slug from the filename, so it's not a blocker, but worth noting.
+token_label: Also missing from BOOK_SCHEMA. The asset_id is there but you'd need the markets dataframe to resolve Yes/No. Telonex provides outcome directly. I'll add token_label as a nullable string so Telonex data has it populated and live data can optionally populate it too if you pass it through.
+market_client.py change: The on_event callback currently passes only serialized bytes. The slug needs to flow through to the writer. Cleanest way is to have market_client.py publish the slug onto the Redis control stream (which it already does via market_open) and have the writer track it via _current_slug — which it already does. So actually no change needed there. The writer already knows the slug when write_book is called. I just need to use self._current_slug in the row.Updated writer.py with slug and token_label columns added to BOOK_SCHEMAUpdated writer.py with slug and token_label columns added to BOOK_SCHEMAUpdated writer.py with slug and token_label columns added to BOOK_SCHEMAwriter.pyDoneNow the consumer needs a small update to pass the token label map through on market_open:Updated consumer.py that passes token_label_map to writer on market_openUpdated consumer.py that passes token_label_map to writer on market_openUpdated consumer.py that passes token_label_map to writer on market_openconsumer.pyDoneGood. Now I have the full picture. Let me read the actual uploaded files before writing anything to make sure I'm working from what's actually in your repo, not what I generated last turn.Check what's in uploads directoryCheck what's in uploads directoryCheck what's in uploads directoryDoneThe documents in the message match the uploaded files — the writer.py is still the old schema (no slug, no token_label). The consumer.py is also the original (no token_label_map plumbing). Good, I know exactly what needs to change.
+Here's my plan before writing:
+writer.py changes:
+
+Add slug and token_label to both BOOK_SCHEMA and TRADE_SCHEMA
+Extract the book level computation into a shared helper so it's not duplicated (and reusable by the Telonex backfill)
+Accept optional token_label_map: dict[str, str] in __init__ and open()
+Write slug from self._current_slug in write_book/write_trade
+Expose schemas at module level (not just on the class) so the backfill can import them without instantiating a writer
+
+consumer.py changes:
+
+_bootstrap_from_control_stream needs to also read up_token_id/down_token_id fields from the last market_open event and pass them to writer.open()
+_handle_control for market_open needs to extract token labels from the control message and pass them to writer.open()
+
+market_client.py change (you didn't upload it but I need to flag this): the control message published on market_open needs to include up_token_id and down_token_id fields. If it doesn't currently, the label mapping will silently be empty. I'll write the consumer defensively so it degrades gracefully, but you need to verify those fields are being published.
+No changes to main.py or __init__.py.Ran 3 commands, created 3 files, read a fileRan 3 commands, created 3 files, read a fileCopy uploaded files to working directoryScriptUpdated writer.py with slug, token_label, extracted helpers, and module-level schema exportswriter.pyRemove previously generated filesScriptUpdated writer.py with slug, token_label, extracted helpers, module-level schema exportswriter.pyUpdated consumer.py that extracts token_label_map from control messages and passes it to writer.open()consumer.pyCopy outputsScriptPresented 2 filesDoneHere's what changed and what you still need to do on your end:
+writer.py
+
+BOOK_SCHEMA and TRADE_SCHEMA are now module-level constants — import them directly in your Telonex backfill with from src.writer import BOOK_SCHEMA, compute_book_derived, flatten_book_levels
+Both schemas add slug and token_label columns
+compute_book_derived() and flatten_book_levels() extracted as standalone functions — no more duplicated sort logic, and the backfill can use the exact same computation
+open() now accepts optional token_label_map: dict[str, str]
+
+consumer.py
+
+_bootstrap_from_control_stream now captures the full fields of the last market_open event (not just the slug) so it can reconstruct the token label map on restart
+_handle_control extracts the token map and passes it to writer.open()
+_parse_token_label_map() tries two encodings: a JSON token_label_map field first, then individual up_token_id/down_token_id fields as fallback
+
+Action required — market_client.py: Check what your ingest side publishes to the control stream on market_open. The consumer now expects up_token_id and down_token_id fields in that message. If they're not there, token_label will be "" silently — not a crash, but your new columns will be empty for live data. Paste that publish call if you want me to check it.
+Existing parquet files: They'll load fine since MarketLoader infers slug from filename. They just won't have slug or token_label columns. Either ignore that (analysis code already handles missing slug via filename) or do a one-time migration script — your call.

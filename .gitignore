@@ -8,6 +8,7 @@ bot_config.json
 
 # Data files (large)
 data/
+datasets/
 
 # Python cache
 **/__pycache__/
