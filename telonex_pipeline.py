@@ -28,8 +28,8 @@ from telonex import download_async
 # ---------------------------------------------------------------------------
 
 API_KEY     = os.environ["TELONEX_API_KEY"]
-RAW_DIR     = Path("./datasets/telonex_raw")
-OUT_DIR     = Path("./data/telonex_book_snapshots")
+RAW_DIR     = Path("./datasets/telonex_15m_raw")
+OUT_DIR     = Path("./data/telonex_15m_book_snapshots")
 MARKETS_URL = "https://api.telonex.io/v1/datasets/polymarket/markets"
 CONCURRENCY = 10
 N_LEVELS    = 5  # book_snapshot_5
@@ -85,10 +85,10 @@ def load_btc_markets() -> pd.DataFrame:
     log.info("Loading markets dataset...")
     df = pd.read_parquet(MARKETS_URL)
     btc = df[
-        df["slug"].str.contains("btc-updown-5m", na=False) &
+        df["slug"].str.contains("btc-updown-15m", na=False) &
         (df["book_snapshot_5_from"] != "")
     ].copy()
-    log.info(f"Found {len(btc)} BTC 5m markets with book_snapshot_5 data")
+    log.info(f"Found {len(btc)} BTC 15m markets with book_snapshot_5 data")
     return btc
 
 
@@ -228,7 +228,7 @@ def build_asset_slug_map() -> dict[str, str]:
     """Load markets dataset and return {asset_id: slug} for all BTC 5m markets."""
     log.info("Building asset_id -> slug lookup...")
     df = pd.read_parquet(MARKETS_URL)
-    btc = df[df["slug"].str.contains("btc-updown-5m", na=False)]
+    btc = df[df["slug"].str.contains("btc-updown-15m", na=False)]
     mapping = {}
     for _, row in btc.iterrows():
         mapping[row["asset_id_0"]] = row["slug"]
@@ -279,7 +279,7 @@ def run_normalize():
         # Extract open timestamp from slug: btc-updown-5m-{ts}
         try:
             market_open_ms  = int(slug.split("-")[-1]) * 1000
-            market_close_ms = market_open_ms + 300_000  # 5 minutes
+            market_close_ms = market_open_ms + 900_000  # 5 minutes
         except (ValueError, IndexError):
             log.warning(f"Could not parse timestamp from slug: {slug}")
             errors += 1

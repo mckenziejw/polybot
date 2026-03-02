@@ -1,0 +1,94 @@
+Collecting tensorboard
+  Using cached tensorboard-2.20.0-py3-none-any.whl.metadata (1.8 kB)
+Collecting setuptools==81.0.0
+  Downloading setuptools-81.0.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting absl-py>=0.4 (from tensorboard)
+  Using cached absl_py-2.4.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting grpcio>=1.48.2 (from tensorboard)
+  Using cached grpcio-1.78.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.8 kB)
+Collecting markdown>=2.6.8 (from tensorboard)
+  Using cached markdown-3.10.2-py3-none-any.whl.metadata (5.1 kB)
+Collecting numpy>=1.12.0 (from tensorboard)
+  Using cached numpy-2.4.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting packaging (from tensorboard)
+  Using cached packaging-26.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting pillow (from tensorboard)
+  Using cached pillow-12.1.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.8 kB)
+Collecting protobuf!=4.24.0,>=3.19.6 (from tensorboard)
+  Using cached protobuf-7.34.0-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+Collecting tensorboard-data-server<0.8.0,>=0.7.0 (from tensorboard)
+  Using cached tensorboard_data_server-0.7.2-py3-none-manylinux_2_31_x86_64.whl.metadata (1.1 kB)
+Collecting werkzeug>=1.0.1 (from tensorboard)
+  Using cached werkzeug-3.1.6-py3-none-any.whl.metadata (4.0 kB)
+Collecting typing-extensions~=4.12 (from grpcio>=1.48.2->tensorboard)
+  Using cached typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting markupsafe>=2.1.1 (from werkzeug>=1.0.1->tensorboard)
+  Using cached markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Downloading setuptools-81.0.0-py3-none-any.whl (1.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 9.0 MB/s eta 0:00:00
+Using cached tensorboard-2.20.0-py3-none-any.whl (5.5 MB)
+Using cached absl_py-2.4.0-py3-none-any.whl (135 kB)
+Using cached grpcio-1.78.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (6.7 MB)
+Using cached markdown-3.10.2-py3-none-any.whl (108 kB)
+Using cached numpy-2.4.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+Using cached protobuf-7.34.0-cp310-abi3-manylinux2014_x86_64.whl (324 kB)
+Using cached tensorboard_data_server-0.7.2-py3-none-manylinux_2_31_x86_64.whl (6.6 MB)
+Using cached werkzeug-3.1.6-py3-none-any.whl (225 kB)
+Using cached packaging-26.0-py3-none-any.whl (74 kB)
+Using cached pillow-12.1.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.0 MB)
+Using cached markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+Installing collected packages: typing-extensions, tensorboard-data-server, setuptools, protobuf, pillow, packaging, numpy, markupsafe, markdown, absl-py, werkzeug, grpcio, tensorboard
+  Attempting uninstall: typing-extensions
+    Found existing installation: typing_extensions 4.15.0
+    Uninstalling typing_extensions-4.15.0:
+      Successfully uninstalled typing_extensions-4.15.0
+  Attempting uninstall: tensorboard-data-server
+    Found existing installation: tensorboard-data-server 0.7.2
+    Uninstalling tensorboard-data-server-0.7.2:
+      Successfully uninstalled tensorboard-data-server-0.7.2
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 82.0.0
+    Uninstalling setuptools-82.0.0:
+      Successfully uninstalled setuptools-82.0.0
+  Attempting uninstall: protobuf
+    Found existing installation: protobuf 7.34.0
+    Uninstalling protobuf-7.34.0:
+      Successfully uninstalled protobuf-7.34.0
+  Attempting uninstall: pillow
+    Found existing installation: pillow 12.1.1
+    Uninstalling pillow-12.1.1:
+      Successfully uninstalled pillow-12.1.1
+  Attempting uninstall: packaging
+    Found existing installation: packaging 26.0
+    Uninstalling packaging-26.0:
+      Successfully uninstalled packaging-26.0
+  Attempting uninstall: numpy
+    Found existing installation: numpy 2.4.2
+    Uninstalling numpy-2.4.2:
+      Successfully uninstalled numpy-2.4.2
+  Attempting uninstall: markupsafe
+    Found existing installation: MarkupSafe 3.0.3
+    Uninstalling MarkupSafe-3.0.3:
+      Successfully uninstalled MarkupSafe-3.0.3
+  Attempting uninstall: markdown
+    Found existing installation: Markdown 3.10.2
+    Uninstalling Markdown-3.10.2:
+      Successfully uninstalled Markdown-3.10.2
+  Attempting uninstall: absl-py
+    Found existing installation: absl-py 2.4.0
+    Uninstalling absl-py-2.4.0:
+      Successfully uninstalled absl-py-2.4.0
+  Attempting uninstall: werkzeug
+    Found existing installation: Werkzeug 3.1.6
+    Uninstalling Werkzeug-3.1.6:
+      Successfully uninstalled Werkzeug-3.1.6
+  Attempting uninstall: grpcio
+    Found existing installation: grpcio 1.78.0
+    Uninstalling grpcio-1.78.0:
+      Successfully uninstalled grpcio-1.78.0
+  Attempting uninstall: tensorboard
+    Found existing installation: tensorboard 2.20.0
+    Uninstalling tensorboard-2.20.0:
+      Successfully uninstalled tensorboard-2.20.0
+Successfully installed absl-py-2.4.0 grpcio-1.78.0 markdown-3.10.2 markupsafe-3.0.3 numpy-2.4.2 packaging-26.0 pillow-12.1.1 protobuf-7.34.0 setuptools-81.0.0 tensorboard-2.20.0 tensorboard-data-server-0.7.2 typing-extensions-4.15.0 werkzeug-3.1.6

@@ -5,4 +5,9 @@ redis
 pyarrow
 requests
 web3
-telonex[all]gymnasium
+telonex[all]
+gymnasium
+tensorboard
+tqdm
+rich
+setuptools==81.0.0

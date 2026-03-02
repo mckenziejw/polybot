@@ -37,7 +37,7 @@ RAW_DIR  = Path("./datasets/telonex_raw/binance")
 OUT_DIR  = Path("./data/btc_quotes")
 OUT_FILE = OUT_DIR / "btcusdt_quotes.parquet"
 
-FROM_DATE = "2026-02-12"
+FROM_DATE = "2025-10-01"
 TO_DATE   = "2026-02-25"  # exclusive
 
 # Derived feature windows (in seconds, applied to 1s resampled data)
