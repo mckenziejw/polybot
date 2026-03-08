@@ -684,12 +684,12 @@ def run_analysis(
     data_dir: Path = Path("data"),
     cache_path: Path = Path("data/resolutions.json"),
     verbose: bool = True,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Full pipeline: load slugs → fetch resolutions → build observations →
     calibration curve → mispricing screen.
 
-    Returns (obs, curve, mispricings).
+    Returns (obs, curve, mispricings, by_time).
     """
     logging.basicConfig(
         level=logging.INFO if verbose else logging.WARNING,

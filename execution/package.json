@@ -1,0 +1,23 @@
+{
+  "name": "polymarket-execution",
+  "version": "0.1.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "test": "bun test",
+    "test:unit": "bun test --filter '!integration'",
+    "test:integration": "bun test test/integration/"
+  },
+  "dependencies": {
+    "@polymarket/clob-client": "^4",
+    "viem": "^2",
+    "ioredis": "^5",
+    "protobufjs": "^7"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

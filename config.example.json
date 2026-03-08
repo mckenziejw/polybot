@@ -8,21 +8,26 @@
     "api_passphrase": "",
     "proxy_wallet": ""
   },
-  "trading": {
-    "target_wallet": "",
-    "volume_ratio": 0.1,
-    "monitored_markets": [],
-    "min_trade_size": 1.0,
-    "max_trade_size": 1000.0,
-    "slippage_tolerance": 0.01,
-    "dry_run": true
+  "etherscan": {
+    "api_key": ""
   },
-  "monitoring": {
-    "websocket_reconnect_delay": 5,
-    "position_update_interval": 30
+  "market_maker": {
+    "order_size": 5.0,
+    "cancel_window_s": 6.0,
+    "min_remaining_s": 30.0,
+    "max_positions": 1,
+    "price_offset": 0.0
   },
-  "data": {
-    "positions_file": "positions.json",
-    "trades_file": "trades.json"
+  "execution": {
+    "data_source": "websocket",
+    "redis_url": "redis://localhost:6379",
+    "strategy_id": "market-maker",
+    "metrics_dir": "data/metrics",
+    "rpc_url": "https://polygon-rpc.com",
+    "resample_interval_ms": 100,
+    "external_feeds": ["binance-btcusdt"]
+  },
+  "telonex": {
+    "api_key": ""
   }
 }

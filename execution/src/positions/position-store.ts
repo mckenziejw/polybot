@@ -1,0 +1,237 @@
+import type { Position, OpenOrder, UserOrderEvent, UserTradeEvent } from "../types.ts";
+
+export class PositionStore {
+  private positions = new Map<string, Position>();
+  private openOrders = new Map<string, OpenOrder>();
+  /** All order IDs we've placed — survives order completion/cancellation. */
+  private knownOrderIds = new Set<string>();
+  /** Trade IDs we've already processed — prevents double-counting on status updates. */
+  private processedTradeIds = new Set<string>();
+  /** Maps trade ID → assetId(s) affected, for trades awaiting CONFIRMED status. */
+  private pendingSettlement = new Map<string, string[]>();
+
+  // ── Public write API ─────────────────────────────────────────────────────
+
+  /** Add an order we just placed (optimistic tracking). */
+  addOrder(order: OpenOrder): void {
+    this.openOrders.set(order.orderId, { ...order });
+    this.knownOrderIds.add(order.orderId);
+  }
+
+  /**
+   * Apply a fill from the user channel trade event.
+   *
+   * Uses the `traderSide` field to determine perspective, NOT openOrders
+   * lookup (which is subject to race conditions — order events can delete
+   * orders before trade events arrive).
+   *
+   * When we are a maker (traderSide === "MAKER"), our fill details are in
+   * the makerOrders array — we use our maker order's price, side, and
+   * matchedAmount for position tracking.
+   *
+   * When we are the taker, we use the top-level fields.
+   *
+   * Each trade event is processed only once (by trade ID) to prevent
+   * double-counting across MATCHED → MINED → CONFIRMED status updates.
+   */
+  applyFill(event: UserTradeEvent): void {
+    // Handle settlement confirmations for trades we already processed
+    if (this.processedTradeIds.has(event.id)) {
+      if (event.status === "CONFIRMED") {
+        const assetIds = this.pendingSettlement.get(event.id);
+        if (assetIds) {
+          for (const assetId of assetIds) {
+            const pos = this.positions.get(assetId);
+            if (pos) pos.settled = true;
+          }
+          this.pendingSettlement.delete(event.id);
+        }
+      }
+      return;
+    }
+
+    if (event.status !== "MATCHED" && event.status !== "CONFIRMED") return;
+
+    this.processedTradeIds.add(event.id);
+    const isAlreadyConfirmed = event.status === "CONFIRMED";
+    const affectedAssets: string[] = [];
+
+    if (event.traderSide === "TAKER") {
+      // Verify this is actually our taker order
+      if (!this.knownOrderIds.has(event.takerOrderId)) return;
+
+      // We are the taker — use top-level trade fields
+      const fillSize = Number(event.size);
+      const fillPrice = Number(event.price);
+      this.updatePosition(event.assetId, event.side, fillSize, fillPrice, isAlreadyConfirmed);
+      affectedAssets.push(event.assetId);
+
+      // Reduce our taker order's remaining size
+      const order = this.openOrders.get(event.takerOrderId);
+      if (order) {
+        order.remainingSize = Math.max(0, order.remainingSize - fillSize);
+        if (order.remainingSize < 0.01) {
+          this.openOrders.delete(event.takerOrderId);
+        }
+      }
+    } else {
+      // We are the maker — find our order(s) in makerOrders
+      const ourMakerFills = event.makerOrders.filter(
+        (mo) => this.knownOrderIds.has(mo.orderId)
+      );
+
+      for (const makerFill of ourMakerFills) {
+        const fillSize = Number(makerFill.matchedAmount);
+        const fillPrice = Number(makerFill.price);
+        const fillAssetId = makerFill.assetId || event.assetId;
+        const fillSide = makerFill.side;
+
+        this.updatePosition(fillAssetId, fillSide, fillSize, fillPrice, isAlreadyConfirmed);
+        affectedAssets.push(fillAssetId);
+
+        // Reduce our maker order's remaining size
+        const order = this.openOrders.get(makerFill.orderId);
+        if (order) {
+          order.remainingSize = Math.max(0, order.remainingSize - fillSize);
+          if (order.remainingSize < 0.01) {
+            this.openOrders.delete(makerFill.orderId);
+          }
+        }
+      }
+
+      // If traderSide is MAKER but no makerOrders matched our known IDs,
+      // this trade doesn't involve us — skip it
+    }
+
+    // Track assets awaiting on-chain settlement
+    if (!isAlreadyConfirmed && affectedAssets.length > 0) {
+      this.pendingSettlement.set(event.id, affectedAssets);
+    }
+  }
+
+  /** Update a position with a fill. */
+  private updatePosition(
+    assetId: string,
+    side: import("../types.ts").Side,
+    fillSize: number,
+    fillPrice: number,
+    settled: boolean
+  ): void {
+    let pos = this.positions.get(assetId);
+    if (!pos) {
+      pos = {
+        assetId,
+        side,
+        size: 0,
+        avgEntryPrice: 0,
+        realizedPnl: 0,
+        settled,
+      };
+      this.positions.set(assetId, pos);
+    }
+    // If this fill is already confirmed, mark position settled
+    if (settled) pos.settled = true;
+
+    if (pos.size === 0) {
+      pos.side = side;
+      pos.size = fillSize;
+      pos.avgEntryPrice = fillPrice;
+    } else if (pos.side === side) {
+      const totalSize = pos.size + fillSize;
+      pos.avgEntryPrice =
+        (pos.avgEntryPrice * pos.size + fillPrice * fillSize) / totalSize;
+      pos.size = totalSize;
+    } else {
+      const pnlPerUnit =
+        pos.side === "BUY"
+          ? fillPrice - pos.avgEntryPrice
+          : pos.avgEntryPrice - fillPrice;
+
+      const closedSize = Math.min(pos.size, fillSize);
+      pos.realizedPnl += pnlPerUnit * closedSize;
+      pos.size -= closedSize;
+
+      if (pos.size < 0) {
+        const remainingFill = fillSize - closedSize;
+        pos.side = side;
+        pos.avgEntryPrice = fillPrice;
+        pos.size = remainingFill;
+      } else if (pos.size === 0) {
+        pos.avgEntryPrice = 0;
+      }
+    }
+  }
+
+  /** Apply an order event (placement confirmation, update, cancellation). */
+  applyOrderEvent(event: UserOrderEvent): void {
+    const { id, orderEventType, originalSize, sizeMatched } = event;
+
+    // Only process events for orders we placed — the user channel broadcasts
+    // order events for ALL orders on subscribed markets, not just ours.
+    if (!this.knownOrderIds.has(id)) return;
+
+    const parsedOriginal = Number(originalSize);
+    const parsedMatched = Number(sizeMatched);
+
+    switch (orderEventType) {
+      case "PLACEMENT": {
+        // Update existing entry with server-confirmed remaining size
+        const existing = this.openOrders.get(id);
+        if (existing) {
+          existing.remainingSize = parsedOriginal - parsedMatched;
+        }
+        break;
+      }
+
+      case "UPDATE": {
+        const existing = this.openOrders.get(id);
+        if (existing) {
+          existing.remainingSize = existing.originalSize - parsedMatched;
+          if (existing.remainingSize <= 0) {
+            this.openOrders.delete(id);
+          }
+        }
+        break;
+      }
+
+      case "CANCELLATION": {
+        this.openOrders.delete(id);
+        break;
+      }
+    }
+  }
+
+  // ── Public read API ──────────────────────────────────────────────────────
+
+  /** Get current positions (non-zero size only). */
+  getPositions(): Position[] {
+    return Array.from(this.positions.values()).filter((p) => p.size !== 0);
+  }
+
+  /** Get open orders. */
+  getOpenOrders(): OpenOrder[] {
+    return Array.from(this.openOrders.values());
+  }
+
+  /** Get a snapshot of both. */
+  snapshot(): { positions: Position[]; openOrders: OpenOrder[] } {
+    return {
+      positions: this.getPositions(),
+      openOrders: this.getOpenOrders(),
+    };
+  }
+
+  /** Check if an order ID belongs to us. */
+  isOurOrder(orderId: string): boolean {
+    return this.knownOrderIds.has(orderId);
+  }
+
+  /** Reset all state (on market rotation or startup). */
+  reset(): void {
+    this.positions.clear();
+    this.openOrders.clear();
+    this.knownOrderIds.clear();
+    this.processedTradeIds.clear();
+    this.pendingSettlement.clear();
+  }
+}

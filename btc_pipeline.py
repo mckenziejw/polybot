@@ -38,7 +38,7 @@ OUT_DIR  = Path("./data/btc_quotes")
 OUT_FILE = OUT_DIR / "btcusdt_quotes.parquet"
 
 FROM_DATE = "2025-10-01"
-TO_DATE   = "2026-02-25"  # exclusive
+TO_DATE   = "2026-03-09"  # exclusive
 
 # Derived feature windows (in seconds, applied to 1s resampled data)
 VOL_WINDOWS    = [30, 60, 300]   # rolling realized volatility lookbacks

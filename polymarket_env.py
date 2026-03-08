@@ -158,7 +158,7 @@ MAX_BUY_PRICE      = 0.90    # don't buy tokens above this price (near-certain w
 # STEP_REWARD_ALPHA removed — mark-to-market reward needs no scaling
 
 N_BOOK_LEVELS      = 5
-MARKET_DURATION_MS = 900_000  # 5 minutes in milliseconds
+MARKET_DURATION_MS = 900_000  # 15 minutes in milliseconds
 RESAMPLE_MS        = 100       # 100ms bars → 3,000 steps/episode
 
 # Action indices

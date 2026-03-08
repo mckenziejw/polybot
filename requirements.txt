@@ -11,3 +11,10 @@ tensorboard
 tqdm
 rich
 setuptools==81.0.0
+torch
+numpy
+pandas
+py-clob-client
+eth_account
+stable-baselines3
+sb3-contrib

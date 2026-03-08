@@ -1,224 +1,398 @@
 # polybot
 
-A data collection, analysis, and (eventually) RL trading framework for Polymarket's BTC Up/Down binary prediction markets.
+RL trading framework for Polymarket's BTC Up/Down binary prediction markets. Covers the full pipeline: historical data collection, preprocessing, PPO+LSTM training, and live execution.
 
 ## Project Status
 
-**Current phase: Data collection + edge analysis**
+**Current phase: Live execution engine built, testing in progress**
 
-The project has moved through several phases:
-
-1. ~~Momentum strategy~~ — falsified. Buying momentum in these markets loses money.
-2. **Calibration analysis** — complete. The market is broadly efficient in aggregate across price buckets, time windows, and BTC volatility regimes. No exploitable edge found in aggregate statistics.
-3. **Oracle lag analysis** — in progress. Awaiting Polymarket's Chainlink Data Streams API key to measure resolution price accuracy precisely.
-4. **RL agent** — planned. Target architecture is PPO with invalid action masking (MaskablePPO), trained on accumulated episode history once sufficient data is collected.
-
----
+1. ~~Momentum strategy~~ — falsified. Buying momentum loses money.
+2. **Calibration analysis** — complete. Market is broadly efficient in aggregate; no exploitable edge in price buckets, time windows, or volatility regimes.
+3. **RL training** — operational. PPO+LSTM agent trained on 15-minute markets via CleanRL-style pure PyTorch.
+4. **Live execution** — built (TypeScript/Bun). Pluggable strategy system with dual data source support. 253 tests passing (215 unit + 38 integration).
 
 ## Market Structure
 
-Polymarket runs 5-minute BTC Up/Down binary markets continuously. Each market has two tokens:
+Polymarket runs continuous BTC Up/Down binary markets. Each market has two tokens:
 
-- **Yes (Up)** — pays $1 if BTC price is higher at close than at open
-- **No (Down)** — pays $1 if BTC price is lower or unchanged
+- **Yes (Up)** — pays $1 if BTC is higher at close than at open
+- **No (Down)** — pays $1 if BTC is lower or unchanged
 
-Tokens trade on Polymarket's CLOB between $0.00 and $1.00. Resolution is determined by Chainlink's BTC/USD price feed on Polygon (0.1% deviation threshold, ~32 second average update interval).
+Tokens trade on Polymarket's CLOB between $0.00 and $1.00. Resolution uses Chainlink's BTC/USD price feed on Polygon.
 
-These markets have structural properties that make them distinct from standard continuous financial markets:
-- Hard episode boundaries — each 5-minute market is fully isolated
-- Known termination time — time-to-close is always known precisely
+Key structural properties:
+- Hard episode boundaries (each market is fully isolated)
+- Known termination time
 - Prices are probability estimates, not asset values
-- Dual-token sum constraint (Yes + No ≈ 1 minus platform take)
+- Dual-token sum constraint (Yes + No ~ 1 minus platform take)
 - Liquidity collapses in the final ~10 seconds before close
-
----
 
 ## Repository Structure
 
 ```
 polybot/
-├── ingest/
+├── execution/                   # Live trading engine (TypeScript/Bun)
+│   ├── src/
+│   │   ├── index.ts             #   Orchestrator — wires all components
+│   │   ├── config.ts            #   Config loader (snake_case → camelCase)
+│   │   ├── types.ts             #   All shared interfaces
+│   │   ├── shutdown.ts          #   Graceful shutdown handler
+│   │   ├── data/
+│   │   │   ├── ws-market-data.ts    # Direct Polymarket WS connection
+│   │   │   ├── redis-market-data.ts # Redis Streams consumer
+│   │   │   ├── market-data-source.ts# Interface + factory
+│   │   │   ├── orderbook.ts     #   L2 book (snapshot + incremental)
+│   │   │   ├── resampler.ts     #   Raw ticks → fixed-interval bars
+│   │   │   ├── indicators.ts    #   Rolling MA, EMA, vol, RSI
+│   │   │   ├── proto.ts         #   Protobuf decode helper
+│   │   │   ├── external-feed.ts #   External data feed interface
+│   │   │   └── binance-feed.ts  #   Binance BTC/USDT bookTicker
+│   │   ├── orders/
+│   │   │   ├── order-manager.ts #   CLOB client wrapper (place/cancel)
+│   │   │   └── nonce-cancel.ts  #   On-chain incrementNonce() via viem
+│   │   ├── positions/
+│   │   │   ├── position-store.ts#   In-memory position + order tracking
+│   │   │   └── user-channel.ts  #   WS user channel (fills/cancels)
+│   │   ├── strategy/
+│   │   │   ├── strategy.ts      #   Strategy interface + registry
+│   │   │   ├── market-maker.ts  #   Two-sided market maker
+│   │   │   └── signal-receiver.ts#  RL signal adapter stub
+│   │   ├── rotation/
+│   │   │   └── market-rotation.ts#  Gamma API polling
+│   │   └── logging/
+│   │       └── csv-logger.ts    #   CSV writers (orders, fills, PnL)
+│   └── test/                    #   Unit + integration tests (bun:test)
+│       ├── orderbook.test.ts
+│       ├── resampler.test.ts
+│       ├── indicators.test.ts
+│       ├── position-store.test.ts
+│       ├── csv-logger.test.ts
+│       ├── config.test.ts
+│       ├── ws-market-data.test.ts
+│       ├── user-channel.test.ts
+│       ├── market-rotation.test.ts
+│       ├── strategy.test.ts
+│       └── integration/
+│           ├── orderbook-replay.test.ts  # Replay parquet data, verify book reconstruction
+│           ├── resampler-parity.test.ts  # Compare TS vs Python resampler output
+│           └── schema-validation.test.ts # Cross-source schema checks
+├── ingest/                      # Docker service: WebSocket → Redis
 │   └── src/
-│       └── market_client.py     # WebSocket client for live orderbook data
-├── bot/
-│   ├── engine.py                # Trading engine (order execution, position mgmt)
-│   └── notifications.py        # Notification service (console, extensible to webhooks)
+│       ├── main.py
+│       ├── market_client.py     #   Polymarket WS client + market rotation
+│       └── redis_publisher.py   #   Redis Streams publisher (protobuf)
+├── persistence/                 # Docker service: Redis → Parquet
+│   └── src/
+│       ├── main.py
+│       ├── consumer.py          #   Redis Streams consumer
+│       └── writer.py            #   Parquet writer (book + trade schemas)
 ├── shared/
-│   ├── polymarket_pb2.py        # Protobuf definitions for WebSocket messages
-│   └── polymarket.proto         # Protobuf schema
-├── persistence/                 # Storage utilities
-├── notebooks/                   # Exploratory analysis notebooks
-├── market_analysis.py           # Core analysis pipeline (MarketLoader, ResolutionStore, CalibrationAnalyser)
-├── btc_klines.py                # Binance 1-minute OHLCV fetcher and feature engineering
-├── mispricing.py                # Calibration and edge analysis scripts
-├── chainlink_oracle.py          # Chainlink BTC/USD round fetcher (Polygon, public RPC)
-├── docker-compose.yml           # Container config for live ingest
-├── config.example.json          # Credentials template (copy to config.json)
-├── requirements.txt
-└── .gitignore
+│   └── polymarket_pb2.py        # Generated protobuf bindings
+├── polymarket_env.py            # Gymnasium RL environment (Discrete(6), maskable)
+├── train_cleanrl.py             # PPO+LSTM training (CleanRL style, pure PyTorch)
+├── train.py                     # SB3-based training (WIP alternative)
+├── replay_cleanrl.py            # Model evaluation / replay
+├── replay.py                    # Replay (WIP alternative)
+├── ppo_lstm.py                  # PPO+LSTM network definition (WIP)
+├── preprocess_markets.py        # Resample raw data → 100ms bars
+├── telonex_pipeline.py          # Download + normalize Telonex historical data
+├── btc_pipeline.py              # Download + normalize Binance BTC quotes
+├── market_analysis.py           # MarketLoader, ResolutionStore, CalibrationAnalyser
+├── chainlink_oracle.py          # Chainlink BTC/USD round fetcher (Polygon RPC)
+├── settlement_latency.py        # CLOB match → on-chain settlement gap analysis
+├── price_move_windows.py        # Price movement within 3-6s windows
+├── batch_cadence.py             # Trade batch timing analysis
+├── window_summariser.py         # Analysis helper
+├── resolution_fetcher.py        # Standalone resolution fetch utility
+├── mispricing.py                # Calibration / edge analysis
+├── docker-compose.yml           # Redis + ingest + persistence services
+├── config.example.json          # Credentials template
+├── polymarket.proto             # Protobuf schema
+├── POLYMARKET_ARCHITECTURE.md   # Polymarket technical reference
+└── requirements.txt
 ```
 
----
+## Architecture
 
-## Data Infrastructure
+### Data Flow (Training)
 
-### Live Ingest
+```
+Telonex API → telonex_pipeline.py → datasets/telonex_15m_raw/
+Binance API → btc_pipeline.py     → datasets/btcusdt_quotes.parquet
+                    ↓
+          preprocess_markets.py → data/telonex_15m_100ms/ (100ms resampled)
+                    ↓
+          polymarket_env.py (Gymnasium env, 63-dim obs, Discrete(6) actions)
+                    ↓
+          train_cleanrl.py (PPO+LSTM, 8 parallel envs) → models/checkpoints/
+```
 
-`ingest/src/market_client.py` connects to Polymarket's WebSocket CLOB feed and writes orderbook snapshots to Parquet. The ingest has been running continuously since February 17, 2026.
+### Data Flow (Live Ingest)
 
-Data is stored per-market as Parquet files in `data/book_snapshots/`, named by market slug (e.g. `btc-updown-5m-1771346400.parquet`). The slug timestamp is market **open** time in Unix seconds.
+```
+Polymarket WS → ingest/ → Redis Streams (protobuf) → persistence/ → data/book_snapshots/
+```
 
-**Schema** (book snapshots):
+### Data Flow (Live Execution)
 
-| Field | Type | Description |
-|---|---|---|
-| `exchange_timestamp` | int64 | Exchange timestamp (milliseconds) |
-| `slug` | string | Market slug |
-| `token_id` | string | Yes or No token ID |
-| `token_label` | string | "Yes" or "No" |
-| `bid_price_1..10` | float | Best bid → 10th best bid |
-| `ask_price_1..10` | float | Best ask → 10th best ask |
-| `bid_size_1..10` | float | Size at each bid level |
-| `ask_size_1..10` | float | Size at each ask level |
-| `mid_price` | float | (best_bid + best_ask) / 2 |
-| `spread` | float | best_ask - best_bid |
-| `book_imbalance` | float | (bid_size_1 - ask_size_1) / (bid_size_1 + ask_size_1) |
+```
+MarketDataSource (WS or Redis)
+    │
+    ├── OrderBook (snapshot + incremental updates)
+    ├── Resampler → Indicators (MA, EMA, vol, RSI)
+    └── Strategy.evaluate(MarketState) → TradeAction[]
+                                            │
+                                            └── OrderManager (CLOB API)
 
-### Historical Backfill
+UserChannel (ws/user) → PositionStore → CsvLogger
+Binance WS → ExternalData → MarketState.externalData
+```
 
-Historical data (February 12–17, 2026 — the gap before live ingest began) is being sourced from [Telonex](https://telonex.io), which provides daily Parquet files for Polymarket orderbook snapshots, trades, and on-chain fills going back to the market's launch date.
+## Execution Engine
 
-Telonex's `book_snapshot_25` schema is nearly identical to the live ingest schema with two differences:
-- Levels are zero-indexed (`bid_price_0` = best bid) vs. one-indexed in live data
-- Timestamps are in microseconds vs. milliseconds
+The `execution/` directory is a standalone TypeScript/Bun application for live trading on Polymarket.
 
-The backfill pipeline normalises these differences on ingest.
+### Key Features
 
-### Chainlink Oracle Data
+- **Pluggable strategies**: Implement the `Strategy` interface for custom trading logic. Built-in: `market-maker` (two-sided), `signal-receiver` (RL adapter)
+- **Dual data source**: Direct WebSocket to Polymarket CLOB, or Redis Streams consumer (reuses ingest pipeline)
+- **Incremental orderbook**: Full L2 book maintained from snapshots + price_change events (10-level depth from live, 5-level from Telonex)
+- **Resampled bars**: 100ms fixed-interval bars with forward-fill, staleness tracking, and rolling indicators (parity-tested against Python `preprocess_markets.py`)
+- **External feeds**: Binance BTC/USDT bookTicker (extensible to other feeds via `ExternalFeed` interface)
+- **Two cancellation paths**: CLOB API soft cancel + on-chain `incrementNonce()` nuclear option (via viem)
+- **Graceful shutdown**: Cancels all orders on SIGINT/SIGTERM, falls back to nonce invalidation if soft cancel fails
+- **CSV logging**: Orders, fills, and PnL logged for offline analysis
+- **Market rotation**: Gamma API polling detects new 5-minute market windows (WebSocket mode) or Redis control stream events (Redis mode)
 
-`chainlink_oracle.py` fetches historical Chainlink BTC/USD oracle rounds from Polygon via public RPC. Covers ~18,334 rounds across the market history window (~32 second average update interval). Used to measure oracle lag at market close — the time elapsed between the last oracle update and resolution.
+### Strategy Interface
 
-The Polygon feed address is `0xc907E116054Ad103354f2D350FD2514433D57F6F` (BTC/USD, 0.1% deviation threshold, phase 3 as of February 2026).
+Strategies are pure functions of state → actions. They don't execute orders directly; the orchestrator dispatches actions.
 
----
+```typescript
+interface Strategy {
+  readonly id: string;
+  readonly dataMode: "tick" | "resampled";
+  onMarketOpen(state: MarketState): Promise<void>;
+  evaluate(state: MarketState): Promise<TradeAction[]>;
+  onMarketClose(state: MarketState): Promise<TradeAction[]>;
+}
+```
 
-## Analysis Pipeline
+**`dataMode`** controls how the strategy receives data:
+- `"tick"` — called on every raw market data event (book snapshot / price change). Lowest latency.
+- `"resampled"` — called only when a new resampled bar is emitted (every 100ms by default). Gets `bars` and `indicators` in `MarketState`.
 
-### `market_analysis.py`
+**Built-in strategies:**
+- **`market-maker`** — Two-sided market maker. Posts simultaneous YES buy and NO buy to earn the spread. Cancels stale one-sided fills after a configurable window. Tick mode.
+- **`signal-receiver`** — Bridge for external signals (RL model, rules engine). External code pushes actions via `pushSignal()`, which are drained on the next `evaluate()` call. Resampled mode.
 
-Three-component pipeline:
+Register custom strategies:
+```typescript
+import { registerStrategy } from "./strategy/strategy.ts";
+registerStrategy("my-strategy", () => new MyStrategy());
+```
 
-**`MarketLoader`** — loads book snapshot Parquets with per-slug caching.
+### MarketState
 
-**`ResolutionStore`** — fetches and caches market outcomes from the Gamma API. Maps token_id → 1.0 (win) or 0.0 (loss).
+Every `evaluate()` call receives a complete snapshot:
 
-**`CalibrationAnalyser`** — builds calibration observations and computes calibration curves. Streams observations to Parquet in batches to avoid OOM on the full 9.5M+ row dataset.
+```typescript
+interface MarketState {
+  market: MarketInfo;                    // slug, conditionId, token IDs, endTime
+  books: Record<string, OrderBookState>; // keyed by assetId (up + down tokens)
+  positions: Position[];
+  openOrders: OpenOrder[];
+  timeRemainingMs: number;
+  timestamp: number;
+  bars?: ResampledBar[];                 // present when dataMode = "resampled"
+  indicators?: IndicatorSnapshot;        // MA, EMA, vol, RSI
+  externalData?: Record<string, ExternalDataPoint>;  // e.g. "binance-btcusdt"
+}
+```
 
-Core method: `build_observations()` joins book snapshots with resolution outcomes and computes `seconds_before_close`, `won`, and `mid_price` for each snapshot. Data cleaning filters: `spread > 0` and `seconds_before_close > 10` (removes negative-spread artifacts concentrated in the final 10 seconds and at 0.35–0.50 price range).
+### TradeAction
 
-### `btc_klines.py`
+```typescript
+type TradeAction =
+  | { type: "PLACE_ORDER"; assetId: string; side: Side; price: number; size: number; orderType: OrderType }
+  | { type: "CANCEL_ORDER"; orderId: string }
+  | { type: "CANCEL_ALL" }
+  | { type: "NONCE_INVALIDATE" }
+  | { type: "NOOP" };
+```
 
-Fetches 1-minute OHLCV data from Binance public REST API (no auth required) and caches to Parquet. Computes derived features: returns at 1/5/15/30 minute horizons, realised volatility at 3 timeframes, volume ratio, high-low range.
+### Running
 
-Two join modes:
-- `at='market_open'` — computes BTC features once per market, broadcasts to all rows (fast)
-- `at='snapshot'` — per-row feature lookup (slower, more granular)
+```bash
+cd execution
+bun install
+bun run start
+```
 
----
+### Testing
 
-## Key Findings
+```bash
+cd execution
+bun test              # all tests (253 tests, ~5s)
+bun test:unit         # unit tests only (215 tests)
+bun test:integration  # integration tests only (38 tests, requires data/ parquets)
+```
 
-### Calibration Analysis (9.78M observations, 1,394 markets)
+Integration tests replay captured Parquet data (via pyarrow subprocess) and validate:
+- **orderbook-replay** — L2 book reconstruction from captured snapshots, verifies top-5 levels and derived fields
+- **resampler-parity** — bar-for-bar comparison of TS resampler output vs Python `preprocess_markets.py` output (compares raw bid/ask level prices)
+- **schema-validation** — validates schemas across all data sources (live 10-level, Telonex 5-level, raw Telonex 0-indexed string prices), documents differences
 
-- **Tail contracts (< 0.35) are systematically overpriced** across all time windows and volatility regimes. Negative edge of -0.004 to -0.017 depending on bucket. Buying cheap contracts loses money.
-- **High-probability contracts (> 0.65) show mild positive edge in aggregate**, but this disaggregates into noise when split into 30-second sub-windows.
-- **The market is broadly efficient** — no exploitable aggregate edge found in price buckets, time windows, or BTC volatility quartiles.
-- **Negative spread artifact**: 0.82% of snapshots had negative spreads (bid > ask), concentrated in the final 10 seconds and 0.35–0.50 price bucket. These are data quality artifacts, not real signals. Filtered in all analysis.
+### Configuration
 
-### Volatility Regime Analysis
-
-Markets were segmented into quartiles by 5-minute realised BTC volatility at market open (vol_5m). All four regimes show the same qualitative pattern: tails overpriced, high-probability contracts underpriced. No regime-conditional edge found.
-
-### Implication
-
-The sophisticated traders observed in the orderbook are not exploiting aggregate mispricings visible to a calibration curve. Their edge is either:
-1. Conditional on information not yet available (precise oracle resolution prices)
-2. Complex conditional patterns requiring a richer model than aggregate statistics
-
----
-
-## Planned: RL Trading Agent
-
-### Architecture
-
-- **Framework**: Stable-Baselines3 + sb3-contrib `MaskablePPO`
-- **Environment**: Custom `gymnasium.Env` with invalid action masking
-- **Action space**: Discrete — Hold, Buy Yes/No (small/large), Sell Yes/No (partial/full). Invalid actions masked based on current capital and positions.
-- **State space**: BTC features (returns, volatility, volume), contract features (Yes/No prices, spread, book imbalance, current position, unrealized P&L), time-to-close
-- **Reward**: Hybrid — small step penalty for non-hold actions (models spread cost), light unrealized P&L shaping, terminal realized P&L
-
-### Training Strategy
-
-Episodes are fully self-contained (no state carries across market boundaries), enabling episode-level shuffling during training without breaking temporal dependencies. This is a structural advantage over continuous-market RL approaches.
-
-Train/validation split is temporal: train on earliest markets, validate on most recent. Episode order within the training pool is shuffled each epoch.
-
-Validation uses early stopping on held-out episode performance, with checkpointing.
-
----
-
-## Configuration
-
-Copy `config.example.json` to `config.json` and fill in your Polymarket credentials:
+Set the `execution` section in `config.json`:
 
 ```json
 {
-  "polymarket": {
-    "host": "https://clob.polymarket.com",
-    "private_key": "0x...",
-    "proxy_wallet": "0x...",
-    "api_key": "...",
-    "api_secret": "...",
-    "api_passphrase": "...",
-    "chain_id": 137
+  "execution": {
+    "data_source": "websocket",
+    "strategy_id": "market-maker",
+    "rpc_url": "https://polygon-rpc.com",
+    "redis_url": "redis://localhost:6379",
+    "metrics_dir": "data/metrics",
+    "resample_interval_ms": 100,
+    "external_feeds": ["binance-btcusdt"]
   }
 }
 ```
 
----
+| Field | Default | Description |
+|-------|---------|-------------|
+| `data_source` | `"websocket"` | `"websocket"` (direct WS) or `"redis"` (Redis Streams consumer) |
+| `strategy_id` | `"market-maker"` | Strategy to run (must be registered in strategy registry) |
+| `rpc_url` | `"https://polygon-rpc.com"` | Polygon RPC for on-chain nonce invalidation |
+| `redis_url` | `"redis://localhost:6379"` | Redis URL (only used when `data_source = "redis"`) |
+| `metrics_dir` | `"data/metrics"` | Directory for CSV logs (orders, fills, PnL) |
+| `resample_interval_ms` | `100` | Bar interval for resampled-mode strategies |
+| `external_feeds` | `[]` | External data feeds to connect (e.g. `"binance-btcusdt"`) |
 
-## Dependencies
+Market maker parameters in the `market_maker` section:
 
-```
-pip install -r requirements.txt
-```
+| Field | Default | Description |
+|-------|---------|-------------|
+| `order_size` | `5.0` | USDC size per order |
+| `cancel_window_s` | `6.0` | Seconds before cancelling a stale one-sided fill |
+| `min_remaining_s` | `30.0` | Stop trading when less than this many seconds remain |
+| `max_positions` | `1` | Maximum concurrent positions |
+| `price_offset` | `0.0` | Offset from best bid/ask for order placement |
 
-Key dependencies:
-- `pyarrow` — Parquet I/O
-- `pandas` — data manipulation
-- `web3` — Chainlink oracle RPC calls
-- `protobuf`, `websocket-client` — live WebSocket ingest
-- `py-clob-client` — Polymarket CLOB order execution
-- `stable-baselines3`, `sb3-contrib` — RL training (planned)
-- `gymnasium` — RL environment interface (planned)
-- `telonex` — historical data backfill
+### Dependencies
 
----
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `@polymarket/clob-client` | ^4 | CLOB API (place/cancel orders, EIP-712 auth) |
+| `viem` | ^2 | On-chain `incrementNonce()` for nuclear order cancellation |
+| `ioredis` | ^5 | Redis Streams consumer (Redis data source mode) |
+| `protobufjs` | ^7 | Decode protobuf-encoded market events from Redis |
 
-## Running the Ingest
+## RL Environment
+
+`polymarket_env.py` implements a Gymnasium environment for binary prediction markets:
+
+- **Observation space** (63 dims): 46 book features (Yes+No, 5 levels), 6 position features, 1 time remaining, 8 BTC features, 2 staleness features
+- **Action space**: Discrete(6) — Hold, Buy Yes Small/Large, Buy No Small/Large, Sell. Invalid actions masked based on capital and positions.
+- **Reward**: Mark-to-market portfolio delta per step; binary settlement at terminal step
+- **Episodes**: Each 15-minute market is one episode, resampled to 100ms steps
+
+## Setup
+
+### Prerequisites
+
+- Python 3.12+
+- [Bun](https://bun.sh) (for the execution engine)
+- Docker & Docker Compose (for live ingest)
+- Redis (runs via Docker)
+
+### Installation
 
 ```bash
-# Start live orderbook ingest (Docker)
-docker-compose up -d
+# Python (analysis + training)
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-# Or directly
-python ingest/src/market_client.py
+# Execution engine
+cd execution
+bun install
 ```
 
----
+### Configuration
 
-## Notes
+Copy `config.example.json` to `config.json` and fill in your credentials:
 
-- `data/` is gitignored — Parquet files are not committed to the repo
-- `config.json` is gitignored — never commit credentials
-- The market launched February 12, 2026. Complete history is available via Telonex backfill + live ingest from February 17 onward.
+```bash
+cp config.example.json config.json
+```
+
+Required keys:
+- `polymarket.private_key` — wallet private key
+- `polymarket.api_key/secret/passphrase` — CLOB API credentials (or leave blank to auto-derive)
+- `polymarket.proxy_wallet` — proxy wallet address
+- `telonex.api_key` — for historical data downloads
+- `etherscan.api_key` — for Chainlink oracle analysis
+
+## Usage
+
+### Live Ingest
+
+```bash
+docker-compose up -d
+```
+
+### Download Historical Data
+
+```bash
+python telonex_pipeline.py    # Polymarket book snapshots
+python btc_pipeline.py        # Binance BTC quotes
+```
+
+### Preprocess for Training
+
+```bash
+python preprocess_markets.py
+```
+
+### Train
+
+```bash
+python train_cleanrl.py
+```
+
+Training logs are written to `runs/` for TensorBoard:
+
+```bash
+tensorboard --logdir runs
+```
+
+### Live Trading
+
+```bash
+cd execution
+bun run start
+```
+
+## Known Issues
+
+- **Token label mismatch**: Live ingest uses `"Yes"/"No"`, Telonex data uses `"Up"/"Down"`. The RL env filters on `"Up"/"Down"`, so it won't work directly with live data without normalization.
+- **Mid price convention**: Telonex computes `mid = ask/2` when the bid side is empty; the TS OrderBook returns `mid = 0`. Integration tests compare raw level data to avoid false mismatches.
+
+## Key Findings (Calibration Analysis)
+
+Analysis of 9.78M observations across 1,394 markets:
+
+- Tail contracts (< 0.35) are systematically overpriced. Buying cheap contracts loses money.
+- High-probability contracts (> 0.65) show mild positive edge, but disaggregates into noise.
+- The market is broadly efficient — no exploitable aggregate edge found.
+- All volatility regimes show the same pattern.
+
+## Data
+
+- `data/` is gitignored (Parquet files not committed)
+- `config.json` is gitignored (never commit credentials)
+- `models/` contains trained checkpoints
+- `datasets/` contains raw downloaded data
