@@ -68,10 +68,17 @@ BOOK_SCHEMA = pa.schema([
 # Download
 # ---------------------------------------------------------------------------
 
+LOCAL_INDEX_CACHE = Path("./datasets/telonex_markets_index.parquet")
+
 def load_markets(asset: str, timeframe: str) -> pd.DataFrame:
     slug_pattern = f"{asset}-updown-{timeframe}"
     log.info(f"Loading markets matching '{slug_pattern}'...")
-    df = pd.read_parquet(MARKETS_URL)
+    if LOCAL_INDEX_CACHE.exists():
+        log.info(f"Using cached market index: {LOCAL_INDEX_CACHE}")
+        df = pd.read_parquet(LOCAL_INDEX_CACHE)
+    else:
+        log.info("Fetching market index from Telonex API (may be slow)...")
+        df = pd.read_parquet(MARKETS_URL)
     matched = df[
         df["slug"].str.contains(slug_pattern, na=False) &
         (df["book_snapshot_5_from"] != "")
@@ -190,7 +197,10 @@ def normalize_raw_file(path: Path, market_open_ms: int, market_close_ms: int) ->
 def build_asset_slug_map(asset: str, timeframe: str) -> dict[str, str]:
     slug_pattern = f"{asset}-updown-{timeframe}"
     log.info(f"Building asset_id -> slug lookup for '{slug_pattern}'...")
-    df = pd.read_parquet(MARKETS_URL)
+    if LOCAL_INDEX_CACHE.exists():
+        df = pd.read_parquet(LOCAL_INDEX_CACHE)
+    else:
+        df = pd.read_parquet(MARKETS_URL)
     matched = df[df["slug"].str.contains(slug_pattern, na=False)]
     mapping = {}
     for _, row in matched.iterrows():

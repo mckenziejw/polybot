@@ -282,6 +282,7 @@ export interface MarketMakerConfig {
 }
 
 export interface ExecutionConfig {
+  asset: string;
   dataSource: "redis" | "websocket";
   redisUrl: string;
   strategyId: string;
@@ -290,6 +291,7 @@ export interface ExecutionConfig {
   resampleIntervalMs: number;
   externalFeeds: string[];
   betDollars: number;
+  modelServerUrl: string;
 }
 
 export interface AppConfig {

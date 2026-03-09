@@ -24,7 +24,7 @@ interface RawConfig {
  */
 export function loadConfig(configPath?: string): AppConfig {
   const resolvedPath =
-    configPath || path.resolve(import.meta.dir, "../../config.json");
+    configPath || process.env.CONFIG || path.resolve(import.meta.dir, "../../config.json");
 
   let rawConfig: RawConfig;
   try {
@@ -70,6 +70,7 @@ export function loadConfig(configPath?: string): AppConfig {
   // Parse execution config with defaults
   const executionRaw = rawConfig.execution || {};
   const execution: ExecutionConfig = {
+    asset: String(executionRaw.asset ?? "btc"),
     dataSource: (String(executionRaw.dataSource ?? executionRaw.data_source ?? "websocket")) as "redis" | "websocket",
     redisUrl: String(executionRaw.redisUrl ?? executionRaw.redis_url ?? "redis://localhost:6379"),
     strategyId: String(executionRaw.strategyId ?? executionRaw.strategy_id ?? "market-maker"),
@@ -80,6 +81,7 @@ export function loadConfig(configPath?: string): AppConfig {
       : Array.isArray(executionRaw.external_feeds) ? executionRaw.external_feeds
       : []) as string[],
     betDollars: Number(executionRaw.betDollars ?? executionRaw.bet_dollars ?? 5),
+    modelServerUrl: String(executionRaw.modelServerUrl ?? executionRaw.model_server_url ?? "http://127.0.0.1:8000"),
   };
 
   return {

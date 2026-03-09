@@ -645,7 +645,7 @@ def build_dataset(
 
         del btc_df  # free memory
 
-    parquet_files = sorted(data_dir.glob("btc-updown-5m-*.parquet"))
+    parquet_files = sorted(data_dir.glob("*-updown-5m-*.parquet"))
     print(f"Found {len(parquet_files)} parquet files")
 
     if max_markets:
@@ -1063,12 +1063,15 @@ def main():
                         help="Skip BTC features (use all markets, not just BTC overlap)")
     parser.add_argument("--rebuild-cache", action="store_true",
                         help="Force rebuild feature cache (ignore existing)")
+    parser.add_argument("--cache-path", default=None,
+                        help="Feature cache path (default: data/xgb_features_v3.parquet)")
     args = parser.parse_args()
 
     if args.single_window:
         args.multi_window = False
 
     btc_path = None if args.no_btc else Path(args.btc_path)
+    cache_path = Path(args.cache_path) if args.cache_path else FEATURE_CACHE_PATH
 
     print("XGBoost Flexible Confidence Filter v3")
     print("=" * 50)
@@ -1085,6 +1088,7 @@ def main():
         multi_window=args.multi_window,
         btc_path=btc_path,
         max_markets=args.max_markets,
+        cache_path=cache_path,
         rebuild_cache=args.rebuild_cache,
     )
 

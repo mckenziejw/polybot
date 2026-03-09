@@ -90,6 +90,18 @@ describe("MarketRotation.generateSlug", () => {
     const expected = Math.floor(ts / FIVE_MINUTES_S) * FIVE_MINUTES_S;
     expect(MarketRotation.generateSlug(ts)).toBe(`btc-updown-5m-${expected}`);
   });
+
+  test("asset parameter changes slug prefix", () => {
+    const ts = 1_699_999_800;
+    expect(MarketRotation.generateSlug(ts, "eth")).toBe(`eth-updown-5m-${ts}`);
+    expect(MarketRotation.generateSlug(ts, "sol")).toBe(`sol-updown-5m-${ts}`);
+    expect(MarketRotation.generateSlug(ts, "xrp")).toBe(`xrp-updown-5m-${ts}`);
+  });
+
+  test("asset parameter defaults to btc", () => {
+    const ts = 1_699_999_800;
+    expect(MarketRotation.generateSlug(ts)).toBe(`btc-updown-5m-${ts}`);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -98,7 +110,7 @@ describe("MarketRotation.generateSlug", () => {
 
 describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetch)", () => {
   test("valid Gamma response returns correct MarketInfo", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse(gammaResponse());
@@ -116,7 +128,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("404 response returns null", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse("", 404);
@@ -127,7 +139,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("non-200/non-404 response throws", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse("Internal Server Error", 500);
@@ -137,7 +149,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("invalid JSON in clobTokenIds throws", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse(
@@ -149,7 +161,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("less than 2 token IDs throws", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse(
@@ -161,7 +173,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("less than 2 outcomes throws", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse(
@@ -173,7 +185,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("outcome ordering: 'Up' first → upTokenId = tokenIds[0]", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse(
@@ -190,7 +202,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("outcome ordering: 'Down' first → upTokenId = tokenIds[1]", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse(
@@ -207,7 +219,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("outcome matching is case-insensitive ('up' lowercase)", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request) => {
       return mockResponse(
@@ -225,7 +237,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("network failure (fetch throws) propagates as error", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
 
     globalThis.fetch = async (_url: string | URL | Request): Promise<Response> => {
       throw new Error("network unreachable");
@@ -236,7 +248,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
 
   test("custom gammaApiUrl is used for requests", async () => {
     const captured: string[] = [];
-    const rotation = new MarketRotation("https://custom-gamma.example.com");
+    const rotation = new MarketRotation("btc", "https://custom-gamma.example.com");
 
     globalThis.fetch = async (url: string | URL | Request) => {
       captured.push(typeof url === "string" ? url : url.toString());
@@ -250,7 +262,7 @@ describe("MarketRotation – parseMarketInfo via fetchCurrentMarket (mocked fetc
   });
 
   test("endDate is parsed into a Date object", async () => {
-    const rotation = new MarketRotation("https://gamma-api.polymarket.com");
+    const rotation = new MarketRotation("btc", "https://gamma-api.polymarket.com");
     const endDateStr = "2025-03-01T00:10:00Z";
 
     globalThis.fetch = async (_url: string | URL | Request) => {

@@ -76,19 +76,17 @@ interface PredictResponse {
 
 // --- Constants ---
 
-const MODEL_SERVER_URL = "http://127.0.0.1:8000";
 const MODEL_TIMEOUT_MS = 5000; // 5s — model inference is not latency-critical
 const OBSERVATION_TIME_S = 120;
 const SNAPSHOT_INTERVAL_MS = 1000; // record one snapshot per second
 const MIN_TOKENS = 5; // Polymarket minimum order size
-const BTC_FEED_NAME = "binance-btcusdt";
 
 // How long before market end we need to place the order (buffer for fills)
 const MIN_REMAINING_MS = 150_000; // 2.5 minutes — need time for settlement
 
-// BTC lookback buffer: keep 1 hour of BTC prices across markets so the model
+// Spot price lookback buffer: keep 1 hour of prices across markets so the model
 // has data for btc_ret_3600s, btc_ret_900s, btc_vol_15m, etc.
-const BTC_BUFFER_MAX_AGE_MS = 3_700_000; // ~61 minutes (slight buffer)
+const SPOT_BUFFER_MAX_AGE_MS = 3_700_000; // ~61 minutes (slight buffer)
 
 type Phase =
   | "ACCUMULATING" // collecting snapshots during observation window
@@ -108,14 +106,18 @@ export class XgbConfidenceStrategy implements Strategy {
   private downSnapshots: BookSnapshot[] = [];
   private decisionMade = false;
   private betDollars: number;
+  private modelServerUrl: string;
+  private spotFeedName: string;
 
-  // Persistent across markets: BTC price ring buffer (1 hour rolling)
-  // NOT reset on market open — the model needs pre-market BTC history
-  private btcBuffer: BtcPricePoint[] = [];
-  private lastBtcTimestamp = 0;
+  // Persistent across markets: spot price ring buffer (1 hour rolling)
+  // NOT reset on market open — the model needs pre-market price history
+  private spotBuffer: BtcPricePoint[] = [];
+  private lastSpotTimestamp = 0;
 
-  constructor(betDollars = 20) {
+  constructor(betDollars = 20, modelServerUrl = "http://127.0.0.1:8000", spotFeedName = "binance-btcusdt") {
     this.betDollars = betDollars;
+    this.modelServerUrl = modelServerUrl;
+    this.spotFeedName = spotFeedName;
   }
 
   async onMarketOpen(state: MarketState): Promise<void> {
@@ -129,12 +131,12 @@ export class XgbConfidenceStrategy implements Strategy {
     this.decisionMade = false;
 
     // Prune BTC buffer: keep only last ~1 hour
-    this.pruneBtcBuffer();
+    this.pruneSpotBuffer();
 
     console.log(
       `[XgbConf] Market open: ${state.market.slug}, ` +
       `collecting snapshots for ${OBSERVATION_TIME_S}s ` +
-      `(btc buffer: ${this.btcBuffer.length} points)`
+      `(spot buffer: ${this.spotBuffer.length} points)`
     );
   }
 
@@ -147,7 +149,7 @@ export class XgbConfidenceStrategy implements Strategy {
     // --- Phase: SKIP or TRADED — do nothing ---
     if (this.phase === "SKIP" || this.phase === "TRADED") {
       // Still accumulate BTC data even when not trading, to maintain the buffer
-      this.recordBtcPrice(externalData);
+      this.recordSpotPrice(externalData);
       return [{ type: "NOOP" }];
     }
 
@@ -159,7 +161,7 @@ export class XgbConfidenceStrategy implements Strategy {
     // --- Phase: ACCUMULATING — collect snapshots ---
 
     // Always record BTC prices (persistent buffer across markets)
-    this.recordBtcPrice(externalData);
+    this.recordSpotPrice(externalData);
 
     // Record orderbook snapshots once per second
     if (now - this.lastSnapshotMs >= SNAPSHOT_INTERVAL_MS) {
@@ -207,37 +209,37 @@ export class XgbConfidenceStrategy implements Strategy {
   }
 
   async onMarketClose(state: MarketState): Promise<TradeAction[]> {
-    const snap = `up=${this.upSnapshots.length} down=${this.downSnapshots.length} btc=${this.btcBuffer.length}`;
+    const snap = `up=${this.upSnapshots.length} down=${this.downSnapshots.length} btc=${this.spotBuffer.length}`;
     console.log(`[XgbConf] Market close (phase=${this.phase}, ${snap})`);
     this.phase = "SKIP";
     // Cancel any open orders (safety net — shouldn't have any if holding to settlement)
     return [{ type: "CANCEL_ALL" }];
   }
 
-  // --- BTC price buffer management ---
+  // --- Spot price buffer management ---
 
-  private recordBtcPrice(externalData?: Record<string, ExternalDataPoint>): void {
+  private recordSpotPrice(externalData?: Record<string, ExternalDataPoint>): void {
     if (!externalData) return;
-    const btc = externalData[BTC_FEED_NAME];
-    if (!btc || btc.timestamp === this.lastBtcTimestamp) return;
+    const spot = externalData[this.spotFeedName];
+    if (!spot || spot.timestamp === this.lastSpotTimestamp) return;
 
-    this.lastBtcTimestamp = btc.timestamp;
-    this.btcBuffer.push({
-      timestamp_ms: btc.timestamp,
-      mid_price: btc.price,
-      spread: (btc.ask ?? btc.price) - (btc.bid ?? btc.price),
+    this.lastSpotTimestamp = spot.timestamp;
+    this.spotBuffer.push({
+      timestamp_ms: spot.timestamp,
+      mid_price: spot.price,
+      spread: (spot.ask ?? spot.price) - (spot.bid ?? spot.price),
     });
   }
 
-  private pruneBtcBuffer(): void {
-    const cutoff = Date.now() - BTC_BUFFER_MAX_AGE_MS;
+  private pruneSpotBuffer(): void {
+    const cutoff = Date.now() - SPOT_BUFFER_MAX_AGE_MS;
     // Find first index that's >= cutoff
     let pruneIdx = 0;
-    while (pruneIdx < this.btcBuffer.length && this.btcBuffer[pruneIdx]!.timestamp_ms < cutoff) {
+    while (pruneIdx < this.spotBuffer.length && this.spotBuffer[pruneIdx]!.timestamp_ms < cutoff) {
       pruneIdx++;
     }
     if (pruneIdx > 0) {
-      this.btcBuffer = this.btcBuffer.slice(pruneIdx);
+      this.spotBuffer = this.spotBuffer.slice(pruneIdx);
     }
   }
 
@@ -250,14 +252,14 @@ export class XgbConfidenceStrategy implements Strategy {
       up_snapshots: this.upSnapshots,
       down_snapshots: this.downSnapshots,
       // Send the full BTC buffer (includes pre-market history)
-      btc_prices: this.btcBuffer,
+      btc_prices: this.spotBuffer,
     };
 
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
 
-      const response = await fetch(`${MODEL_SERVER_URL}/predict`, {
+      const response = await fetch(`${this.modelServerUrl}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),
@@ -431,5 +433,11 @@ function bookToSnapshot(
 
 registerStrategy("xgb-confidence", () => {
   const config = loadConfig();
-  return new XgbConfidenceStrategy(config.execution.betDollars);
+  const asset = config.execution.asset;
+  const spotFeed = config.execution.externalFeeds.find(f => f.startsWith("binance-")) ?? `binance-${asset}usdt`;
+  return new XgbConfidenceStrategy(
+    config.execution.betDollars,
+    config.execution.modelServerUrl,
+    spotFeed,
+  );
 });

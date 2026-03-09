@@ -12,7 +12,14 @@ interface GammaMarketResponse {
 }
 
 export class MarketRotation {
-  constructor(private gammaApiUrl: string = "https://gamma-api.polymarket.com") {}
+  private asset: string;
+
+  constructor(
+    asset: string = "btc",
+    private gammaApiUrl: string = "https://gamma-api.polymarket.com",
+  ) {
+    this.asset = asset.toLowerCase();
+  }
 
   /** Fetch the currently active market. Returns null if no active market. */
   async fetchCurrentMarket(): Promise<MarketInfo | null> {
@@ -30,15 +37,15 @@ export class MarketRotation {
   }
 
   /** Generate the slug for a market at a given unix timestamp (seconds). */
-  static generateSlug(timestampS: number): string {
+  static generateSlug(timestampS: number, asset: string = "btc"): string {
     const aligned = Math.floor(timestampS / FIVE_MINUTES_S) * FIVE_MINUTES_S;
-    return `btc-updown-5m-${aligned}`;
+    return `${asset.toLowerCase()}-updown-5m-${aligned}`;
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────
 
   private async fetchByTimestamp(timestampS: number): Promise<MarketInfo | null> {
-    const slug = MarketRotation.generateSlug(timestampS);
+    const slug = MarketRotation.generateSlug(timestampS, this.asset);
     return this.fetchBySlug(slug);
   }
 

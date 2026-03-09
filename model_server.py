@@ -44,6 +44,7 @@ warnings.filterwarnings("ignore")
 
 MODEL_PATH = Path("data/xgb_model.json")
 META_PATH = Path("data/xgb_model_meta.json")
+SPOT_QUOTES_PATH = Path("data/btc_quotes/btcusdt_quotes.parquet")
 
 
 def train_production_model() -> tuple[xgb.Booster, list[str], float | None]:
@@ -106,16 +107,15 @@ def train_production_model() -> tuple[xgb.Booster, list[str], float | None]:
     # Vol threshold disabled in v3.2 — model handles low-vol regimes well
     vol_threshold = None
 
-    # BTC stats for z-score normalization — must come from training data
+    # Spot price stats for z-score normalization — must come from training data
     # to avoid distribution shift in live inference
-    btc_path = Path("data/btc_quotes/btcusdt_quotes.parquet")
     btc_mid_mean = 0.0
     btc_mid_std = 1.0
-    if btc_path.exists():
-        btc_df = pd.read_parquet(btc_path)
-        btc_mid_mean = float(btc_df["mid_price"].mean())
-        btc_mid_std = float(btc_df["mid_price"].std())
-        print(f"  BTC stats: mean={btc_mid_mean:.2f}, std={btc_mid_std:.2f}")
+    if SPOT_QUOTES_PATH.exists():
+        quotes_df = pd.read_parquet(SPOT_QUOTES_PATH)
+        btc_mid_mean = float(quotes_df["mid_price"].mean())
+        btc_mid_std = float(quotes_df["mid_price"].std())
+        print(f"  Spot stats: mean={btc_mid_mean:.2f}, std={btc_mid_std:.2f}")
 
     return model, feature_cols, vol_threshold, btc_mid_mean, btc_mid_std
 
@@ -433,22 +433,47 @@ def main():
     parser.add_argument(
         "--model-path",
         default=None,
-        help="Path to pre-trained model. If not set, trains from scratch.",
+        help="Path to pre-trained model JSON. Defaults to data/xgb_model.json.",
+    )
+    parser.add_argument(
+        "--meta-path",
+        default=None,
+        help="Path to model metadata JSON. Defaults to data/xgb_model_meta.json.",
     )
     parser.add_argument("--train", action="store_true",
                         help="Force retrain even if saved model exists")
+    parser.add_argument(
+        "--feature-cache",
+        default=None,
+        help="Path to feature cache parquet (for training). Defaults to data/xgb_features_v3.parquet.",
+    )
+    parser.add_argument(
+        "--spot-quotes",
+        default=None,
+        help="Path to spot price quotes parquet (for z-score stats). Defaults to data/btc_quotes/btcusdt_quotes.parquet.",
+    )
     args = parser.parse_args()
 
-    # Train or load model
+    # Override global paths if provided
+    global MODEL_PATH, META_PATH, FEATURE_CACHE_PATH
     if args.model_path:
-        model_path = Path(args.model_path)
-        if not model_path.exists():
-            print(f"Model not found at {model_path}")
-            sys.exit(1)
+        MODEL_PATH = Path(args.model_path)
+    if args.meta_path:
+        META_PATH = Path(args.meta_path)
+    if args.feature_cache:
+        FEATURE_CACHE_PATH = Path(args.feature_cache)
+    global SPOT_QUOTES_PATH
+    if args.spot_quotes:
+        SPOT_QUOTES_PATH = Path(args.spot_quotes)
+
+    # Train or load model
+    if MODEL_PATH.exists() and META_PATH.exists() and not args.train:
+        print(f"Loading saved model from {MODEL_PATH}...")
         model, feature_cols, vol_threshold, btc_mid_mean, btc_mid_std = load_model()
-    elif MODEL_PATH.exists() and META_PATH.exists() and not args.train:
-        print("Loading saved model...")
-        model, feature_cols, vol_threshold, btc_mid_mean, btc_mid_std = load_model()
+    elif not args.train:
+        print(f"Model not found at {MODEL_PATH}, training from scratch...")
+        model, feature_cols, vol_threshold, btc_mid_mean, btc_mid_std = train_production_model()
+        save_model(model, feature_cols, vol_threshold, btc_mid_mean, btc_mid_std)
     else:
         print("Training production model on all data...")
         model, feature_cols, vol_threshold, btc_mid_mean, btc_mid_std = train_production_model()

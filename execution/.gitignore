@@ -34,5 +34,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .DS_Store
 
 # Runtime data (trade logs, paper trading, metrics CSVs)
-data/
+/data/
 src/data/metrics/

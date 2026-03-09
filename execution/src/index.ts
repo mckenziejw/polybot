@@ -36,6 +36,7 @@ import "./strategy/xgb-confidence.ts";
 async function main(): Promise<void> {
   // ── Config ──
   const config = loadConfig();
+  console.log(`[Main] Asset: ${config.execution.asset}`);
   console.log(`[Main] Data source: ${config.execution.dataSource}`);
   console.log(`[Main] Strategy: ${config.execution.strategyId}`);
 
@@ -56,7 +57,7 @@ async function main(): Promise<void> {
   const redeemer = new Redeemer(config);
   const minter = new Minter(config);
   const csvLogger = new CsvLogger(config.execution.metricsDir);
-  const rotation = new MarketRotation();
+  const rotation = new MarketRotation(config.execution.asset);
   const strategy = createStrategy(config.execution.strategyId);
 
   // ── User channel ──

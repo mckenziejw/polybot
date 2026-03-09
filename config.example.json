@@ -19,13 +19,16 @@
     "price_offset": 0.0
   },
   "execution": {
+    "asset": "btc",
     "data_source": "websocket",
     "redis_url": "redis://localhost:6379",
-    "strategy_id": "market-maker",
+    "strategy_id": "xgb-confidence",
     "metrics_dir": "data/metrics",
     "rpc_url": "https://polygon-rpc.com",
     "resample_interval_ms": 100,
-    "external_feeds": ["binance-btcusdt"]
+    "external_feeds": ["binance-btcusdt"],
+    "bet_dollars": 20,
+    "model_server_url": "http://127.0.0.1:8000"
   },
   "telonex": {
     "api_key": ""
