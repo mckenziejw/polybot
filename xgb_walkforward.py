@@ -25,6 +25,7 @@ from xgboost_flexible import (
     build_dataset,
     get_feature_columns,
     compute_vol_threshold,
+    compute_time_weights,
     DROP_FEATURES,
 )
 
@@ -34,17 +35,17 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 # v3.2 sweep-optimized params
 # ---------------------------------------------------------------------------
 
-PARAMS_V32 = {
+PARAMS_V33 = {
     "objective": "binary:logistic",
     "eval_metric": "logloss",
     "max_depth": 2,
-    "learning_rate": 0.014790,
-    "subsample": 0.838960,
-    "colsample_bytree": 0.951185,
-    "min_child_weight": 42,
-    "lambda": 0.630567,
-    "alpha": 0.010124,
-    "gamma": 0.457778,
+    "learning_rate": 0.005016,
+    "subsample": 0.930265,
+    "colsample_bytree": 0.985988,
+    "min_child_weight": 41,
+    "lambda": 0.224145,
+    "alpha": 0.827467,
+    "gamma": 1.705416,
     "seed": 42,
     "verbosity": 0,
 }
@@ -73,10 +74,10 @@ def compute_pnl(y_true, y_pred, entry_prices, conf_threshold, vol_values=None,
     - BUY at entry_price (leader mid at observation time)
     - If label == 1 (leader wins): profit = 1.0 - entry_price per token
     - If label == 0 (leader loses): loss = -entry_price per token
-    - Position size = $5 / entry_price tokens (matching live bet sizing)
+    - Position size = $20 / entry_price tokens (matching live bet sizing)
     """
     trades = []
-    bet_dollars = 5.0
+    bet_dollars = 20.0
 
     for i in range(len(y_pred)):
         if y_pred[i] < conf_threshold:
@@ -156,7 +157,7 @@ def main():
     # Run walk-forward for both v3.1 and v3.2
     for model_label, params, use_all_features in [
         ("v3.1 (old params, all features)", PARAMS_V31, True),
-        ("v3.2 (sweep params, deduped)", PARAMS_V32, False),
+        ("v3.3 (sweep params, time features)", PARAMS_V33, False),
     ]:
         print(f"\n{'='*70}")
         print(f"MODEL: {model_label}")
@@ -208,7 +209,8 @@ def main():
             for X in [X_train, X_val, X_test]:
                 X[~np.isfinite(X)] = 0.0
 
-            dtrain = xgb.DMatrix(X_train, label=y_train, feature_names=fcols)
+            train_weights = compute_time_weights(train_only, half_life_days=7.0)
+            dtrain = xgb.DMatrix(X_train, label=y_train, weight=train_weights, feature_names=fcols)
             dval = xgb.DMatrix(X_val, label=y_val, feature_names=fcols)
             dtest = xgb.DMatrix(X_test, label=y_test, feature_names=fcols)
 
@@ -287,7 +289,7 @@ def main():
 
     # --- Max entry price cap analysis ---
     print(f"\n\n{'='*70}")
-    print("MAX ENTRY PRICE CAP ANALYSIS (v3.2, walk-forward)")
+    print("MAX ENTRY PRICE CAP ANALYSIS (v3.3, walk-forward)")
     print(f"{'='*70}")
 
     # Rerun v3.2 walk-forward with different caps
@@ -326,11 +328,12 @@ def main():
             for X in [X_train, X_val, X_test]:
                 X[~np.isfinite(X)] = 0.0
 
-            dtrain = xgb.DMatrix(X_train, label=train_only["label"].values, feature_names=feature_cols)
+            train_weights = compute_time_weights(train_only, half_life_days=7.0)
+            dtrain = xgb.DMatrix(X_train, label=train_only["label"].values, weight=train_weights, feature_names=feature_cols)
             dval = xgb.DMatrix(X_val, label=val_only["label"].values, feature_names=feature_cols)
             dtest = xgb.DMatrix(X_test, label=y_test, feature_names=feature_cols)
 
-            model = xgb.train(PARAMS_V32, dtrain, num_boost_round=2000,
+            model = xgb.train(PARAMS_V33, dtrain, num_boost_round=2000,
                               evals=[(dval, "val")], early_stopping_rounds=50,
                               verbose_eval=False)
 

@@ -48,6 +48,13 @@ export interface SplitResult {
   error?: string;
 }
 
+export interface MergeResult {
+  success: boolean;
+  txHash?: string;
+  amount: bigint;
+  error?: string;
+}
+
 /**
  * Handles splitPosition and mergePositions on the CTF Core contract.
  *
@@ -105,6 +112,48 @@ export class Minter {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[Minter] Split failed: ${msg}`);
+      return { success: false, amount, error: msg };
+    }
+  }
+
+  /**
+   * Merge YES + NO conditional tokens back into USDC.e.
+   *
+   * @param conditionId - The market's condition ID
+   * @param amount - Amount in USDC.e smallest units (6 decimals, so 1 pair = 1_000_000)
+   */
+  async merge(conditionId: string, amount: bigint): Promise<MergeResult> {
+    try {
+      const innerData = encodeFunctionData({
+        abi: CTF_CORE_ABI,
+        functionName: "mergePositions",
+        args: [
+          USDC_E_ADDRESS,
+          PARENT_COLLECTION_ID,
+          conditionId as Hex,
+          [...BINARY_PARTITION],
+          amount,
+        ],
+      });
+
+      console.log(
+        `[Minter] Merging ${amount} units of YES+NO back to USDC.e for ${conditionId.slice(0, 10)}…`
+      );
+
+      const receipt = await this.execViaSafe(CTF_CORE_ADDRESS, innerData);
+
+      if (receipt.status === "reverted") {
+        return { success: false, amount, txHash: receipt.transactionHash, error: "Transaction reverted" };
+      }
+
+      console.log(
+        `[Minter] Merge confirmed in block ${receipt.blockNumber} (tx: ${receipt.transactionHash})`
+      );
+
+      return { success: true, amount, txHash: receipt.transactionHash };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[Minter] Merge failed: ${msg}`);
       return { success: false, amount, error: msg };
     }
   }

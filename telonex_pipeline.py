@@ -1,17 +1,18 @@
 """
-Telonex BTC 5m market downloader and normalizer.
+Telonex 5m market downloader and normalizer.
 
 Two steps:
-  1. download  — fetch raw parquets from Telonex into ./datasets/telonex_raw/
-  2. normalize — convert raw files to canonical schema, write to data/telonex_book_snapshots/
+  1. download  — fetch raw parquets from Telonex into ./datasets/telonex_{asset}_5m_raw/
+  2. normalize — convert raw files to canonical schema, write to data/telonex_book_snapshots_{asset}/
 
 Run:
-  python telonex_pipeline.py download
-  python telonex_pipeline.py normalize
-  python telonex_pipeline.py all
+  python telonex_pipeline.py download                  # BTC (default)
+  python telonex_pipeline.py normalize --asset eth     # ETH normalize
+  python telonex_pipeline.py all --asset sol            # SOL download + normalize
 """
 
 import asyncio
+import json
 import logging
 import os
 import sys
@@ -27,12 +28,27 @@ from telonex import download_async
 # Config
 # ---------------------------------------------------------------------------
 
-API_KEY     = os.environ["TELONEX_API_KEY"]
-RAW_DIR     = Path("./datasets/telonex_5m_raw")
-OUT_DIR     = Path("./data/telonex_book_snapshots")
+def _load_api_key() -> str:
+    """Read Telonex API key from config.json, fall back to env var."""
+    config_path = Path(__file__).parent / "config.json"
+    if config_path.exists():
+        with open(config_path) as f:
+            cfg = json.load(f)
+        key = cfg.get("telonex", {}).get("api_key", "")
+        if key:
+            return key
+    return os.environ.get("TELONEX_API_KEY", "")
+
+API_KEY     = _load_api_key()
 MARKETS_URL = "https://api.telonex.io/v1/datasets/polymarket/markets"
 CONCURRENCY = 10
 N_LEVELS    = 5  # book_snapshot_5
+
+def get_dirs(asset: str) -> tuple[Path, Path]:
+    """Return (raw_dir, out_dir) for the given asset."""
+    if asset == "btc":
+        return Path("./datasets/telonex_5m_raw"), Path("./data/telonex_book_snapshots")
+    return Path(f"./datasets/telonex_{asset}_5m_raw"), Path(f"./data/telonex_book_snapshots_{asset}")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -81,15 +97,16 @@ BOOK_SCHEMA = pa.schema([
 # Step 1: Download
 # ---------------------------------------------------------------------------
 
-def load_btc_markets() -> pd.DataFrame:
-    log.info("Loading markets dataset...")
+def load_markets(asset: str = "btc") -> pd.DataFrame:
+    slug_pattern = f"{asset}-updown-5m"
+    log.info(f"Loading markets dataset for {asset.upper()}...")
     df = pd.read_parquet(MARKETS_URL)
-    btc = df[
-        df["slug"].str.contains("btc-updown-5m", na=False) &
+    filtered = df[
+        df["slug"].str.contains(slug_pattern, na=False) &
         (df["book_snapshot_5_from"] != "")
     ].copy()
-    log.info(f"Found {len(btc)} BTC 5m markets with book_snapshot_5 data")
-    return btc
+    log.info(f"Found {len(filtered)} {asset.upper()} 5m markets with book_snapshot_5 data")
+    return filtered
 
 
 async def download_one(
@@ -98,6 +115,7 @@ async def download_one(
     from_date: str,
     to_date: str,
     semaphore: asyncio.Semaphore,
+    raw_dir: Path,
 ) -> list[str]:
     to_date_excl = (pd.Timestamp(to_date) + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
     async with semaphore:
@@ -109,7 +127,7 @@ async def download_one(
                 from_date=from_date,
                 to_date=to_date_excl,
                 asset_id=asset_id,
-                download_dir=str(RAW_DIR),
+                download_dir=str(raw_dir),
                 force_download=False,
             )
         except Exception as e:
@@ -117,8 +135,8 @@ async def download_one(
             return []
 
 
-async def run_downloads(markets: pd.DataFrame):
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
+async def run_downloads(markets: pd.DataFrame, raw_dir: Path):
+    raw_dir.mkdir(parents=True, exist_ok=True)
     tasks = []
     for _, row in markets.iterrows():
         for asset_col in ("asset_id_0", "asset_id_1"):
@@ -129,7 +147,7 @@ async def run_downloads(markets: pd.DataFrame):
 
     log.info(f"Downloading {len(tasks)} token datasets ({CONCURRENCY} concurrent)...")
     semaphore = asyncio.Semaphore(CONCURRENCY)
-    coros = [download_one(*t, semaphore) for t in tasks]
+    coros = [download_one(*t, semaphore, raw_dir) for t in tasks]
 
     all_files, done = [], 0
     for coro in asyncio.as_completed(coros):
@@ -138,7 +156,7 @@ async def run_downloads(markets: pd.DataFrame):
         if done % 50 == 0 or done == len(tasks):
             log.info(f"  {done}/{len(tasks)} done, {len(all_files)} files")
 
-    log.info(f"Download complete: {len(all_files)} files in {RAW_DIR}")
+    log.info(f"Download complete: {len(all_files)} files in {raw_dir}")
 
 
 # ---------------------------------------------------------------------------
@@ -224,27 +242,29 @@ def normalize_raw_file(path: Path, market_open_ms: int, market_close_ms: int) ->
     return out
 
 
-def build_asset_slug_map() -> dict[str, str]:
-    """Load markets dataset and return {asset_id: slug} for all BTC 5m markets."""
-    log.info("Building asset_id -> slug lookup...")
+def build_asset_slug_map(asset: str = "btc") -> dict[str, str]:
+    """Load markets dataset and return {asset_id: slug} for the given asset's 5m markets."""
+    slug_pattern = f"{asset}-updown-5m"
+    log.info(f"Building asset_id -> slug lookup for {asset.upper()}...")
     df = pd.read_parquet(MARKETS_URL)
-    btc = df[df["slug"].str.contains("btc-updown-5m", na=False)]
+    filtered = df[df["slug"].str.contains(slug_pattern, na=False)]
     mapping = {}
-    for _, row in btc.iterrows():
+    for _, row in filtered.iterrows():
         mapping[row["asset_id_0"]] = row["slug"]
         mapping[row["asset_id_1"]] = row["slug"]
     log.info(f"Loaded {len(mapping)} asset_id -> slug mappings")
     return mapping
 
 
-def run_normalize():
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    raw_files = list(RAW_DIR.glob("*.parquet"))
+def run_normalize(asset: str = "btc"):
+    raw_dir, out_dir = get_dirs(asset)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    raw_files = list(raw_dir.glob("*.parquet"))
     if not raw_files:
-        log.error(f"No raw files found in {RAW_DIR}")
+        log.error(f"No raw files found in {raw_dir}")
         return
 
-    asset_slug = build_asset_slug_map()
+    asset_slug = build_asset_slug_map(asset)
 
     # Group files by slug using asset_id extracted from filename
     # Filename: polymarket_book_snapshot_5_2026-02-12_<asset_id>.parquet
@@ -271,7 +291,7 @@ def run_normalize():
 
     written = skipped = errors = 0
     for i, (slug, files) in enumerate(slug_files.items()):
-        out_path = OUT_DIR / f"{slug}.parquet"
+        out_path = out_dir / f"{slug}.parquet"
         if out_path.exists():
             skipped += 1
             continue
@@ -316,11 +336,18 @@ def run_normalize():
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    cmd = sys.argv[1] if len(sys.argv) > 1 else "all"
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", nargs="?", default="all", choices=["download", "normalize", "all"])
+    parser.add_argument("--asset", default="btc", help="Asset: btc, eth, sol, xrp")
+    args = parser.parse_args()
 
-    if cmd in ("download", "all"):
-        markets = load_btc_markets()
-        asyncio.run(run_downloads(markets))
+    asset = args.asset.lower()
+    raw_dir, out_dir = get_dirs(asset)
 
-    if cmd in ("normalize", "all"):
-        run_normalize()
+    if args.command in ("download", "all"):
+        markets = load_markets(asset)
+        asyncio.run(run_downloads(markets, raw_dir))
+
+    if args.command in ("normalize", "all"):
+        run_normalize(asset)

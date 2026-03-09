@@ -575,6 +575,16 @@ def extract_market_features(
     features["observe_time_s"] = observe_s
     features["observe_time_pct"] = observe_s / (MARKET_DURATION_MS / 1000.0)
 
+    # --- Time-of-day / day-of-week features (cyclical encoding) ---
+    from datetime import datetime, timezone
+    dt = datetime.fromtimestamp(open_ms / 1000, tz=timezone.utc)
+    hour = dt.hour + dt.minute / 60.0  # fractional hour
+    dow = dt.weekday()  # 0=Mon, 6=Sun
+    features["hour_sin"] = np.sin(2 * np.pi * hour / 24.0)
+    features["hour_cos"] = np.cos(2 * np.pi * hour / 24.0)
+    features["dow_sin"] = np.sin(2 * np.pi * dow / 7.0)
+    features["dow_cos"] = np.cos(2 * np.pi * dow / 7.0)
+
     # --- BTC context features ---
     if btc_arrays is not None:
         observe_ms = int(observe_s * 1000)
@@ -803,7 +813,11 @@ def train_and_evaluate(dataset: pd.DataFrame, train_frac: float = 0.7, val_frac:
     for X in [X_train, X_val, X_test]:
         X[~np.isfinite(X)] = 0.0
 
-    dtrain = xgb.DMatrix(X_train, label=y_train, feature_names=feature_cols)
+    # Time-weighted training: recent data gets higher weight
+    train_weights = compute_time_weights(train_df, half_life_days=7.0)
+    print(f"  Time weights: min={train_weights.min():.3f}, max={train_weights.max():.3f}")
+
+    dtrain = xgb.DMatrix(X_train, label=y_train, weight=train_weights, feature_names=feature_cols)
     dval = xgb.DMatrix(X_val, label=y_val, feature_names=feature_cols)
     dtest = xgb.DMatrix(X_test, label=y_test, feature_names=feature_cols)
 
@@ -932,6 +946,51 @@ def train_and_evaluate(dataset: pd.DataFrame, train_frac: float = 0.7, val_frac:
     vol_threshold = _vol_filter_analysis(train_df, test_df, y_pred_proba, y_test, feature_cols)
 
     return model, test_df, y_pred_proba, feature_cols, vol_threshold
+
+
+def compute_time_weights(
+    df: pd.DataFrame,
+    half_life_days: float = 7.0,
+    min_weight: float = 0.1,
+) -> np.ndarray:
+    """Compute exponential time-decay sample weights.
+
+    Recent samples get higher weight; older samples decay exponentially.
+    The half_life_days parameter controls how fast old data is downweighted:
+      - 7 days: data from 1 week ago has 50% weight, 2 weeks ago ~25%
+      - 14 days: data from 2 weeks ago has 50% weight (gentler decay)
+      - 3.5 days: data from 1 week ago has ~25% weight (aggressive decay)
+
+    Weights are normalized so mean weight = 1.0 (no change to effective
+    sample count, just redistributes importance toward recent data).
+
+    Args:
+        df: DataFrame with 'open_ts' column (market open timestamp in seconds)
+        half_life_days: exponential decay half-life in days
+        min_weight: floor weight (prevents oldest samples from being zeroed out)
+
+    Returns:
+        Array of per-sample weights, same length as df
+    """
+    if "open_ts" not in df.columns:
+        return np.ones(len(df))
+
+    ts = df["open_ts"].values.astype(np.float64)
+    max_ts = ts.max()
+
+    # Age in days (0 = most recent, positive = older)
+    age_days = (max_ts - ts) / 86400.0
+
+    # Exponential decay: w = 2^(-age / half_life)
+    decay = np.exp2(-age_days / half_life_days)
+
+    # Apply floor
+    weights = np.clip(decay, min_weight, 1.0)
+
+    # Normalize so mean = 1.0
+    weights = weights / weights.mean()
+
+    return weights
 
 
 def compute_vol_threshold(train_df: pd.DataFrame, percentile: float = 33.0) -> float | None:

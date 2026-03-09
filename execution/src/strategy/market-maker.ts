@@ -1,504 +1,531 @@
-import type { MarketState, TradeAction, Side, DataMode } from "../types.ts";
+import type {
+  MarketState,
+  TradeAction,
+  DataMode,
+  Side,
+  OpenOrder,
+  OrderBookState,
+  MarketMakerMode,
+} from "../types.ts";
 import type { Strategy } from "./strategy.ts";
 import { registerStrategy } from "./strategy.ts";
+import { loadConfig } from "../config.ts";
 
-// ── Normal CDF (Abramowitz & Stegun rational approximation, |error| < 7.5e-8) ──
+/**
+ * Dual-mode market maker for BTC Up/Down binary markets.
+ *
+ * Two operating modes:
+ *
+ * **mint-and-sell**: Structural edge, no directional risk.
+ *   1. Mint token pairs via CTF splitPosition ($1.00 USDC -> 1 Up + 1 Down)
+ *   2. Post ask orders on BOTH tokens simultaneously
+ *   3. Capture combined spread: ask_up + ask_down > $1.00 (mean $1.067)
+ *   4. Redeem unsold pairs at market end for $1.00 (breakeven minus gas)
+ *
+ * **traditional**: Classic bid/ask market making, higher fill rate.
+ *   1. Post bids AND asks on both tokens
+ *   2. Buy tokens from sellers (bid fills), sell to buyers (ask fills)
+ *   3. Capture bid-ask spread on each token independently
+ *   4. Higher fill rate (2x sides), but excess tokens settle at binary outcome
+ *
+ * Both modes use Avellaneda-Stoikov inventory skewing to manage imbalance.
+ */
 
-function normalCdf(x: number): number {
-  if (x < -8) return 0;
-  if (x > 8) return 1;
+const MIN_ORDER_SIZE = 5; // Polymarket CLOB minimum
+const USDC_DECIMALS = 1_000_000n; // 6 decimals
 
-  const a1 = 0.319381530;
-  const a2 = -0.356563782;
-  const a3 = 1.781477937;
-  const a4 = -1.821255978;
-  const a5 = 1.330274429;
-  const p = 0.2316419;
+// Debounce: don't re-quote more often than this
+const MIN_REQUOTE_INTERVAL_MS = 500;
 
-  const sign = x < 0 ? -1 : 1;
-  const absX = Math.abs(x);
-  const t = 1 / (1 + p * absX);
-  const pdf = Math.exp(-0.5 * absX * absX) / Math.sqrt(2 * Math.PI);
-  const cdf = 1 - pdf * t * (a1 + t * (a2 + t * (a3 + t * (a4 + t * a5))));
+// Don't post new orders within this many seconds of market end
+const STOP_QUOTING_BEFORE_CLOSE_S = 60;
 
-  return sign < 0 ? 1 - cdf : cdf;
-}
+// Minimum ask price floor — never sell tokens for less than this
+const MIN_ASK_PRICE = 0.10;
 
-// ── Rolling volatility tracker ──
+// Minimum bid price floor — never buy tokens for less than this
+const MIN_BID_PRICE = 0.01;
 
-interface PriceTick {
-  t: number; // timestamp ms
-  p: number; // price
-}
+// How long to wait for a mint tx before allowing another (ms)
+const MINT_COOLDOWN_MS = 30_000;
 
-class VolTracker {
-  private ticks: PriceTick[] = [];
-  private windowMs: number;
-  private maxTicks: number;
-
-  constructor(windowMs: number = 30_000, maxTicks: number = 6000) {
-    this.windowMs = windowMs;
-    this.maxTicks = maxTicks;
-  }
-
-  reset(): void {
-    this.ticks = [];
-  }
-
-  push(timestamp: number, price: number): void {
-    this.ticks.push({ t: timestamp, p: price });
-
-    // Evict old ticks
-    const cutoff = timestamp - this.windowMs;
-    while (this.ticks.length > 0 && this.ticks[0]!.t < cutoff) {
-      this.ticks.shift();
-    }
-    // Hard cap
-    if (this.ticks.length > this.maxTicks) {
-      this.ticks = this.ticks.slice(-this.maxTicks);
-    }
-  }
-
-  get tickCount(): number {
-    return this.ticks.length;
-  }
-
-  /**
-   * Compute realized volatility scaled to the given duration.
-   * Returns the expected standard deviation of returns over `scaleDurationMs`.
-   *
-   * Uses sum-of-squared-log-returns approach:
-   *   variance_per_ms = sum(r_i^2) / windowDurationMs
-   *   vol = sqrt(variance_per_ms * scaleDurationMs)
-   */
-  realizedVol(scaleDurationMs: number): number {
-    if (this.ticks.length < 10) return 0;
-
-    let sumSqReturns = 0;
-    for (let i = 1; i < this.ticks.length; i++) {
-      const r = Math.log(this.ticks[i]!.p / this.ticks[i - 1]!.p);
-      sumSqReturns += r * r;
-    }
-
-    const windowDurationMs =
-      this.ticks[this.ticks.length - 1]!.t - this.ticks[0]!.t;
-    if (windowDurationMs <= 0) return 0;
-
-    const variancePerMs = sumSqReturns / windowDurationMs;
-    return Math.sqrt(variancePerMs * scaleDurationMs);
-  }
-}
-
-// ── Smart Market Maker Strategy ──
-
-interface QuoteTarget {
-  bidPrice: number;
-  askPrice: number;
-  bidSize: number;
-  askSize: number;
-}
-
-export class SmartMarketMaker implements Strategy {
+export class MintAndSellMaker implements Strategy {
   readonly id = "market-maker";
   readonly dataMode: DataMode = "tick";
 
-  // ── Parameters ──
-  private orderSize = 5;
-  private maxPositionPerSide = 50;
-  private maxNetExposure = 30;
-  private halfSpreadBase = 0.03;
-  private volSpreadScale = 0.5;
-  private requoteThreshold = 0.01;
-  private minRemainingS = 15;
-  private flattenStartS = 60;       // start exiting positions with this many seconds left
-  private flattenDiscountPct = 0.02; // sell discount below fair value to ensure exit fills
-  private skewPerToken = 0.002;
-  private volWindowMs = 30_000;
-  private minVolTicks = 50;
+  // ── Config ──
+  private readonly mode: MarketMakerMode;
+  private readonly k: number;                     // A-S skew parameter (cents per unit of imbalance)
+  private readonly initialPairs: number;           // pairs to mint at market open (mint-and-sell only)
+  private readonly maxInventoryPerSide: number;    // safety cap
+  private readonly replenishThreshold: number;     // mint more when inventory drops below this
+  private readonly requoteThreshold: number;       // price change needed to trigger requote (cents)
 
-  // Liquidity guards
-  private minBookDepth = 20;       // minimum $ size on each side to consider a book "healthy"
-  private maxSpread = 0.08;        // max bid-ask spread — wider means too thin to trade
-  private decidedThreshold = 0.85; // fair value beyond this = market is decided, stop quoting
+  // ── Inventory tracking ──
+  // In mint-and-sell: tokens we hold from minting, decreased by sell fills
+  // In traditional: tokens we hold from buy fills, decreased by sell fills
+  private inventoryUp = 0;
+  private inventoryDown = 0;
+  private pairsMinted = 0;
+
+  // ── PnL tracking ──
+  private sellFillsUp = 0;
+  private sellFillsDown = 0;
+  private sellRevenueUp = 0;
+  private sellRevenueDown = 0;
+  private buyFillsUp = 0;       // traditional mode: tokens acquired via bids
+  private buyFillsDown = 0;
+  private buyCostUp = 0;        // traditional mode: total cost of bid fills
+  private buyCostDown = 0;
 
   // ── Per-market state ──
-  private btcPriceAtOpen: number | null = null;
-  private marketDurationMs = 300_000;
-  private volTracker: VolTracker;
-  private lastBtcTimestamp = 0;
-  private lastLogTime = 0;
+  private upTokenId = "";
+  private downTokenId = "";
+  private conditionId = "";
+  private lastRequoteMs = 0;
+  private lastLogMs = 0;
+  private initialMintSent = false;
+  private pendingMint = false;
+  private lastMintRequestMs = 0;  // when the last mint was requested (for cooldown)
 
-  constructor() {
-    this.volTracker = new VolTracker(this.volWindowMs);
+  constructor(
+    mode: MarketMakerMode = "mint-and-sell",
+    k = 0.005,
+    initialPairs = 50,
+    maxInventoryPerSide = 200,
+    replenishThreshold = 10,
+    requoteThreshold = 0.005,
+  ) {
+    this.mode = mode;
+    this.k = k;
+    this.initialPairs = initialPairs;
+    this.maxInventoryPerSide = maxInventoryPerSide;
+    this.replenishThreshold = replenishThreshold;
+    this.requoteThreshold = requoteThreshold;
   }
 
-  async onMarketOpen(state: MarketState): Promise<void> {
-    const btc = state.externalData?.["binance-btcusdt"];
-    this.btcPriceAtOpen = btc?.price ?? null;
-    this.marketDurationMs = state.timeRemainingMs;
-    this.volTracker = new VolTracker(this.volWindowMs);
-    this.lastBtcTimestamp = 0;
-    this.lastLogTime = 0;
+  // ── Strategy interface ──
 
-    if (this.btcPriceAtOpen) {
-      console.log(
-        `[MM] Market open — BTC ref: ${this.btcPriceAtOpen.toFixed(2)}, duration: ${(this.marketDurationMs / 1000).toFixed(0)}s`
-      );
-    } else {
-      console.log("[MM] Market open — waiting for BTC price...");
-    }
+  async onMarketOpen(state: MarketState): Promise<void> {
+    const { market } = state;
+
+    this.upTokenId = market.upTokenId;
+    this.downTokenId = market.downTokenId;
+    this.conditionId = market.conditionId;
+
+    // Reset per-market state
+    this.inventoryUp = 0;
+    this.inventoryDown = 0;
+    this.pairsMinted = 0;
+    this.sellFillsUp = 0;
+    this.sellFillsDown = 0;
+    this.sellRevenueUp = 0;
+    this.sellRevenueDown = 0;
+    this.buyFillsUp = 0;
+    this.buyFillsDown = 0;
+    this.buyCostUp = 0;
+    this.buyCostDown = 0;
+    this.lastRequoteMs = 0;
+    this.lastLogMs = 0;
+    this.initialMintSent = false;
+    this.pendingMint = false;
+    this.lastMintRequestMs = 0;
+
+    console.log(
+      `[MM] Market open: ${market.slug} | mode=${this.mode} | ` +
+      `k=${this.k} maxInv=${this.maxInventoryPerSide}` +
+      (this.mode === "mint-and-sell"
+        ? ` | initial mint: ${this.initialPairs} pairs ($${this.initialPairs})`
+        : ` | starting empty, building inventory from bid fills`)
+    );
   }
 
   async evaluate(state: MarketState): Promise<TradeAction[]> {
-    const { market, books, openOrders, positions, timeRemainingMs } = state;
-    const btc = state.externalData?.["binance-btcusdt"];
-
-    // Feed BTC ticks to vol tracker (deduplicate by timestamp)
-    if (btc && btc.timestamp > this.lastBtcTimestamp) {
-      this.volTracker.push(btc.timestamp, btc.price);
-      this.lastBtcTimestamp = btc.timestamp;
-    }
-
-    // Capture reference price if we don't have one yet
-    if (!this.btcPriceAtOpen) {
-      this.btcPriceAtOpen = btc?.price ?? null;
-      if (this.btcPriceAtOpen) {
-        console.log(`[MM] BTC ref captured: ${this.btcPriceAtOpen.toFixed(2)}`);
-      }
-      return [{ type: "NOOP" }];
-    }
-
-    const timeRemainingS = timeRemainingMs / 1000;
-
-    // ── Last N seconds: cancel everything ──
-    if (timeRemainingS < this.minRemainingS) {
-      if (openOrders.length > 0) {
-        console.log(`[MM] End of window (${timeRemainingS.toFixed(0)}s left) — cancelling all`);
-        return [{ type: "CANCEL_ALL" }];
-      }
-      return [{ type: "NOOP" }];
-    }
-
-    // ── Flatten phase: exit positions before expiry ──
-    if (timeRemainingS < this.flattenStartS) {
-      return this.evaluateFlatten(state);
-    }
-
-    // ── Compute fair value ──
-    const btcNow = btc?.price ?? this.btcPriceAtOpen;
-    const btcReturn = (btcNow - this.btcPriceAtOpen) / this.btcPriceAtOpen;
-    const timeElapsedMs = Math.max(1, this.marketDurationMs - timeRemainingMs);
-    const timeElapsedFrac = Math.max(0.001, timeElapsedMs / this.marketDurationMs);
-
-    // Realized vol scaled to full market window
-    const vol = this.volTracker.realizedVol(this.marketDurationMs);
-
-    // Not enough data for vol estimate
-    if (vol <= 0 || this.volTracker.tickCount < this.minVolTicks) {
-      return [{ type: "NOOP" }];
-    }
-
-    // Binary option fair value: Φ(z) where z = (return / vol) * sqrt(timeElapsed/totalTime)
-    const z = (btcReturn / vol) * Math.sqrt(timeElapsedFrac);
-    const fairUp = normalCdf(z);
-    const fairDown = 1 - fairUp;
-
-    // ── Inventory ──
-    const upPos = positions.find((p) => p.assetId === market.upTokenId);
-    const downPos = positions.find((p) => p.assetId === market.downTokenId);
-    const upSize = upPos?.size ?? 0;
-    const downSize = downPos?.size ?? 0;
-    const netInventory = upSize - downSize;
-
-    // ── Spread computation ──
-    // Time-based spread multiplier
-    let spreadMultiplier = 1.0;
-    if (timeElapsedFrac < 0.2) {
-      // Early window: wide spreads, gathering information
-      spreadMultiplier = 2.0;
-    } else if (timeElapsedFrac > 0.8) {
-      // Late window: tighter spreads
-      spreadMultiplier = 0.6;
-    }
-
-    const halfSpread = Math.max(
-      0.01,
-      (this.halfSpreadBase + vol * this.volSpreadScale) * spreadMultiplier
-    );
-    const inventorySkew = netInventory * this.skewPerToken;
-
-    const tickSize = market.tickSize || 0.01;
-    const round = (p: number) =>
-      Math.round(p / tickSize) * tickSize;
-    const clamp = (p: number) =>
-      Math.max(tickSize, Math.min(1 - tickSize, round(p)));
-
-    // ── Periodic logging ──
+    const { market, books, openOrders, timeRemainingMs } = state;
     const now = Date.now();
-    if (now - this.lastLogTime > 10_000) {
-      this.lastLogTime = now;
-      console.log(
-        `[MM] fair=(${fairUp.toFixed(3)}/${fairDown.toFixed(3)}) ` +
-        `btc=${btcNow.toFixed(0)} ret=${(btcReturn * 100).toFixed(4)}% ` +
-        `vol=${(vol * 100).toFixed(4)}% z=${z.toFixed(3)} ` +
-        `spread=${(halfSpread * 2).toFixed(3)} inv=${netInventory.toFixed(0)} ` +
-        `elapsed=${(timeElapsedFrac * 100).toFixed(0)}% ` +
-        `ticks=${this.volTracker.tickCount}`
-      );
-    }
-
-    // ── Market decided check: stop quoting when outcome is near-certain ──
-    if (fairUp > this.decidedThreshold || fairDown > this.decidedThreshold) {
-      // Market is decided — cancel all quotes, don't add new exposure
-      if (openOrders.length > 0) {
-        if (now - this.lastLogTime > 10_000) {
-          this.lastLogTime = now;
-          console.log(
-            `[MM] Market decided (fair=${fairUp.toFixed(3)}/${fairDown.toFixed(3)}) — pulling quotes`
-          );
-        }
-        return [{ type: "CANCEL_ALL" }];
-      }
-      return [{ type: "NOOP" }];
-    }
-
-    // ── Liquidity checks per token ──
-    const upBook = books[market.upTokenId];
-    const downBook = books[market.downTokenId];
-    const upHealthy = this.isBookHealthy(upBook);
-    const downHealthy = this.isBookHealthy(downBook);
-
-    // If neither book is healthy, pull everything
-    if (!upHealthy && !downHealthy) {
-      if (openOrders.length > 0) {
-        return [{ type: "CANCEL_ALL" }];
-      }
-      return [{ type: "NOOP" }];
-    }
-
-    // ── Compute target quotes ──
-    // Don't place new buy orders on unhealthy books (sells to exit positions are always ok)
-    const upTarget: QuoteTarget = {
-      bidPrice: clamp(fairUp - halfSpread - inventorySkew),
-      askPrice: clamp(fairUp + halfSpread - inventorySkew),
-      bidSize: upHealthy && upSize < this.maxPositionPerSide ? this.orderSize : 0,
-      askSize: upSize > 0 && upPos?.settled ? Math.min(this.orderSize, upSize) : 0,
-    };
-
-    const downTarget: QuoteTarget = {
-      bidPrice: clamp(fairDown - halfSpread + inventorySkew),
-      askPrice: clamp(fairDown + halfSpread + inventorySkew),
-      bidSize: downHealthy && downSize < this.maxPositionPerSide ? this.orderSize : 0,
-      askSize: downSize > 0 && downPos?.settled ? Math.min(this.orderSize, downSize) : 0,
-    };
-
-    // Net exposure check
-    if (Math.abs(netInventory) >= this.maxNetExposure) {
-      // Only allow orders that reduce exposure
-      if (netInventory > 0) {
-        upTarget.bidSize = 0; // Don't buy more Up
-        downTarget.askSize = 0; // Don't sell Down (that would increase net Up)
-      } else {
-        downTarget.bidSize = 0;
-        upTarget.askSize = 0;
-      }
-    }
-
-    // ── Reconcile with existing orders ──
-    return this.reconcileQuotes(state, market.upTokenId, upTarget, market.downTokenId, downTarget);
-  }
-
-  /**
-   * Flatten phase: actively exit all positions before market close.
-   * Cancel all buy orders. Place aggressive sell orders for held tokens.
-   */
-  private evaluateFlatten(state: MarketState): TradeAction[] {
-    const { market, books, openOrders, positions, timeRemainingMs } = state;
     const actions: TradeAction[] = [];
 
-    // Cancel all existing orders first
-    if (openOrders.length > 0) {
-      actions.push({ type: "CANCEL_ALL" });
+    // ── Phase 0: Initial mint (mint-and-sell only) ──
+    if (this.mode === "mint-and-sell" && !this.initialMintSent) {
+      this.initialMintSent = true;
+      this.pendingMint = true;
+      this.lastMintRequestMs = now;
+      const amount = BigInt(this.initialPairs) * USDC_DECIMALS;
+      console.log(`[MM] Minting initial ${this.initialPairs} pairs`);
+      // Optimistically credit inventory — if mint fails, we'll have no tokens
+      // to sell and order placements will fail gracefully at the CLOB level.
+      this.inventoryUp = this.initialPairs;
+      this.inventoryDown = this.initialPairs;
+      this.pairsMinted = this.initialPairs;
+      return [{
+        type: "SPLIT",
+        conditionId: this.conditionId,
+        amount,
+      }];
     }
 
-    const upPos = positions.find((p) => p.assetId === market.upTokenId);
-    const downPos = positions.find((p) => p.assetId === market.downTokenId);
-    const upSize = upPos?.size ?? 0;
-    const downSize = downPos?.size ?? 0;
+    // In traditional mode, mark init as done immediately
+    if (!this.initialMintSent) {
+      this.initialMintSent = true;
+    }
 
-    if (upSize === 0 && downSize === 0) {
-      const now = Date.now();
-      if (now - this.lastLogTime > 10_000) {
-        this.lastLogTime = now;
-        console.log(`[MM] Flatten phase — no positions to exit (${(timeRemainingMs / 1000).toFixed(0)}s left)`);
+    // ── Clear pending mint after cooldown ──
+    if (this.pendingMint && now - this.lastMintRequestMs > MINT_COOLDOWN_MS) {
+      this.pendingMint = false;
+    }
+
+    // ── Stop quoting near market close ──
+    const timeRemainingS = timeRemainingMs / 1000;
+    if (timeRemainingS < STOP_QUOTING_BEFORE_CLOSE_S) {
+      if (openOrders.length > 0) {
+        console.log(`[MM] ${timeRemainingS.toFixed(0)}s left — cancelling all orders`);
+        return [{ type: "CANCEL_ALL" }];
       }
-      return actions.length > 0 ? actions : [{ type: "NOOP" }];
+      return [{ type: "NOOP" }];
     }
 
-    const tickSize = market.tickSize || 0.01;
-    const clamp = (p: number) =>
-      Math.max(tickSize, Math.min(1 - tickSize, Math.round(p / tickSize) * tickSize));
+    // ── Debounce requotes ──
+    if (now - this.lastRequoteMs < MIN_REQUOTE_INTERVAL_MS) {
+      return [{ type: "NOOP" }];
+    }
 
-    // Sell Up tokens if we hold any
-    if (upSize > 0 && upPos?.settled) {
-      const upBook = books[market.upTokenId];
-      const bestBid = upBook?.bids[0]?.price ?? 0;
-      if (bestBid > 0) {
-        // Sell at best bid minus discount to ensure fill
-        const exitPrice = clamp(bestBid - this.flattenDiscountPct);
-        if (exitPrice > tickSize) {
+    // ── Get books ──
+    const upBook = books[this.upTokenId];
+    const downBook = books[this.downTokenId];
+
+    if (!upBook || !downBook) {
+      return [{ type: "NOOP" }];
+    }
+
+    if (upBook.asks.length === 0 || downBook.asks.length === 0) {
+      return [{ type: "NOOP" }];
+    }
+
+    // ── Compute A-S skewed prices ──
+    const imbalance = this.inventoryUp - this.inventoryDown;
+    // Positive imbalance = hold more Up -> lower Up ask/bid (more eager to sell Up, less eager to buy)
+
+    const bestAskUp = upBook.asks[0]!.price;
+    const bestBidUp = upBook.bids.length > 0 ? upBook.bids[0]!.price : 0;
+    const bestAskDown = downBook.asks[0]!.price;
+    const bestBidDown = downBook.bids.length > 0 ? downBook.bids[0]!.price : 0;
+
+    const tick = market.tickSize || 0.01;
+
+    // Skewed asks: lower when we hold excess on that side
+    let ourAskUp = bestAskUp - this.k * imbalance;
+    let ourAskDown = bestAskDown + this.k * imbalance;
+    // Floor at MIN_ASK_PRICE to prevent selling tokens for near-zero when bids are empty
+    ourAskUp = this.clampPrice(ourAskUp, Math.max(MIN_ASK_PRICE, bestBidUp + tick), 0.99, tick);
+    ourAskDown = this.clampPrice(ourAskDown, Math.max(MIN_ASK_PRICE, bestBidDown + tick), 0.99, tick);
+
+    // Skewed bids (traditional mode): higher when we hold less on that side
+    let ourBidUp = 0;
+    let ourBidDown = 0;
+    if (this.mode === "traditional" && bestBidUp > 0 && bestBidDown > 0) {
+      ourBidUp = bestBidUp - this.k * imbalance;
+      ourBidDown = bestBidDown + this.k * imbalance;
+      ourBidUp = this.clampPrice(ourBidUp, MIN_BID_PRICE, bestAskUp - tick, tick);
+      ourBidDown = this.clampPrice(ourBidDown, MIN_BID_PRICE, bestAskDown - tick, tick);
+    }
+
+    // ── Reconcile asks (both modes) ──
+    this.reconcileAsk(actions, openOrders, this.upTokenId, ourAskUp, this.inventoryUp);
+    this.reconcileAsk(actions, openOrders, this.downTokenId, ourAskDown, this.inventoryDown);
+
+    // ── Reconcile bids (traditional mode only) ──
+    if (this.mode === "traditional" && ourBidUp > 0 && ourBidDown > 0) {
+      const bidSizeUp = Math.max(0, this.maxInventoryPerSide - this.inventoryUp);
+      const bidSizeDown = Math.max(0, this.maxInventoryPerSide - this.inventoryDown);
+      this.reconcileBid(actions, openOrders, this.upTokenId, ourBidUp, bidSizeUp);
+      this.reconcileBid(actions, openOrders, this.downTokenId, ourBidDown, bidSizeDown);
+    }
+
+    // ── Replenishment minting (mint-and-sell only) ──
+    if (this.mode === "mint-and-sell") {
+      const minInventory = Math.min(this.inventoryUp, this.inventoryDown);
+      if (minInventory < this.replenishThreshold && !this.pendingMint) {
+        const deficit = this.initialPairs - minInventory;
+        // Cap replenishment so neither side exceeds maxInventoryPerSide
+        const maxMintable = this.maxInventoryPerSide - Math.max(this.inventoryUp, this.inventoryDown);
+        const mintAmount = Math.min(deficit, maxMintable);
+        if (mintAmount >= MIN_ORDER_SIZE) {
+          this.pendingMint = true;
+          this.lastMintRequestMs = now;
+          const amount = BigInt(mintAmount) * USDC_DECIMALS;
+          console.log(
+            `[MM] Replenishing: mint ${mintAmount} pairs ` +
+            `(inv Up=${this.inventoryUp} Down=${this.inventoryDown})`
+          );
+          this.inventoryUp += mintAmount;
+          this.inventoryDown += mintAmount;
+          this.pairsMinted += mintAmount;
           actions.push({
-            type: "PLACE_ORDER",
-            assetId: market.upTokenId,
-            side: "SELL",
-            price: exitPrice,
-            size: Math.min(upSize, this.orderSize),
-            orderType: "GTC",
+            type: "SPLIT",
+            conditionId: this.conditionId,
+            amount,
           });
         }
       }
     }
 
-    // Sell Down tokens if we hold any
-    if (downSize > 0 && downPos?.settled) {
-      const downBook = books[market.downTokenId];
-      const bestBid = downBook?.bids[0]?.price ?? 0;
-      if (bestBid > 0) {
-        const exitPrice = clamp(bestBid - this.flattenDiscountPct);
-        if (exitPrice > tickSize) {
-          actions.push({
-            type: "PLACE_ORDER",
-            assetId: market.downTokenId,
-            side: "SELL",
-            price: exitPrice,
-            size: Math.min(downSize, this.orderSize),
-            orderType: "GTC",
-          });
-        }
-      }
+    if (actions.length > 0) {
+      this.lastRequoteMs = now;
     }
 
-    const now = Date.now();
-    if (now - this.lastLogTime > 5_000) {
-      this.lastLogTime = now;
-      console.log(
-        `[MM] Flatten phase (${(timeRemainingMs / 1000).toFixed(0)}s left) — ` +
-        `Up=${upSize.toFixed(0)} Down=${downSize.toFixed(0)}`
-      );
+    // ── Periodic logging ──
+    if (now - this.lastLogMs > 10_000) {
+      this.lastLogMs = now;
+      this.logStatus(ourAskUp, ourAskDown, ourBidUp, ourBidDown, imbalance, timeRemainingS);
     }
 
     return actions.length > 0 ? actions : [{ type: "NOOP" }];
   }
 
-  async onMarketClose(_state: MarketState): Promise<TradeAction[]> {
-    console.log("[MM] Market close — cancelling all orders");
-    return [{ type: "CANCEL_ALL" }];
-  }
-
-  /**
-   * Check if an orderbook has sufficient two-sided liquidity for market making.
-   * Returns false if:
-   *  - Book is missing or empty on either side
-   *  - Spread exceeds maxSpread
-   *  - Top-of-book size is below minBookDepth on either side
-   */
-  private isBookHealthy(book: import("../types.ts").OrderBookState | undefined): boolean {
-    if (!book) return false;
-    if (book.bids.length === 0 || book.asks.length === 0) return false;
-
-    const spread = book.asks[0]!.price - book.bids[0]!.price;
-    if (spread > this.maxSpread) return false;
-
-    // Check depth: sum of top 3 levels on each side
-    const bidDepth = book.bids.slice(0, 3).reduce((s, l) => s + l.size * l.price, 0);
-    const askDepth = book.asks.slice(0, 3).reduce((s, l) => s + l.size * l.price, 0);
-    if (bidDepth < this.minBookDepth || askDepth < this.minBookDepth) return false;
-
-    return true;
-  }
-
-  /**
-   * Compare target quotes to existing open orders.
-   * Cancel orders that have drifted beyond threshold, place missing quotes.
-   */
-  private reconcileQuotes(
-    state: MarketState,
-    upTokenId: string,
-    upTarget: QuoteTarget,
-    downTokenId: string,
-    downTarget: QuoteTarget
-  ): TradeAction[] {
+  async onMarketClose(state: MarketState): Promise<TradeAction[]> {
     const actions: TradeAction[] = [];
-    const { openOrders } = state;
 
-    // Find existing orders by asset + side
-    const existingUpBid = openOrders.find(
-      (o) => o.assetId === upTokenId && o.side === "BUY"
-    );
-    const existingUpAsk = openOrders.find(
-      (o) => o.assetId === upTokenId && o.side === "SELL"
-    );
-    const existingDownBid = openOrders.find(
-      (o) => o.assetId === downTokenId && o.side === "BUY"
-    );
-    const existingDownAsk = openOrders.find(
-      (o) => o.assetId === downTokenId && o.side === "SELL"
-    );
+    if (state.openOrders.length > 0) {
+      actions.push({ type: "CANCEL_ALL" });
+    }
 
-    // Helper: check if an order needs requoting
-    const needsRequote = (
-      existing: typeof existingUpBid,
-      targetPrice: number,
-      targetSize: number
-    ): boolean => {
-      if (!existing && targetSize > 0) return true; // Need to place
-      if (existing && targetSize <= 0) return true; // Need to cancel
-      if (existing && Math.abs(existing.price - targetPrice) > this.requoteThreshold) {
-        return true; // Price drifted
-      }
-      return false;
-    };
-
-    // Process each quote leg
-    const legs: Array<{
-      existing: typeof existingUpBid;
-      targetPrice: number;
-      targetSize: number;
-      assetId: string;
-      side: Side;
-    }> = [
-      { existing: existingUpBid, targetPrice: upTarget.bidPrice, targetSize: upTarget.bidSize, assetId: upTokenId, side: "BUY" },
-      { existing: existingUpAsk, targetPrice: upTarget.askPrice, targetSize: upTarget.askSize, assetId: upTokenId, side: "SELL" },
-      { existing: existingDownBid, targetPrice: downTarget.bidPrice, targetSize: downTarget.bidSize, assetId: downTokenId, side: "BUY" },
-      { existing: existingDownAsk, targetPrice: downTarget.askPrice, targetSize: downTarget.askSize, assetId: downTokenId, side: "SELL" },
-    ];
-
-    for (const leg of legs) {
-      if (!needsRequote(leg.existing, leg.targetPrice, leg.targetSize)) {
-        continue;
-      }
-
-      // Cancel existing if present
-      if (leg.existing) {
-        actions.push({ type: "CANCEL_ORDER", orderId: leg.existing.orderId });
-      }
-
-      // Place new if target size > 0
-      if (leg.targetSize > 0) {
+    // Mint-and-sell: merge remaining pairs for $1.00 each
+    if (this.mode === "mint-and-sell") {
+      const redeemablePairs = Math.min(this.inventoryUp, this.inventoryDown);
+      if (redeemablePairs > 0) {
+        const amount = BigInt(redeemablePairs) * USDC_DECIMALS;
+        console.log(`[MM] Market close — merging ${redeemablePairs} remaining pairs`);
         actions.push({
-          type: "PLACE_ORDER",
-          assetId: leg.assetId,
-          side: leg.side,
-          price: leg.targetPrice,
-          size: leg.targetSize,
-          orderType: "GTC",
+          type: "MERGE_PAIRS",
+          conditionId: this.conditionId,
+          amount,
         });
       }
     }
 
+    this.logSessionSummary();
+
     return actions.length > 0 ? actions : [{ type: "NOOP" }];
+  }
+
+  onFill(assetId: string, side: Side, size: number, price: number): void {
+    if (side === "SELL") {
+      if (assetId === this.upTokenId) {
+        this.inventoryUp = Math.max(0, this.inventoryUp - size);
+        this.sellFillsUp += size;
+        this.sellRevenueUp += price * size;
+        console.log(
+          `[MM] Fill: SELL ${size} Up @ ${price.toFixed(3)} | ` +
+          `inv=(Up=${this.inventoryUp} Down=${this.inventoryDown})`
+        );
+      } else if (assetId === this.downTokenId) {
+        this.inventoryDown = Math.max(0, this.inventoryDown - size);
+        this.sellFillsDown += size;
+        this.sellRevenueDown += price * size;
+        console.log(
+          `[MM] Fill: SELL ${size} Down @ ${price.toFixed(3)} | ` +
+          `inv=(Up=${this.inventoryUp} Down=${this.inventoryDown})`
+        );
+      }
+    } else if (side === "BUY") {
+      if (assetId === this.upTokenId) {
+        const newInv = this.inventoryUp + size;
+        if (newInv > this.maxInventoryPerSide) {
+          console.warn(
+            `[MM] BUY fill would exceed max inventory: ${newInv} > ${this.maxInventoryPerSide}, capping`
+          );
+        }
+        this.inventoryUp = Math.min(this.maxInventoryPerSide, newInv);
+        this.buyFillsUp += size;
+        this.buyCostUp += price * size;
+        console.log(
+          `[MM] Fill: BUY ${size} Up @ ${price.toFixed(3)} | ` +
+          `inv=(Up=${this.inventoryUp} Down=${this.inventoryDown})`
+        );
+      } else if (assetId === this.downTokenId) {
+        const newInv = this.inventoryDown + size;
+        if (newInv > this.maxInventoryPerSide) {
+          console.warn(
+            `[MM] BUY fill would exceed max inventory: ${newInv} > ${this.maxInventoryPerSide}, capping`
+          );
+        }
+        this.inventoryDown = Math.min(this.maxInventoryPerSide, newInv);
+        this.buyFillsDown += size;
+        this.buyCostDown += price * size;
+        console.log(
+          `[MM] Fill: BUY ${size} Down @ ${price.toFixed(3)} | ` +
+          `inv=(Up=${this.inventoryUp} Down=${this.inventoryDown})`
+        );
+      }
+    }
+  }
+
+  // ── Private helpers ──
+
+  private reconcileAsk(
+    actions: TradeAction[],
+    openOrders: OpenOrder[],
+    assetId: string,
+    targetPrice: number,
+    inventory: number,
+  ): void {
+    const existing = openOrders.filter(o => o.assetId === assetId && o.side === "SELL");
+
+    if (inventory >= MIN_ORDER_SIZE) {
+      // Use first order for requote comparison; cancel all if requoting
+      if (this.shouldRequote(existing[0], targetPrice, inventory)) {
+        for (const order of existing) {
+          actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
+        }
+        const size = Math.min(inventory, this.maxInventoryPerSide);
+        actions.push({
+          type: "PLACE_ORDER",
+          assetId,
+          side: "SELL" as Side,
+          price: targetPrice,
+          size,
+          orderType: "GTC",
+        });
+      }
+    } else {
+      // No inventory — cancel all stale asks
+      for (const order of existing) {
+        actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
+      }
+    }
+  }
+
+  private reconcileBid(
+    actions: TradeAction[],
+    openOrders: OpenOrder[],
+    assetId: string,
+    targetPrice: number,
+    capacity: number,
+  ): void {
+    const existing = openOrders.filter(o => o.assetId === assetId && o.side === "BUY");
+
+    if (capacity >= MIN_ORDER_SIZE && targetPrice > 0) {
+      if (this.shouldRequote(existing[0], targetPrice, capacity)) {
+        for (const order of existing) {
+          actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
+        }
+        const size = Math.min(capacity, this.maxInventoryPerSide);
+        actions.push({
+          type: "PLACE_ORDER",
+          assetId,
+          side: "BUY" as Side,
+          price: targetPrice,
+          size,
+          orderType: "GTC",
+        });
+      }
+    } else {
+      for (const order of existing) {
+        actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
+      }
+    }
+  }
+
+  private shouldRequote(
+    existing: OpenOrder | undefined,
+    targetPrice: number,
+    targetSize: number,
+  ): boolean {
+    if (!existing && targetSize >= MIN_ORDER_SIZE) return true;
+    if (existing && Math.abs(existing.price - targetPrice) > this.requoteThreshold) return true;
+    if (existing && Math.abs(existing.remainingSize - targetSize) >= MIN_ORDER_SIZE) return true;
+    return false;
+  }
+
+  private clampPrice(price: number, minPrice: number, maxPrice: number, tick: number): number {
+    const clamped = Math.max(minPrice, Math.min(maxPrice, price));
+    return Math.round(clamped / tick) * tick;
+  }
+
+  private logStatus(
+    askUp: number, askDown: number,
+    bidUp: number, bidDown: number,
+    imbalance: number, timeRemainingS: number,
+  ): void {
+    const pnl = this.computeRealizedPnl();
+    const base = `[MM] inv=(Up=${this.inventoryUp} Down=${this.inventoryDown}) ` +
+      `sells=(Up=${this.sellFillsUp} Down=${this.sellFillsDown}) ` +
+      `pnl=$${pnl.toFixed(2)} ` +
+      `asks=(${askUp.toFixed(3)}/${askDown.toFixed(3)}) ` +
+      `imbalance=${imbalance > 0 ? "+" : ""}${imbalance} ` +
+      `remaining=${timeRemainingS.toFixed(0)}s`;
+
+    if (this.mode === "mint-and-sell") {
+      const completedPairs = Math.min(this.sellFillsUp, this.sellFillsDown);
+      console.log(base + ` | minted=${this.pairsMinted} pairs_completed=${completedPairs}`);
+    } else {
+      console.log(
+        base +
+        ` | buys=(Up=${this.buyFillsUp} Down=${this.buyFillsDown}) ` +
+        `bids=(${bidUp.toFixed(3)}/${bidDown.toFixed(3)})`
+      );
+    }
+  }
+
+  private computeRealizedPnl(): number {
+    if (this.mode === "mint-and-sell") {
+      // Total cost = $1.00 per pair minted
+      // Total recovered = sell revenue + value of mergeable pairs ($1.00 each)
+      const redeemablePairs = Math.min(this.inventoryUp, this.inventoryDown);
+      const totalRecovered = this.sellRevenueUp + this.sellRevenueDown + redeemablePairs;
+      return totalRecovered - this.pairsMinted;
+    } else {
+      // Traditional: realized PnL = sell revenue - buy cost
+      // (remaining inventory has unrealized value that settles at 0 or 1)
+      const pnlUp = this.sellRevenueUp - this.buyCostUp;
+      const pnlDown = this.sellRevenueDown - this.buyCostDown;
+      return pnlUp + pnlDown;
+    }
+  }
+
+  private logSessionSummary(): void {
+    const pnl = this.computeRealizedPnl();
+
+    if (this.mode === "mint-and-sell") {
+      const redeemablePairs = Math.min(this.inventoryUp, this.inventoryDown);
+      const excessUp = this.inventoryUp - redeemablePairs;
+      const excessDown = this.inventoryDown - redeemablePairs;
+      const completedPairs = Math.min(this.sellFillsUp, this.sellFillsDown);
+
+      console.log(
+        `[MM] Session summary (mint-and-sell): ` +
+        `minted=${this.pairsMinted} sells=(Up=${this.sellFillsUp} Down=${this.sellFillsDown}) ` +
+        `completed_pairs=${completedPairs} merged=${redeemablePairs} ` +
+        `excess=(Up=${excessUp} Down=${excessDown}) ` +
+        `pnl=$${pnl.toFixed(2)}`
+      );
+
+      if (excessUp > 0 || excessDown > 0) {
+        console.warn(
+          `[MM] WARNING: ${excessUp + excessDown} orphaned tokens will settle at binary outcome`
+        );
+      }
+    } else {
+      console.log(
+        `[MM] Session summary (traditional): ` +
+        `buys=(Up=${this.buyFillsUp} Down=${this.buyFillsDown}) ` +
+        `sells=(Up=${this.sellFillsUp} Down=${this.sellFillsDown}) ` +
+        `remaining_inv=(Up=${this.inventoryUp} Down=${this.inventoryDown}) ` +
+        `cash_pnl=$${pnl.toFixed(2)}`
+      );
+    }
   }
 }
 
-// Register with the strategy registry
-registerStrategy("market-maker", () => new SmartMarketMaker());
+registerStrategy("market-maker", () => {
+  const config = loadConfig();
+  const mm = config.marketMaker;
+  return new MintAndSellMaker(
+    mm.mode ?? "mint-and-sell",
+    mm.skewK ?? 0.005,
+    mm.initialPairs ?? 50,
+    mm.maxInventoryPerSide ?? 200,
+    mm.replenishThreshold ?? 10,
+    mm.requoteThreshold ?? 0.005,
+  );
+});

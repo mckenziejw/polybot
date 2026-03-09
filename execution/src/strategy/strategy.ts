@@ -1,4 +1,4 @@
-import type { MarketState, TradeAction, DataMode } from "../types.ts";
+import type { MarketState, TradeAction, DataMode, Side } from "../types.ts";
 
 /**
  * Strategy interface — the core abstraction for trading logic.
@@ -35,6 +35,13 @@ export interface Strategy {
    * Return cancel actions for any open orders. The orchestrator will execute them.
    */
   onMarketClose(state: MarketState): Promise<TradeAction[]>;
+
+  /**
+   * Optional: called when one of our orders is filled.
+   * Allows strategies to update internal state (inventory, PnL) immediately
+   * rather than waiting for the next evaluate() cycle.
+   */
+  onFill?(assetId: string, side: Side, size: number, price: number): void;
 }
 
 /**

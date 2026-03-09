@@ -120,6 +120,12 @@ export interface SplitAction {
   amount: bigint; // USDC.e units (6 decimals)
 }
 
+export interface MergePairsAction {
+  type: "MERGE_PAIRS";
+  conditionId: string;
+  amount: bigint; // USDC.e units (6 decimals) — number of pairs to merge
+}
+
 export type TradeAction =
   | PlaceOrderAction
   | CancelOrderAction
@@ -127,6 +133,7 @@ export type TradeAction =
   | NonceInvalidateAction
   | RedeemAction
   | SplitAction
+  | MergePairsAction
   | NoopAction;
 
 // ── Market Data Events (emitted by MarketDataSource) ──
@@ -273,7 +280,16 @@ export interface PolymarketConfig {
   proxyWallet: string;
 }
 
+export type MarketMakerMode = "mint-and-sell" | "traditional";
+
 export interface MarketMakerConfig {
+  mode: MarketMakerMode;
+  initialPairs: number;          // pairs to mint at market open (mint-and-sell)
+  maxInventoryPerSide: number;   // safety cap per token side
+  skewK: number;                 // A-S skew parameter (price shift per unit of imbalance)
+  requoteThreshold: number;      // min price change to trigger cancel-and-replace
+  replenishThreshold: number;    // mint more when inventory drops below this
+  // Legacy fields kept for other strategies (smoke-test, xgb)
   orderSize: number;
   cancelWindowS: number;
   minRemainingS: number;

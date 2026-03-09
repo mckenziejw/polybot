@@ -4,6 +4,7 @@ import type {
   AppConfig,
   PolymarketConfig,
   MarketMakerConfig,
+  MarketMakerMode,
   ExecutionConfig,
 } from "./types.ts";
 
@@ -59,7 +60,16 @@ export function loadConfig(configPath?: string): AppConfig {
 
   // Parse market maker config
   const marketMakerRaw = rawConfig.market_maker || {};
+  const modeRaw = String(marketMakerRaw.mode || "mint-and-sell");
+  const mode = (modeRaw === "traditional" ? "traditional" : "mint-and-sell") as MarketMakerMode;
   const marketMaker: MarketMakerConfig = {
+    mode,
+    initialPairs: Number(marketMakerRaw.initial_pairs ?? 50),
+    maxInventoryPerSide: Number(marketMakerRaw.max_inventory_per_side ?? 200),
+    skewK: Number(marketMakerRaw.skew_k ?? 0.005),
+    requoteThreshold: Number(marketMakerRaw.requote_threshold ?? 0.005),
+    replenishThreshold: Number(marketMakerRaw.replenish_threshold ?? 10),
+    // Legacy fields for other strategies
     orderSize: Number(marketMakerRaw.order_size) || 5.0,
     cancelWindowS: Number(marketMakerRaw.cancel_window_s) || 6.0,
     minRemainingS: Number(marketMakerRaw.min_remaining_s) || 30.0,

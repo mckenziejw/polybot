@@ -260,17 +260,50 @@ async function main(): Promise<void> {
           `[OpenOrders] ${snap.openOrders.map((o) => `${o.orderId.slice(0, 12)}… ${o.side} rem=${o.remainingSize}/${o.originalSize}@${o.price}`).join(" | ") || "(none)"}`
         );
 
-        csvLogger.logFill({
-          timestamp: event.timestamp,
-          marketSlug: currentMarket?.slug ?? "",
-          orderId: isTaker ? event.takerOrderId : makerMatches[0]?.orderId ?? "",
-          assetId: event.assetId,
-          side: event.side,
-          price: event.price,
-          size: event.size,
-          feeRateBps: event.feeRateBps,
-          fillLatencyMs: Date.now() - event.timestamp,
-        });
+        // Only process fills on MATCHED (first status). Polymarket sends the same
+        // trade ID with MATCHED → MINED → CONFIRMED. Without this gate, onFill
+        // would be called 3x, triple-counting inventory and PnL changes.
+        const isFirstFill = event.status === "MATCHED";
+
+        // Log fill with correct details depending on our role.
+        // When we're a maker, use our maker fill details (price, size, orderId),
+        // not the top-level taker fields which belong to the counterparty.
+        if (isTaker) {
+          if (isFirstFill) {
+            csvLogger.logFill({
+              timestamp: event.timestamp,
+              marketSlug: currentMarket?.slug ?? "",
+              orderId: event.takerOrderId,
+              assetId: event.assetId,
+              side: event.side,
+              price: event.price,
+              size: event.size,
+              feeRateBps: event.feeRateBps,
+              fillLatencyMs: Date.now() - event.timestamp,
+            });
+            if (strategy.onFill) {
+              strategy.onFill(event.assetId, event.side, event.size, event.price);
+            }
+          }
+        }
+        for (const mo of makerMatches) {
+          if (isFirstFill) {
+            csvLogger.logFill({
+              timestamp: event.timestamp,
+              marketSlug: currentMarket?.slug ?? "",
+              orderId: mo.orderId,
+              assetId: mo.assetId || event.assetId,
+              side: mo.side,
+              price: mo.price,
+              size: mo.matchedAmount,
+              feeRateBps: mo.feeRateBps,
+              fillLatencyMs: Date.now() - event.timestamp,
+            });
+            if (strategy.onFill) {
+              strategy.onFill(mo.assetId || event.assetId, mo.side, mo.matchedAmount, mo.price);
+            }
+          }
+        }
       }
     }
   });
@@ -554,6 +587,13 @@ async function dispatchActions(
           await minter.split(action.conditionId, action.amount);
         } catch (err) {
           console.error("[Main] Split failed:", err);
+        }
+        break;
+      case "MERGE_PAIRS":
+        try {
+          await minter.merge(action.conditionId, action.amount);
+        } catch (err) {
+          console.error("[Main] Merge failed:", err);
         }
         break;
       case "NOOP":

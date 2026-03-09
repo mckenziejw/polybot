@@ -37,6 +37,7 @@ from xgboost_flexible import (
     extract_market_features,
     extract_btc_features,
     get_feature_columns,
+    compute_time_weights,
     _empty_btc_features,
 )
 
@@ -77,20 +78,25 @@ def train_production_model() -> tuple[xgb.Booster, list[str], float | None]:
     for X in [X_train, X_val]:
         X[~np.isfinite(X)] = 0.0
 
-    dtrain = xgb.DMatrix(X_train, label=y_train, feature_names=feature_cols)
+    # Time-weighted training: recent data gets higher weight (7-day half-life)
+    train_weights = compute_time_weights(train_df, half_life_days=7.0)
+    print(f"  Time weights: min={train_weights.min():.3f}, max={train_weights.max():.3f}, "
+          f"mean={train_weights.mean():.3f}")
+
+    dtrain = xgb.DMatrix(X_train, label=y_train, weight=train_weights, feature_names=feature_cols)
     dval = xgb.DMatrix(X_val, label=y_val, feature_names=feature_cols)
 
     params = {
         "objective": "binary:logistic",
         "eval_metric": "logloss",
-        "max_depth": 2,           # v3.2: sweep-optimized (500 trials, deduped features)
-        "learning_rate": 0.014790,
-        "subsample": 0.838960,
-        "colsample_bytree": 0.951185,
-        "min_child_weight": 42,
-        "lambda": 0.630567,
-        "alpha": 0.010124,
-        "gamma": 0.457778,
+        "max_depth": 2,           # v3.3: sweep-optimized (300 trials, 101 features w/ time)
+        "learning_rate": 0.005016,
+        "subsample": 0.930265,
+        "colsample_bytree": 0.985988,
+        "min_child_weight": 41,
+        "lambda": 0.224145,
+        "alpha": 0.827467,
+        "gamma": 1.705416,
         "seed": 42,
         "verbosity": 0,
     }

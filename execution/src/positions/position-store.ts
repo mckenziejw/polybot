@@ -21,15 +21,15 @@ export class PositionStore {
   /**
    * Apply a fill from the user channel trade event.
    *
-   * Uses the `traderSide` field to determine perspective, NOT openOrders
-   * lookup (which is subject to race conditions — order events can delete
-   * orders before trade events arrive).
+   * The user channel broadcasts ALL trade events on subscribed markets,
+   * not just ours. We check both paths independently:
+   *   1. Is our order the taker? (takerOrderId in knownOrderIds)
+   *   2. Are any of our orders in makerOrders?
    *
-   * When we are a maker (traderSide === "MAKER"), our fill details are in
-   * the makerOrders array — we use our maker order's price, side, and
-   * matchedAmount for position tracking.
-   *
-   * When we are the taker, we use the top-level fields.
+   * We do NOT rely on `traderSide` for branching — when someone else's
+   * market order fills our resting limit, the event may arrive with
+   * traderSide="TAKER" (from the seller's perspective), which would
+   * skip the maker branch entirely if we branched on it.
    *
    * Each trade event is processed only once (by trade ID) to prevent
    * double-counting across MATCHED → MINED → CONFIRMED status updates.
@@ -52,15 +52,12 @@ export class PositionStore {
 
     if (event.status !== "MATCHED" && event.status !== "CONFIRMED") return;
 
-    this.processedTradeIds.add(event.id);
     const isAlreadyConfirmed = event.status === "CONFIRMED";
     const affectedAssets: string[] = [];
 
-    if (event.traderSide === "TAKER") {
-      // Verify this is actually our taker order
-      if (!this.knownOrderIds.has(event.takerOrderId)) return;
-
-      // We are the taker — use top-level trade fields
+    // Path 1: Check if we are the taker
+    const isTaker = this.knownOrderIds.has(event.takerOrderId);
+    if (isTaker) {
       const fillSize = Number(event.size);
       const fillPrice = Number(event.price);
       this.updatePosition(event.assetId, event.side, fillSize, fillPrice, isAlreadyConfirmed);
@@ -74,38 +71,42 @@ export class PositionStore {
           this.openOrders.delete(event.takerOrderId);
         }
       }
-    } else {
-      // We are the maker — find our order(s) in makerOrders
-      const ourMakerFills = event.makerOrders.filter(
-        (mo) => this.knownOrderIds.has(mo.orderId)
-      );
-
-      for (const makerFill of ourMakerFills) {
-        const fillSize = Number(makerFill.matchedAmount);
-        const fillPrice = Number(makerFill.price);
-        const fillAssetId = makerFill.assetId || event.assetId;
-        const fillSide = makerFill.side;
-
-        this.updatePosition(fillAssetId, fillSide, fillSize, fillPrice, isAlreadyConfirmed);
-        affectedAssets.push(fillAssetId);
-
-        // Reduce our maker order's remaining size
-        const order = this.openOrders.get(makerFill.orderId);
-        if (order) {
-          order.remainingSize = Math.max(0, order.remainingSize - fillSize);
-          if (order.remainingSize < 0.01) {
-            this.openOrders.delete(makerFill.orderId);
-          }
-        }
-      }
-
-      // If traderSide is MAKER but no makerOrders matched our known IDs,
-      // this trade doesn't involve us — skip it
     }
 
-    // Track assets awaiting on-chain settlement
-    if (!isAlreadyConfirmed && affectedAssets.length > 0) {
-      this.pendingSettlement.set(event.id, affectedAssets);
+    // Path 2: Check if any of our orders are in makerOrders
+    // (independent of path 1 — a trade could theoretically involve us on both sides,
+    // though in practice it won't)
+    const ourMakerFills = event.makerOrders.filter(
+      (mo) => this.knownOrderIds.has(mo.orderId)
+    );
+
+    for (const makerFill of ourMakerFills) {
+      const fillSize = Number(makerFill.matchedAmount);
+      const fillPrice = Number(makerFill.price);
+      const fillAssetId = makerFill.assetId || event.assetId;
+      const fillSide = makerFill.side;
+
+      this.updatePosition(fillAssetId, fillSide, fillSize, fillPrice, isAlreadyConfirmed);
+      affectedAssets.push(fillAssetId);
+
+      // Reduce our maker order's remaining size
+      const order = this.openOrders.get(makerFill.orderId);
+      if (order) {
+        order.remainingSize = Math.max(0, order.remainingSize - fillSize);
+        if (order.remainingSize < 0.01) {
+          this.openOrders.delete(makerFill.orderId);
+        }
+      }
+    }
+
+    // Only mark as processed if this trade actually involved us
+    if (isTaker || ourMakerFills.length > 0) {
+      this.processedTradeIds.add(event.id);
+
+      // Track assets awaiting on-chain settlement
+      if (!isAlreadyConfirmed && affectedAssets.length > 0) {
+        this.pendingSettlement.set(event.id, affectedAssets);
+      }
     }
   }
 

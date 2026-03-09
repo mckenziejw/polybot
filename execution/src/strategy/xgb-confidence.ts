@@ -331,21 +331,43 @@ export class XgbConfidenceStrategy implements Strategy {
       return [{ type: "NOOP" }];
     }
 
-    // Leader token should have mid >= 0.50, so ask should be in a reasonable range.
-    // Reject extreme prices (very cheap = low prob, very expensive = no upside).
-    // Cap at 0.90: walk-forward shows 0.90+ entries barely profitable ($0.07/trade),
-    // and capping improves ROI from 14.0% to 15.3% with minimal PnL loss.
-    if (bestAsk > 0.90 || bestAsk < 0.45) {
-      console.warn(`[XgbConf] Ask price ${bestAsk} out of range [0.45, 0.90] — skipping`);
+    // Reject if ask is too cheap — leader token with ask < 0.45 suggests
+    // the "leader" isn't really leading (mid near 0.50). No upper bound here;
+    // with limit-at-prediction, entry price can be well below the ask.
+    // The entry price range is checked after determining the limit price below.
+    if (bestAsk < 0.45) {
+      console.warn(`[XgbConf] Ask price ${bestAsk} too low (<0.45) — skipping`);
       this.phase = "SKIP";
       return [{ type: "NOOP" }];
     }
 
-    // Place a limit buy at best ask (taker-style for guaranteed fill).
-    // Using FOK would be ideal but Polymarket's CLOB converts FOK to GTC for
-    // limit orders. GTC at best ask will fill immediately if liquidity exists;
-    // if the ask is pulled, it becomes a resting bid which onMarketClose cancels.
-    const entryPrice = bestAsk;
+    // Limit-at-prediction strategy:
+    // When prediction < bestAsk, place a resting limit buy at the prediction price
+    // instead of crossing the spread. Walk-forward analysis on 1,154 markets shows
+    // 99.9% fill rate with no WR degradation (86.5% vs 83.8% instant fills).
+    // 95% of limit orders land below the best bid (median 5.5c below bid),
+    // so this is a genuine price improvement, not just capturing the spread.
+    const prediction = result.prediction;
+    let entryPrice: number;
+    let orderStyle: string;
+
+    if (prediction >= bestAsk) {
+      // Positive edge: model thinks it's worth more than market ask — take it
+      entryPrice = bestAsk;
+      orderStyle = "instant";
+    } else {
+      // Place limit at prediction price — can be below the bid
+      // Round down to nearest tick (0.01) to ensure valid price
+      entryPrice = Math.floor(prediction * 100) / 100;
+      orderStyle = "limit";
+    }
+
+    // Final sanity: entry price must still be in valid range
+    if (entryPrice > 0.85 || entryPrice < 0.45) {
+      console.warn(`[XgbConf] Entry price ${entryPrice} out of range [0.45, 0.85] — skipping`);
+      this.phase = "SKIP";
+      return [{ type: "NOOP" }];
+    }
 
     // Size: betDollars worth of tokens, respecting minimum
     const rawSize = Math.floor(this.betDollars / entryPrice);
@@ -354,8 +376,8 @@ export class XgbConfidenceStrategy implements Strategy {
     this.phase = "TRADED";
     const label = result.buy_token === "up" ? "Up" : "Down";
     console.log(
-      `[XgbConf] BUY ${size} ${label} @ ${entryPrice.toFixed(2)} ` +
-      `(pred=${result.prediction.toFixed(3)}, spread=${spread.toFixed(3)}, ` +
+      `[XgbConf] BUY ${size} ${label} @ ${entryPrice.toFixed(2)} [${orderStyle}] ` +
+      `(pred=${prediction.toFixed(3)}, bid=${bestBid.toFixed(2)}, ask=${bestAsk.toFixed(2)}, ` +
       `cost=$${(size * entryPrice).toFixed(2)})`
     );
 
