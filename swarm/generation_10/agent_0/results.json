@@ -1,0 +1,22 @@
+{
+  "strategy_name": "cross_asset_book_imbalance_divergence",
+  "description": "When BTC and ETH 5m orderbook imbalances agree in direction but SOL or XRP imbalance diverges (opposite sign), bet that BTC resolves in the BTC/ETH consensus direction. Hypothesis: informed flow hits correlated majors first, alt divergence is noise.",
+  "hypothesis": "Divergent alt-coin book imbalance (SOL/XRP vs BTC/ETH consensus) reflects stale or noise liquidity rather than genuine contrarian information. Fading the outlier captures a reversion premium.",
+  "metrics": {
+    "total_trades": 35,
+    "win_rate": 0.2571,
+    "pnl_total": -27.4709,
+    "pnl_per_trade": -0.7849,
+    "max_drawdown": -28.7698,
+    "sharpe": -6.4153
+  },
+  "parameters": {
+    "imb_threshold": 0.1,
+    "divergence_threshold": 0.1,
+    "min_mid": 0.2,
+    "max_mid": 0.8,
+    "position_size": 5
+  },
+  "verdict": "failed",
+  "next_steps": "Strategy decisively fails: 0/44 parameter configs show positive Sharpe, avg win rate 33% vs 54% base rate. Root cause: the core hypothesis is empirically inverted. All imbalances are NEGATIVELY correlated with BTC Up winning (btc_imb: -0.47, sol_imb: -0.44, xrp_imb: -0.36, eth_imb: -0.17). Positive book imbalance predicts Down, not Up. Furthermore, SOL/XRP imbalances are MORE predictive of BTC outcome than ETH, contradicting the 'alts lag and carry noise' assumption. The divergence signal is actively harmful: when alts diverge, they may carry independent information, not noise. No parameter tuning can rescue a strategy whose directional premise is wrong."
+}

@@ -1,0 +1,142 @@
+{
+  "strategy_name": "orderbook_shape_convexity",
+  "description": "Uses second derivative of cumulative bid/ask depth across 5 orderbook levels as a volatility-regime filter. Concave curves (negative convexity = thick near top, thin at depth) indicate low uncertainty / strong consensus. In concave regimes, buy the token whose mid-price just dropped below its 6-snapshot rolling mean (mean-reversion fade). Skip convex regimes (uncertain markets).",
+  "hypothesis": "Concave orderbook depth curves indicate market consensus and low uncertainty. Mean-reversion signals (price dipping below rolling mean) should be more reliable in these regimes compared to convex (uncertain) regimes.",
+  "metrics": {
+    "total_trades": 269,
+    "win_rate": 0.3309,
+    "pnl_total": 9.2262,
+    "pnl_per_trade": 0.0343,
+    "max_drawdown": -31.0738,
+    "sharpe": 0.0177
+  },
+  "baseline_metrics": {
+    "total_trades": 911,
+    "win_rate": 0.4226,
+    "pnl_total": -157.1684,
+    "pnl_per_trade": -0.1725
+  },
+  "parameters": {
+    "convexity_threshold": -50,
+    "rolling_window": 6,
+    "max_entry_price": 0.85,
+    "min_order_size": 5,
+    "snapshot_subsample": 100
+  },
+  "sweep_results": [
+    {
+      "total_trades": 39,
+      "win_rate": 0.0769,
+      "pnl_total": -11.7796,
+      "pnl_per_trade": -0.302,
+      "max_drawdown": -11.5546,
+      "sharpe": -0.3578,
+      "avg_entry_price": 0.1373,
+      "threshold": -200
+    },
+    {
+      "total_trades": 117,
+      "win_rate": 0.1624,
+      "pnl_total": -24.3277,
+      "pnl_per_trade": -0.2079,
+      "max_drawdown": -30.5125,
+      "sharpe": -0.1599,
+      "avg_entry_price": 0.2039,
+      "threshold": -100
+    },
+    {
+      "total_trades": 269,
+      "win_rate": 0.3309,
+      "pnl_total": 9.2262,
+      "pnl_per_trade": 0.0343,
+      "max_drawdown": -31.0738,
+      "sharpe": 0.0177,
+      "avg_entry_price": 0.3239,
+      "threshold": -50
+    },
+    {
+      "total_trades": 448,
+      "win_rate": 0.3616,
+      "pnl_total": -14.5721,
+      "pnl_per_trade": -0.0325,
+      "max_drawdown": -51.2868,
+      "sharpe": -0.0157,
+      "avg_entry_price": 0.368,
+      "threshold": -20
+    },
+    {
+      "total_trades": 556,
+      "win_rate": 0.3579,
+      "pnl_total": -47.5662,
+      "pnl_per_trade": -0.0856,
+      "max_drawdown": -85.5083,
+      "sharpe": -0.04,
+      "avg_entry_price": 0.3749,
+      "threshold": -10
+    },
+    {
+      "total_trades": 715,
+      "win_rate": 0.3874,
+      "pnl_total": -59.282,
+      "pnl_per_trade": -0.0829,
+      "max_drawdown": -105.2099,
+      "sharpe": -0.0377,
+      "avg_entry_price": 0.4039,
+      "threshold": 0
+    },
+    {
+      "total_trades": 858,
+      "win_rate": 0.4044,
+      "pnl_total": -59.8689,
+      "pnl_per_trade": -0.0698,
+      "max_drawdown": -125.4412,
+      "sharpe": -0.0307,
+      "avg_entry_price": 0.4183,
+      "threshold": 10
+    },
+    {
+      "total_trades": 908,
+      "win_rate": 0.4273,
+      "pnl_total": -107.2656,
+      "pnl_per_trade": -0.1181,
+      "max_drawdown": -165.6934,
+      "sharpe": -0.0487,
+      "avg_entry_price": 0.4508,
+      "threshold": 50
+    },
+    {
+      "total_trades": 911,
+      "win_rate": 0.4248,
+      "pnl_total": -132.436,
+      "pnl_per_trade": -0.1454,
+      "max_drawdown": -176.1255,
+      "sharpe": -0.0592,
+      "avg_entry_price": 0.4537,
+      "threshold": 100
+    },
+    {
+      "total_trades": 911,
+      "win_rate": 0.4237,
+      "pnl_total": -151.2931,
+      "pnl_per_trade": -0.1661,
+      "max_drawdown": -194.2819,
+      "sharpe": -0.0676,
+      "avg_entry_price": 0.4568,
+      "threshold": 500
+    },
+    {
+      "total_trades": 911,
+      "win_rate": 0.4226,
+      "pnl_total": -157.1684,
+      "pnl_per_trade": -0.1725,
+      "max_drawdown": -200.0072,
+      "sharpe": -0.0702,
+      "avg_entry_price": 0.457,
+      "threshold": 999999
+    }
+  ],
+  "convexity_filter_adds_value": true,
+  "verdict": "marginal",
+  "analysis_notes": "The convexity filter's apparent edge is fragile. Tighter thresholds systematically select cheaper tokens (avg entry drops from 0.457 baseline to 0.324 at thresh=-50 to 0.137 at thresh=-200). Win rate drops in lockstep (42% to 33% to 8%). The one positive-PnL threshold (-50) produces only $9.23 total profit on 269 trades ($0.034/trade) with a Sharpe of 0.018 and -$31 max drawdown. The 33% win rate is below random and the positive PnL comes from favorable payoff asymmetry on cheap tokens, not from predictive alpha. This is likely a statistical artifact at a single threshold rather than a robust signal.",
+  "next_steps": "The convexity filter as implemented does not demonstrate reliable predictive power. The apparent edge at threshold=-50 is marginal ($0.034/trade, Sharpe 0.018) and likely driven by payoff asymmetry from buying cheap tokens rather than genuine regime detection. To validate: (1) test on full dataset to check if the threshold=-50 result persists, (2) control for entry price by comparing win rates at matched price levels with and without the convexity filter, (3) consider that the hypothesis may be fundamentally flawed - orderbook shape in binary prediction markets may not map to uncertainty regimes the same way it does in continuous markets."
+}

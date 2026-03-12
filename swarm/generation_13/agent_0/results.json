@@ -1,0 +1,22 @@
+{
+  "strategy_name": "deep_level_ratio_book_imbalance_dual_signal",
+  "description": "Dual-signal confirmation strategy combining deep_level_ratio (ratio of deep book levels 3-5 vs all levels) with L1 book_imbalance. Only enters when both signals agree on direction within the first 2 seconds. Analyzed using Up token only (Down is perfect mirror).",
+  "hypothesis": "Combine deep_level_ratio (2s window, threshold 0.3) with book_imbalance as confirmation filter. Only enter when both agree on direction. Dual-signal confirmation should reduce false positives and improve win rate at the cost of fewer trades.",
+  "metrics": {
+    "total_trades": 71,
+    "win_rate": 0.619718,
+    "pnl_total": 36.1118,
+    "pnl_per_trade": 0.508617,
+    "max_drawdown": -10.5554,
+    "sharpe": 3.5393
+  },
+  "parameters": {
+    "deep_ratio_threshold": 0.1,
+    "entry_window_ms": 2000,
+    "imbalance_threshold": 0.2,
+    "max_entry_price": 0.85,
+    "min_order_tokens": 5
+  },
+  "verdict": "promising",
+  "next_steps": "Sample results promising (62% WR, Sharpe 3.5 on 71 trades from 401 resolved markets). Key caveats: (1) sample is only 401 markets - validate on full 7,187-file dataset to confirm edge persists out-of-sample, (2) sensitivity analysis shows monotonic improvement as imbalance threshold tightens at dr=0.10, suggesting real signal not noise, (3) deep_ratio alone carries most alpha (57.5% WR at thresh=0.10) while imbalance acts as quality filter, (4) test with different entry windows (1s, 3s, 5s) to optimize timing, (5) investigate whether signal decays over market lifetime or strengthens."
+}

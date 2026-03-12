@@ -298,7 +298,17 @@ if __name__ == "__main__":
     duration_ms = TIMEFRAME_SECONDS[timeframe] * 1000
 
     RAW_DIR = Path(f"./datasets/telonex_{asset}_{timeframe}_raw")
-    OUT_DIR = Path(f"./data/telonex_{asset}_{timeframe}_book_snapshots")
+    # Match legacy directory naming conventions:
+    #   BTC 5m  -> data/telonex_book_snapshots/
+    #   BTC 4h  -> data/telonex_btc_4h_book_snapshots/
+    #   ALT 5m  -> data/telonex_book_snapshots_{asset}/
+    #   Other   -> data/telonex_{asset}_{timeframe}_book_snapshots/
+    if asset == "btc" and timeframe == "5m":
+        OUT_DIR = Path("./data/telonex_book_snapshots")
+    elif asset != "btc" and timeframe == "5m":
+        OUT_DIR = Path(f"./data/telonex_book_snapshots_{asset}")
+    else:
+        OUT_DIR = Path(f"./data/telonex_{asset}_{timeframe}_book_snapshots")
 
     log.info(f"Asset: {asset}, Timeframe: {timeframe}, Duration: {duration_ms}ms")
     log.info(f"Raw: {RAW_DIR}, Out: {OUT_DIR}")

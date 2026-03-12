@@ -1,0 +1,25 @@
+## Results Summary
+
+**Verdict: FAILED**
+
+The cross-token implied probability divergence strategy was thoroughly tested across 28 parameter combinations on 917 markets. Key findings:
+
+| Metric | Value |
+|--------|-------|
+| Total trades | 728 |
+| Win rate | 43.5% |
+| Total P&L | -$292.02 |
+| Sharpe | -2.89 |
+| Max drawdown | -$333.87 |
+
+**Why it fails:**
+
+1. **Depth ratio has no predictive power** — the "always buy Up" baseline (no depth signal) performs similarly poorly, confirming the depth ratio is noise, not signal.
+
+2. **Low bid_sum = worse outcomes** — lower thresholds (tighter mispricing filter) produce *worse* win rates (42-44%), not better. This suggests low bid sums reflect illiquid early-market conditions, not exploitable dislocations.
+
+3. **Best case still loses money** — even the most favorable parameter combo (thresh=0.98, dr_min=1.0) only achieves 52% WR and still loses $6 after fees. The fee structure makes marginal edges unprofitable.
+
+4. **Markets appear efficient** — within the first 60 seconds of orderbook data, 5-minute BTC binary options don't exhibit the informed depth-accumulation pattern hypothesized.
+
+Strategy implementation and results written to the output directory.

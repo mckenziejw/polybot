@@ -1,0 +1,17 @@
+Strategy backtest complete. Here's the summary:
+
+**Strategy: Deep Level vs L1 Contrarian Disagreement**
+
+**Core Results (2s window, threshold 0.3):**
+- 155 trades across 917 markets (17% trade rate)
+- **54.2% win rate**, +4.03 total PnL, **0.026 PnL/trade**
+- Sharpe: 0.88, Max drawdown: -7.95
+- **Verdict: Promising**
+
+**Key findings from sensitivity analysis:**
+- **Threshold is robust** — WR monotonically increases from 50.7% (0.1) to 54.7% (0.4), then starts declining as trade count gets too low
+- **500ms window is surprisingly strong** — 194 trades, 57.7% WR, 0.064 PnL/trade (total PnL: +12.48), but could be overfitting to very early book state
+- Shorter windows capture faster disagreement signals before the book settles
+- The 0.3 threshold at 2s is a solid balance of trade count and edge
+
+**Interpretation:** The disagreement between deep levels and L1 does appear to carry signal. When MMs stack depth at L3-5 in one direction while L1 leans the other way, following the deep levels yields ~54% accuracy after fees — consistent with the hypothesis that surface liquidity can be deceptive layering.

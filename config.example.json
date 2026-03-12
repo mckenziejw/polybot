@@ -28,7 +28,8 @@
     "resample_interval_ms": 100,
     "external_feeds": ["binance-btcusdt"],
     "bet_dollars": 20,
-    "model_server_url": "http://127.0.0.1:8000"
+    "model_server_url": "http://127.0.0.1:8000",
+    "market_duration": "5m"
   },
   "telonex": {
     "api_key": ""

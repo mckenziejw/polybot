@@ -1,0 +1,51 @@
+{
+  "strategy_name": "spread_mean_reversion_liquidity_recovery",
+  "description": "Detects when Up token bid-ask spread widens beyond rolling 20-snapshot median, then measures asymmetric depth recovery across top 3 book levels. Buy the token whose side market makers are replenishing faster.",
+  "hypothesis": "When spread widens (liquidity withdrawal), the side where depth recovers first indicates which token market makers are re-quoting toward fair value, predicting resolution direction.",
+  "metrics": {
+    "total_trades": 168,
+    "win_rate": 0.363,
+    "pnl_total": -257.23,
+    "pnl_per_trade": -1.5311,
+    "max_drawdown": -611.88,
+    "sharpe": -1.2554
+  },
+  "parameters": {
+    "rolling_window": 20,
+    "spread_threshold": 1.0,
+    "depth_levels": 3,
+    "recovery_lookback": 5,
+    "max_entry_price": 0.85,
+    "base_order_size": 50
+  },
+  "sweep_summary": [
+    {"spread_threshold": 0.0, "total_trades": 149, "win_rate": 0.228, "pnl_total": -290.94, "sharpe": -1.896},
+    {"spread_threshold": 0.25, "total_trades": 116, "win_rate": 0.276, "pnl_total": -214.91, "sharpe": -1.603},
+    {"spread_threshold": 0.5, "total_trades": 113, "win_rate": 0.301, "pnl_total": -177.44, "sharpe": -1.289},
+    {"spread_threshold": 1.0, "total_trades": 168, "win_rate": 0.363, "pnl_total": -257.23, "sharpe": -1.255},
+    {"spread_threshold": 1.5, "total_trades": 172, "win_rate": 0.355, "pnl_total": -411.26, "sharpe": -1.941},
+    {"spread_threshold": 2.0, "total_trades": 230, "win_rate": 0.396, "pnl_total": -396.58, "sharpe": -1.390},
+    {"spread_threshold": 3.0, "total_trades": 274, "win_rate": 0.431, "pnl_total": -250.52, "sharpe": -0.711}
+  ],
+  "verdict": "failed",
+  "failure_analysis": {
+    "key_findings": [
+      "Signal-triggered markets resolve Down 75% of the time — spread-widening filter selects markets where Up mid-price is low (mean 0.27), meaning market consensus already favors Down",
+      "Depth recovery signal adds no edge over naive always-buy-Down baseline (36.3% WR vs 75% Down base rate in selected markets)",
+      "Signal strength shows no meaningful separation between wins and losses (wins mean=-1259, losses mean=4158, massive variance)",
+      "All 7 parameter sweep configurations produce negative PnL; inverting signal direction is even worse",
+      "Strategy WR (36.3%) is worse than random coin flip (50.6%)"
+    ],
+    "root_causes": [
+      "60-second observation window captures market-opening noise, not informative liquidity withdrawal/recovery cycles",
+      "Spread widening in early snapshots reflects initial market-making setup, not temporary liquidity retreat",
+      "Asymmetric depth recovery correlates with price level (low Up-price tokens have different depth profiles) rather than resolution direction"
+    ],
+    "baseline_comparisons": {
+      "random_direction_wr": 0.506,
+      "always_buy_down_in_selected_markets_wr": 0.75,
+      "strategy_signal_wr": 0.363
+    }
+  },
+  "next_steps": "Strategy requires full market-lifetime data (not just first 60s) to properly test spread mean-reversion hypothesis. The 60s sample captures opening dynamics where spreads are naturally wide and unstable, not the mid-market liquidity withdrawal events the hypothesis targets. Consider: (1) full parquet dataset across entire market lifetimes, (2) conditioning on time-within-market (e.g., final 2 minutes only), (3) controlling for mid-price level to avoid price-level confound."
+}

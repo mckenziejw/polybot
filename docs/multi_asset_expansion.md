@@ -4,7 +4,7 @@
 
 ## Overview
 
-Expand the current BTC-only XGBoost confidence strategy to trade ETH, SOL, and XRP Up/Down 5-minute markets on Polymarket. The BTC strategy (v3.2) runs at 85%+ WR live with $20/trade. These additional assets share the same market structure (binary 5-minute up/down) but may have different microstructure characteristics (liquidity, volatility patterns, feature importance).
+Expand the current BTC-only XGBoost confidence strategy to trade ETH, SOL, and XRP Up/Down 5-minute markets on Polymarket. The BTC strategy (v3.3) runs live with limit-at-prediction entry, 101 features (including time-of-day encoding), and $20/trade. These additional assets share the same market structure (binary 5-minute up/down) but may have different microstructure characteristics (liquidity, volatility patterns, feature importance).
 
 ## Architecture Decision: Separate Instances Per Asset
 
@@ -27,32 +27,144 @@ Expand the current BTC-only XGBoost confidence strategy to trade ETH, SOL, and X
 - 4 Binance WS connections (BTC, ETH, SOL, XRP book tickers)
 - Need separate proxy wallets per instance OR accept shared-nonce risk with careful cancellation
 
+## Feature Space (v3.3 — 101 features)
+
+All models use the same 101-feature extraction from `xgboost_flexible.py`:
+
+### Orderbook features (per observation window: w10, w20, w30, w45, w60, w90, w120)
+- `w{t}_mid` — leader token mid price at window t
+- `w{t}_spread` — bid-ask spread
+- `w{t}_imbalance` — book imbalance (bid depth - ask depth) / total
+- `w{t}_bid_depth_3`, `w{t}_ask_depth_3` — depth within 3 cents
+- `w{t}_depth_imb_3` — depth imbalance within 3 cents
+- `w{t}_mid_delta`, `w{t}_spread_delta` — change from previous window
+
+### Trajectory features (computed over observation period)
+- `drift_from_50`, `drift_speed`, `drift_accel` — price drift dynamics
+- `r_squared` — trend linearity
+- `realized_vol`, `range`, `choppiness` — volatility measures
+- `direction_changes`, `consistency`, `max_drift` — path characteristics
+- `spread_min`, `spread_quantile_75`, `spread_diff` — spread dynamics
+- `imb_std_10s`, `imb_max_10s` — imbalance volatility
+- `ask_depth_2c`, `other_spread`, `cross_mid_sum_trend` — cross-token features
+
+### Spot price features (from Binance feed, 1-hour rolling buffer)
+- `btc_mid_zscore` — z-scored spot price (using training-time mean/std)
+- `btc_spread` — spot bid-ask spread
+- `btc_log_return` — log return over observation period
+- `btc_rvol_30s`, `btc_rvol_60s`, `btc_rvol_300s` — realized vol at different scales
+- `btc_ret_60s`, `btc_ret_300s`, `btc_ret_900s`, `btc_ret_3600s` — spot returns
+- `btc_ret_since_open` — spot return since market open
+- `btc_window_vol`, `btc_window_range` — vol/range during observation window
+- `btc_vol_30s`, `btc_vol_5m`, `btc_vol_15m` (raw and normalized) — multi-scale vol
+- `btc_range_30s`, `btc_range_5m`, `btc_range_15m` — price range at scales
+
+### Time features (cyclical encoding, added v3.3)
+- `hour_sin`, `hour_cos` — time of day (UTC, cyclical)
+- `dow_sin`, `dow_cos` — day of week (cyclical)
+
+### Observation metadata
+- `observe_time_s`, `observe_time_pct` — when features were extracted
+- `n_windows_observed` — how many snapshot windows are populated
+
+**Note**: For non-BTC assets, all `btc_*` features are computed from that asset's own spot feed (e.g., ETH model uses ETH/USDT). The `btc_` prefix is kept to avoid refactoring — the model only cares about values, not names.
+
+## Per-Asset Analysis Process
+
+Each asset must go through this full analysis pipeline before going live. This is the process validated on BTC that produced v3.3.
+
+### Step 1: Data Collection & Feature Extraction
+```bash
+# Download orderbook data from Telonex
+python telonex_pipeline.py download --asset eth
+python telonex_pipeline.py normalize --asset eth
+
+# Download spot quotes from Binance
+python download_spot_quotes.py --asset eth
+
+# Build feature cache (all 7 observation windows per market)
+python xgboost_flexible.py --rebuild-cache \
+  --data-dir data/telonex_book_snapshots_eth \
+  --btc-path data/eth_quotes/ethusdt_quotes.parquet \
+  --cache-path data/features_eth.parquet
+```
+
+**Gate**: Need 2,000+ markets minimum. Below 500, don't attempt.
+
+### Step 2: Initial Walk-Forward Evaluation
+
+Run 5-window expanding-train walk-forward using BTC's current hyperparameters as a starting point. Evaluate OOS predictions at 120s observation window only.
+
+**Gate**: OOS WR must be >= 70% at conf >= 0.72 to proceed. If below 65%, the asset likely isn't predictable with this feature set.
+
+### Step 3: Breakdown Analysis
+
+With OOS predictions, compute breakdowns by:
+
+| Dimension | What to look for |
+|-----------|-----------------|
+| **Entry price** | Find the profitable range (BTC sweet spot: 0.70-0.85). Entry prices above this range have negative PnL due to payoff asymmetry. |
+| **Confidence level** | Check if lower confidence bins are still profitable. On BTC, 0.72-0.75 was the most profitable per trade due to limit discount. |
+| **Time of day (3h UTC blocks)** | Identify strong/weak periods. BTC: 06-09 UTC best, 12-15 UTC worst. |
+| **Day of week** | Check for weekly patterns. BTC: Wed/Thu/Sat strongest, Mon/Tue/Fri flat. |
+| **Order style (instant vs limit)** | With limit-at-prediction, check fill rates and adverse selection using raw tick data. |
+
+### Step 4: Strategy Parameter Tuning
+
+Based on breakdown analysis, determine per-asset:
+
+| Parameter | How to set |
+|-----------|-----------|
+| **Entry price cap** | Set to upper bound of profitable entry range. BTC: 0.85 (was 0.90, lowered after 0.85-0.90 showed -$0.78/trade). |
+| **Confidence threshold** | Keep at 0.72 unless data shows a clear cutoff. May need to be higher for assets with lower WR. |
+| **Order method** | Use limit-at-prediction (validated on BTC: 2x PnL vs buy-at-ask, 100% fill rate on ask-based check). Verify fill rates hold on the new asset's book data. |
+| **Bet size** | Start at $10/trade for new assets. Scale up after 50+ live trades validate performance. |
+| **Vol filter** | Test but likely disabled (was filtering winners on BTC v3.2+). |
+
+### Step 5: Hyperparameter Optimization
+
+Run Optuna sweep (200-300 trials) on the asset's feature set. Don't assume BTC params transfer.
+
+Search space:
+```python
+max_depth:         2-7
+min_child_weight:  5-50
+learning_rate:     0.005-0.1 (log scale)
+n_estimators:      100-3000
+subsample:         0.5-1.0
+colsample_bytree:  0.3-1.0
+lambda:            0.1-10.0 (log scale)
+alpha:             0.01-5.0 (log scale)
+gamma:             0.0-2.0
+```
+
+Optimize on AUC with early stopping on validation set.
+
+### Step 6: Retrain & Walk-Forward Confirmation
+
+1. Retrain with sweep-best hyperparameters
+2. Re-run walk-forward to confirm OOS performance holds (not just val set improvement)
+3. Re-check all breakdowns with new model to verify no regressions
+4. Train production model on full dataset with best params
+5. Save model + metadata with asset-specific paths
+
+### Step 7: Live Validation
+
+Deploy with $10/trade and monitor:
+- First 20 trades: sanity check (fills working, predictions reasonable)
+- First 50 trades: compare live WR to walk-forward WR
+- If live WR is >10pp below walk-forward, stop and investigate (this is the mid-drift failure mode)
+- After 100+ trades with acceptable WR, consider scaling to $20/trade
+
 ## Implementation Plan
 
 ### Phase 1: Data Collection (~1-2 days)
 
-#### 1a. Parameterize Telonex Pipeline
+#### 1a. Parameterize Telonex Pipeline — DONE
 
-Modify `telonex_pipeline.py` to accept an `--asset` parameter:
+`telonex_pipeline.py` accepts `--asset` parameter. Output directories: `data/telonex_book_snapshots_{asset}/`.
 
-```python
-# Current: hardcoded to BTC
-SLUG_PATTERN = r"btc-updown-5m-\d+"
-
-# New: parameterized
-ASSET_SLUG_PATTERNS = {
-    "btc": r"btc-updown-5m-\d+",
-    "eth": r"eth-updown-5m-\d+",
-    "sol": r"sol-updown-5m-\d+",
-    "xrp": r"xrp-updown-5m-\d+",
-}
-```
-
-Output directories: `data/telonex_book_snapshots_{asset}/` (keep BTC in current location for backward compatibility).
-
-**Critical**: Verify the exact slug format for ETH/SOL/XRP on Gamma API before downloading. The pattern may differ (e.g., `ethereum-updown-5m-*` vs `eth-updown-5m-*`).
-
-#### 1b. Download Historical Data
+#### 1b. Download Historical Data — IN PROGRESS
 
 ```bash
 python telonex_pipeline.py download --asset eth
@@ -63,137 +175,67 @@ python telonex_pipeline.py normalize --asset sol
 python telonex_pipeline.py normalize --asset xrp
 ```
 
-#### 1c. Add External Price Feeds
+#### 1c. Download Spot Quotes — DONE
 
-Existing: `BinanceFeed` for BTC/USDT.
-Add: ETH/USDT, SOL/USDT, XRP/USDT feeds. The `ExternalFeed` interface already supports this — just need new feed instances with different symbols.
+Binance historical klines downloaded for ETH, SOL, XRP to `data/{asset}_quotes/`.
 
-For each asset's model, the "spot" feed should be its own asset (ETH model uses ETH/USDT prices), not BTC. The BTC features in the current model (btc_vol_5m, btc_ret_*, etc.) need to become `spot_vol_5m`, `spot_ret_*` etc.
+#### 1d. External Price Feeds — DONE
+
+`BinanceFeed` parameterized. Config `externalFeeds: ["binance-ethusdt"]` auto-routes to correct WS stream.
 
 ### Phase 2: Per-Asset Model Training (~2-3 days)
 
-#### 2a. Parameterize Feature Extraction
+Follow the full analysis process (Steps 1-6 above) for each asset independently.
 
-`xgboost_flexible.py` currently hardcodes BTC paths:
-- `btc_path=Path("data/btc_quotes/btcusdt_quotes.parquet")`
-- Feature names: `btc_vol_5m`, `btc_ret_3600s`, `btc_rvol_*`, etc.
+#### 2a. Feature Extraction — DONE (parameterized)
 
-**Two options** (choose one):
+`xgboost_flexible.py` accepts `--data-dir`, `--btc-path`, `--cache-path` params. Feature names keep `btc_` prefix for spot features regardless of asset.
 
-**Option A (recommended): Keep `btc_` prefix for all spot features.**
-The XGBoost model doesn't care about feature names — it only cares about the values. Rename nothing. When training the ETH model, just point `btc_path` to the ETH/USDT quotes file. The feature called `btc_vol_5m` will actually contain ETH vol. This avoids touching 97 feature columns and all downstream code.
+#### 2b. Per-Asset Analysis
 
-**Option B: Rename to `spot_` prefix.**
-Cleaner semantically but requires updating feature extraction, model server, feature cache, walk-forward scripts, and all analysis scripts. Not worth the refactoring cost for zero functional benefit.
+Run Steps 2-6 for each asset. Key outputs per asset:
+- Walk-forward WR and PnL at different thresholds
+- Optimal entry price cap
+- Sweep-best hyperparameters
+- Production model + metadata files
 
-#### 2b. Build Feature Caches Per Asset
+#### 2c. Gate Decisions
 
-```bash
-python xgboost_flexible.py --rebuild-cache --data-dir data/telonex_book_snapshots_eth --btc-path data/eth_quotes/ethusdt_quotes.parquet --cache-path data/features_eth.parquet
-python xgboost_flexible.py --rebuild-cache --data-dir data/telonex_book_snapshots_sol --btc-path data/sol_quotes/solusdt_quotes.parquet --cache-path data/features_sol.parquet
-python xgboost_flexible.py --rebuild-cache --data-dir data/telonex_book_snapshots_xrp --btc-path data/xrp_quotes/xrpusdt_quotes.parquet --cache-path data/features_xrp.parquet
-```
+| Asset | Markets Available | Gate Status |
+|-------|-------------------|-------------|
+| BTC   | 6,300+            | LIVE (v3.3) |
+| ETH   | TBD               | Pending data download |
+| SOL   | TBD               | Pending data download |
+| XRP   | TBD               | Pending data download |
 
-#### 2c. Train & Validate Per-Asset Models
+### Phase 3: Execution Infrastructure — DONE
 
-For each asset:
-1. Run walk-forward backtest (`xgb_walkforward.py` parameterized per asset)
-2. Check OOS WR >= 75% at conf >= 0.72 (minimum viable)
-3. Analyze entry price distribution — may need different caps per asset
-4. Check liquidity (depth at t=120s) — position sizing may differ
-5. Run position sizing analysis per asset
+All code changes completed:
 
-**Key question**: Do ETH/SOL/XRP markets have enough historical data? BTC has 6,300+ markets. If ETH only has 500, the model may not generalize. **Gate on data availability before proceeding.**
-
-#### 2d. Hyperparameter Tuning
-
-Don't assume BTC's optimal params (max_depth=2, lr=0.0148, etc.) transfer. Run a quick Optuna sweep per asset (100-200 trials, not 500). Different assets may need different regularization.
-
-### Phase 3: Execution Infrastructure (~1-2 days)
-
-#### 3a. Parameterize Market Rotation
-
-`MarketRotation.generateSlug()` currently hardcodes `btc-updown-5m-`:
-
-```typescript
-// Current
-static generateSlug(timestampS: number): string {
-  const aligned = Math.floor(timestampS / FIVE_MINUTES_S) * FIVE_MINUTES_S;
-  return `btc-updown-5m-${aligned}`;
-}
-
-// New: accept asset parameter
-static generateSlug(timestampS: number, asset: string = "btc"): string {
-  const aligned = Math.floor(timestampS / FIVE_MINUTES_S) * FIVE_MINUTES_S;
-  return `${asset}-updown-5m-${aligned}`;
-}
-```
-
-Add `execution.asset` to config:
-```json
-{
-  "execution": {
-    "asset": "eth",
-    "strategyId": "xgb-confidence",
-    "externalFeeds": ["binance-ethusdt"],
-    "betDollars": 10
-  }
-}
-```
-
-#### 3b. Parameterize External Feeds
-
-`BinanceFeed` currently hardcodes `btcusdt@bookTicker`. Make symbol configurable:
-
-```typescript
-// Config-driven: "binance-ethusdt" → connects to ethusdt@bookTicker
-const feed = createExternalFeed("binance-ethusdt");
-```
-
-The `createExternalFeed` factory already parses the feed name — just needs to extract the symbol suffix and use it for the WS subscription.
-
-#### 3c. Per-Asset Config Files
-
-```
-config.json        # BTC (existing, unchanged)
-config.eth.json    # ETH instance
-config.sol.json    # SOL instance
-config.xrp.json    # XRP instance
-```
-
-Each config has:
-- Same `polymarket` credentials (shared wallet) OR separate proxy wallets
-- Asset-specific `execution.asset`, `execution.betDollars`, `execution.externalFeeds`
-- Separate `execution.metricsDir` for isolated logging
-
-#### 3d. Per-Asset Model Servers
-
-Each model server loads its own asset's model:
-```bash
-python model_server.py --port 8000  # BTC (existing)
-python model_server.py --port 8001 --model-path data/xgb_model_eth.json --meta-path data/xgb_model_meta_eth.json
-python model_server.py --port 8002 --model-path data/xgb_model_sol.json --meta-path data/xgb_model_meta_sol.json
-python model_server.py --port 8003 --model-path data/xgb_model_xrp.json --meta-path data/xgb_model_meta_xrp.json
-```
-
-Add `--model-path` and `--meta-path` CLI args to model_server.py (partially exists via `--model-path`, need `--meta-path`).
-
-Add `execution.modelServerUrl` to config (currently hardcoded to `http://127.0.0.1:8000` in xgb-confidence.ts).
+| File | Change | Status |
+|------|--------|--------|
+| `telonex_pipeline.py` | `--asset` param | Done |
+| `xgboost_flexible.py` | `--data-dir`, `--btc-path`, `--cache-path` params | Done |
+| `model_server.py` | `--model-path`, `--meta-path`, `--port` params | Done |
+| `execution/src/config.ts` | `asset`, `modelServerUrl` fields | Done |
+| `execution/src/rotation/market-rotation.ts` | Parameterized slug prefix | Done |
+| `execution/src/strategy/xgb-confidence.ts` | Read `modelServerUrl`, `betDollars` from config | Done |
+| `execution/src/data/binance-feed.ts` | Parameterized symbol | Done |
+| Per-asset config files | `config.{eth,sol,xrp}.json` | Done |
 
 ### Phase 4: Deployment & Monitoring (~1 day)
 
 #### 4a. Process Management
 
-Use systemd units or a simple bash launcher:
+Launcher script:
 ```bash
 #!/bin/bash
-# start_all.sh
 python model_server.py --port 8000 &
-python model_server.py --port 8001 --model-path data/xgb_model_eth.json &
-python model_server.py --port 8002 --model-path data/xgb_model_sol.json &
-python model_server.py --port 8003 --model-path data/xgb_model_xrp.json &
+python model_server.py --port 8001 --model-path data/xgb_model_eth.json --meta-path data/xgb_model_meta_eth.json &
+python model_server.py --port 8002 --model-path data/xgb_model_sol.json --meta-path data/xgb_model_meta_sol.json &
+python model_server.py --port 8003 --model-path data/xgb_model_xrp.json --meta-path data/xgb_model_meta_xrp.json &
 
-sleep 5  # let model servers start
+sleep 5
 
 CONFIG=config.json     bun run execution/src/index.ts &
 CONFIG=config.eth.json bun run execution/src/index.ts &
@@ -203,8 +245,8 @@ CONFIG=config.xrp.json bun run execution/src/index.ts &
 
 #### 4b. Monitoring
 
-Separate metrics directories per asset. Unified monitoring script that reads all:
-```bash
+Separate metrics directories per asset:
+```
 data/metrics/btc/  # orders.csv, fills.csv, trades.csv
 data/metrics/eth/
 data/metrics/sol/
@@ -213,9 +255,9 @@ data/metrics/xrp/
 
 #### 4c. Capital Allocation
 
-With $1,600 bankroll and Kelly analysis showing safe sizing up to $100/trade:
-- Start conservative: $10/trade per new asset until 50+ trades validate OOS performance
-- BTC: keep at $20/trade (proven)
+With $1,600 bankroll:
+- BTC: $20/trade (proven)
+- New assets: $10/trade until 50+ trades validate OOS performance
 - Max concurrent exposure: 4 × $20 = $80 per 5-min window (5% of bankroll)
 - Scale up individually as each asset proves profitable
 
@@ -223,57 +265,49 @@ With $1,600 bankroll and Kelly analysis showing safe sizing up to $100/trade:
 
 ### Must-verify before proceeding:
 
-1. **Data availability**: Do ETH/SOL/XRP have 2,000+ historical markets on Telonex? Below ~500 markets, walk-forward validation is unreliable. Below ~2,000, model quality is suspect. Run `telonex_download.py` for each asset and count before writing any code.
+1. **Data availability**: Need 2,000+ historical markets on Telonex per asset. Below ~500, walk-forward validation is unreliable.
 
-2. **Slug format verification**: Check Gamma API for exact slug pattern per asset. Don't assume `{ticker}-updown-5m-{ts}`. The `telonex_download.py` already uses `f"{asset}-updown-{timeframe}"` (line 72) but verify this matches Gamma.
+2. **Slug format verification**: Check Gamma API for exact slug pattern. `telonex_download.py` uses `f"{asset}-updown-{timeframe}"` — verified for BTC.
 
-3. **Liquidity adequacy**: Run `analyze_liquidity.py` per asset. If median L1 depth < $10, the asset isn't tradeable at meaningful size.
+3. **Liquidity adequacy**: If median L1 depth < $10 at t=120s, the asset isn't tradeable at meaningful size.
 
-4. **Walk-forward WR**: Each asset must show >= 75% OOS WR in walk-forward before going live. The BTC model's features may not transfer — orderbook dynamics differ per asset. Confidence threshold (0.72) was calibrated on BTC distribution — each asset needs its own threshold tuning.
+4. **Walk-forward WR**: Each asset must show >= 70% OOS WR at conf >= 0.72 before going live.
 
-5. **Nonce conflict**: If using a shared wallet, test that simultaneous orders across instances don't cause nonce conflicts. If they do, need separate proxy wallets (requires funding each).
+5. **Limit fill validation**: Verify limit-at-prediction fill rates hold on the new asset's orderbook data. Thinner books may have different dynamics.
+
+6. **Nonce conflict**: If using a shared wallet, test that simultaneous orders across instances don't cause nonce conflicts.
 
 ### Known risks:
 
-- **Correlated losses**: BTC crash → all crypto assets drop → all 4 positions lose simultaneously. Position sizing must account for this (total exposure across all assets, not per-asset).
-- **Thinner books**: ETH/SOL/XRP 5-min markets likely have less liquidity than BTC. Entry prices may be worse, reducing edge.
-- **Feature transferability**: BTC model features (depth patterns, spread dynamics) may not predict well on altcoins with different market microstructure.
+- **Correlated losses**: BTC crash → all crypto assets drop → all 4 positions lose simultaneously. Position sizing must account for this.
+- **Thinner books**: ETH/SOL/XRP 5-min markets likely have less liquidity than BTC. Entry prices may be worse.
+- **Feature transferability**: BTC model features (depth patterns, spread dynamics) may not predict well on altcoins.
+- **Live execution gap**: The mid-drift strategy lost 17pp live vs backtest. This failure mode hits harder on thin markets. Be prepared for an asset to fail live validation.
 
-## Code Changes Summary
+## BTC v3.3 Reference Results (baseline for comparison)
 
-| File | Change | Scope |
-|------|--------|-------|
-| `telonex_pipeline.py` | Add `--asset` param, asset-specific slug patterns | Small |
-| `xgboost_flexible.py` | Add `--data-dir`, `--btc-path`, `--cache-path` params | Small |
-| `model_server.py` | Add `--meta-path` param | Tiny |
-| `xgboost_flexible.py` (line 648) | Parameterize `btc-updown-5m-*.parquet` glob | Tiny |
-| `xgb_walkforward.py` | Parameterize data/model paths | Small |
-| `execution/src/config.ts` | Add `asset`, `modelServerUrl` fields | Tiny |
-| `execution/src/rotation/market-rotation.ts` | Parameterize slug prefix | Tiny |
-| `execution/src/strategy/xgb-confidence.ts` | Read `modelServerUrl` from config | Tiny |
-| `execution/src/data/binance-feed.ts` | Parameterize symbol | Small |
-| `execution/src/data/external-feed.ts` | Add factory entries for ethusdt, solusdt, xrpusdt | Tiny |
-| New: per-asset config files | `config.{eth,sol,xrp}.json` | New files |
+These are the numbers each new asset should aim to match or exceed.
 
-**Total estimated diff**: ~200 lines changed, 3 new config files. The architecture is already modular enough that multi-asset support is mostly a configuration exercise.
+- **Walk-forward OOS**: 73.9% WR, $0.54/trade avg, $732 total on 1,351 trades ($20 sizing)
+- **Entry sweet spot**: 0.70-0.85 (85%+ WR, positive PnL)
+- **Best confidence bin**: 0.72-0.75 ($1.52/trade avg — largest limit discount)
+- **Limit-at-prediction**: 100% fill rate on ask-based check, 2x PnL vs buy-at-ask
+- **Optimal hyperparams**: max_depth=2, lr=0.0148 (pending re-sweep with time features)
+- **Time patterns**: 06-09 UTC strongest, 12-15 UTC weakest; Wed/Thu/Sat best days
 
 ## Recommended Execution Order
 
-1. Verify slug formats on Gamma API (5 min)
-2. Check Telonex data availability per asset — run `telonex_download.py` for eth/sol/xrp (10 min)
-3. **GATE**: If <2,000 markets for an asset, defer it. If <500, don't attempt.
-4. Download + normalize data for viable assets
-5. Download spot price quotes (Binance historical klines)
-6. Build feature caches, run walk-forward per asset
-7. **GATE**: If OOS WR < 75%, don't deploy that asset
-8. **Start with ONE new asset (ETH)** — validate end-to-end before adding SOL/XRP
-9. Parameterize execution code (config, rotation, feeds)
-10. Deploy with $10/trade, monitor for 24h
-11. Add SOL/XRP only after ETH is validated live
-12. Scale up proven assets to $20/trade
-
-**Important**: The same "signals that look good on historical data don't survive live" failure mode (mid-price drift: 71% backtest → 54% live) will likely hit altcoins harder due to thinner liquidity. Be prepared for an asset to fail live validation even with good backtest results.
+1. ~~Verify slug formats on Gamma API~~ — DONE
+2. ~~Parameterize execution code~~ — DONE
+3. ~~Download spot quotes~~ — DONE
+4. Download + normalize orderbook data for ETH/SOL/XRP — IN PROGRESS
+5. **GATE**: Count markets per asset. If <2,000, defer. If <500, don't attempt.
+6. Run full analysis process (Steps 1-7) on ETH first
+7. **GATE**: ETH walk-forward WR >= 70% at conf >= 0.72
+8. Deploy ETH with $10/trade, monitor 24h
+9. If ETH validates, repeat for SOL then XRP
+10. Scale up proven assets to $20/trade
 
 ---
 
-*Generated 2026-03-08. Synthesized from original plan + code-focused evaluation (gaps in nonce isolation, index.ts rewrite scope, feature naming) + architecture evaluation (concurrency, failure modes, capital management).*
+*Generated 2026-03-08. Updated 2026-03-09 with v3.3 feature space, analysis process, and BTC reference results.*

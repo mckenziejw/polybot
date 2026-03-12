@@ -1,0 +1,27 @@
+The strategy is **promising**. Here's the summary:
+
+## Results
+
+### Hypothesis Validation
+Both parts of the hypothesis are **supported** on the sample data:
+
+1. **2s window beats 5s**: Win rate 52.9% vs 51.3%. Signal decays monotonically with longer windows — 30s window actually loses money (-4.64 PnL). Early snapshots clearly capture more informational content.
+
+2. **Wider spreads amplify signal**: This is the strongest finding. The top spread quartile (Q4, avg spread 0.025) achieves **63.6% win rate and Sharpe 0.285**, while Q2/Q3 are below 50%. The interaction is dramatic — the signal is only useful in wide-spread markets.
+
+### Best Configuration
+| Metric | Value |
+|--------|-------|
+| Trades | 59 |
+| Win rate | 72.9% |
+| Total PnL | +13.90 |
+| PnL/trade | +0.236 |
+| Sharpe | 0.534 |
+| Max drawdown | 1.02 |
+
+Config: 2s window, signal threshold 0.30, top 25% of spreads (>= 75th percentile).
+
+### Caveats
+- Only 59 trades on 917 markets — need validation on the full 7,187-market dataset
+- The spread > 0.05 filter from the original hypothesis is too restrictive (only 6 markets), but the *direction* is correct: wider spreads help significantly
+- Some risk of overfitting with the threshold/percentile sweep — the top config's 72.9% win rate may regress toward the ~63% seen in Q4 on out-of-sample data

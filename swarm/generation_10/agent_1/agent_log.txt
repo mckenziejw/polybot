@@ -1,0 +1,28 @@
+Results are complete and well-formed. Here's the summary:
+
+## Strategy: Spread-Asymmetry Lead-Lag — **FAILED**
+
+**Key findings:**
+
+| Metric | Value |
+|---|---|
+| Total trades | 915 |
+| Win rate | 48.85% |
+| Base rate (Up wins) | 48.9% |
+| **Lift** | **-0.05%** (zero) |
+| PnL total | -15.68 |
+| PnL/trade | -0.0171 |
+| Sharpe | -0.58 |
+| Max drawdown | 21.40 |
+
+**Why it failed:**
+
+1. **No concurrent markets in sample data** — The original cross-market hypothesis (3+ markets showing synchronized depth skew, with one lagging) is fundamentally untestable. Each of the 917 markets is captured for ~60s with zero temporal overlap.
+
+2. **Within-market depth skew has zero predictive power** — The adapted variant (depth_ratio z-score spike + spread lag) produces a win rate identical to the base rate (48.85% vs 48.9%). The signal is pure noise.
+
+3. **Higher thresholds make it worse** — At z-score ≥ 2.5, win rate drops to 43.5% and PnL/trade worsens to -0.072. Extreme depth skew actually correlates slightly with *losing* markets, possibly because market makers widen on the losing side.
+
+4. **Sensitivity analysis confirms no edge** — All 15 parameter combinations tested are unprofitable. No cherry-picking possible.
+
+**Honest assessment:** The depth-skew signal does not predict binary market resolution. The mechanism may exist for spread dynamics (market-making), but not for directional prediction on Up/Down outcomes.

@@ -1,0 +1,33 @@
+{
+  "strategy_name": "cross_timeframe_liquidity_regime",
+  "description": "Unprofitable: 443 trades, 43.8% WR, $-149.05 PnL",
+  "hypothesis": "The 4h market's orderbook regime (consensus vs discovery) persists into subsequent 5m markets. Consensus \u2192 fade extreme openings; Discovery \u2192 follow early directional signals.",
+  "metrics": {
+    "total_trades": 443,
+    "win_rate": 0.43792325056433407,
+    "pnl_total": -149.05387192540366,
+    "pnl_per_trade": -0.3364647221792408,
+    "max_drawdown": -163.9457212924677,
+    "sharpe": -1.519345082283871
+  },
+  "parameters": {
+    "default": {
+      "spread_threshold": 0.04,
+      "mid_threshold": 0.15,
+      "fade_entry_threshold": 0.58,
+      "follow_imbalance_threshold": 0.15
+    },
+    "best_sweep": {
+      "spread_threshold": 0.08,
+      "mid_threshold": 0.2,
+      "fade_entry_threshold": 0.53,
+      "follow_imbalance_threshold": 0.1
+    }
+  },
+  "sweep_summary": {
+    "total_combos": 750,
+    "pct_profitable": 0.030666666666666665
+  },
+  "verdict": "failed",
+  "next_steps": "4h regime does not transfer meaningfully to 5m markets. 5m microstructure appears independent of 4h timeframe. Consider within-5m features instead of cross-timeframe transfer."
+}

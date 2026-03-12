@@ -1,0 +1,31 @@
+{
+  "strategy_name": "delayed_deep_level_ratio",
+  "description": "Deep level ratio (bid_size_3..5 vs ask_size_3..5) computed from 15-30s window after market open instead of first 5s. Hypothesis: MMs need time to react to opening price, so delayed snapshot captures informed positioning rather than stale pre-positioned orders.",
+  "hypothesis": "Deep level ratio from 15-30s window produces stronger directional signal than 0-5s window because MMs have had time to observe the opening mid-price and adjust their deep levels accordingly.",
+  "metrics": {
+    "total_trades": 1150,
+    "win_rate": 0.5148,
+    "pnl_total": 326.08,
+    "pnl_per_trade": 0.2835,
+    "max_drawdown": -287.32,
+    "sharpe": 0.499
+  },
+  "baseline_metrics": {
+    "total_trades": 1150,
+    "win_rate": 0.5574,
+    "pnl_total": 603.17,
+    "pnl_per_trade": 0.5245,
+    "max_drawdown": -320.04,
+    "sharpe": 0.899
+  },
+  "parameters": {
+    "delayed_window_ms": [15000, 30000],
+    "early_window_ms": [0, 5000],
+    "entry_price_cap": 0.85,
+    "position_size": 20,
+    "quintile_filter": "Q0 (buy Down) + Q4 (buy Up)",
+    "deep_levels": "3-5"
+  },
+  "verdict": "failed",
+  "next_steps": "Hypothesis refuted: the delayed 15-30s window (51.5% WR, $0.28/trade, Sharpe 0.50) is strictly WEAKER than the early 0-5s window (55.7% WR, $0.52/trade, Sharpe 0.90). Deep ratio variance compresses from 0.14 to 0.085 as MMs converge toward fair value, diluting the signal. The initial 'stale' orders in the 0-5s window actually carry MORE information — they likely reflect pre-positioned informed views, not noise. The early deep level ratio signal itself is interesting (Sharpe ~0.9 on 2,872 markets) but needs walk-forward validation before trusting."
+}

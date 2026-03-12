@@ -1,0 +1,29 @@
+{
+  "strategy_name": "ultra_early_imbalance_500ms_thresh025",
+  "description": "Buy based on mean book imbalance in first 500ms of market open. Positive imbalance -> buy Up, negative -> buy Down. UTC 0-6 hours, mid-price 0.35-0.65 filter.",
+  "hypothesis": "The earliest 500ms orderbook snapshots contain the most informative MM positioning before reactive flow arrives. Lowering threshold to 0.25 maintains trade count despite tighter window.",
+  "metrics": {
+    "total_trades": 129,
+    "win_rate": 0.5349,
+    "pnl_total": 5.0564,
+    "pnl_per_trade": 0.0392,
+    "max_drawdown": -36.7615,
+    "sharpe": 0.2638
+  },
+  "parameters": {
+    "entry_window_ms": 500,
+    "imbalance_threshold": 0.25,
+    "utc_hour_range": [
+      0,
+      6
+    ],
+    "mid_price_range": [
+      0.35,
+      0.65
+    ],
+    "entry_price_cap": 0.85,
+    "order_size_tokens": 5
+  },
+  "verdict": "promising",
+  "next_steps": "Verdict is technically promising (53.5% WR, +$0.039/trade) but max drawdown of -$36.76 on $5.06 total PnL is severe (7:1 DD/PnL ratio). Edge is concentrated in Down trades and low-imbalance bucket [0.25,0.35). Validate on full dataset to check if edge persists. The mid-range imbalance bucket [0.35,0.50) is actually negative — consider removing it. Test with order sizing proportional to signal confidence."
+}

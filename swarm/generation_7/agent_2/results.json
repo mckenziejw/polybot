@@ -1,0 +1,28 @@
+{
+  "strategy_name": "inverse_deep_level_ratio",
+  "description": "Buy YES when deep liquidity (L3-L5) is heavily concentrated on the ASK side (bottom quintile of deep_level_ratio). Hypothesizes that deep ask-side layering represents informed spoofing/bluffing.",
+  "hypothesis": "When deep ask-side liquidity dominates (low deep_level_ratio), it signals informed sellers layering asks they expect to buy back cheaper \u2014 a spoofing pattern. Buying YES in these conditions should capture the subsequent price reversal as the bluff is withdrawn.",
+  "metrics": {
+    "total_trades": 135,
+    "win_rate": 0.451852,
+    "pnl_total": -9.052527,
+    "pnl_per_trade": -0.067056,
+    "max_drawdown": -8.532348,
+    "sharpe": -2.311264
+  },
+  "parameters": {
+    "snapshot_window_ms": 10000,
+    "min_levels_populated": 5,
+    "entry_price_cap": 0.85,
+    "quintile_threshold": 0.2,
+    "signal": "deep_level_ratio = deep_bid / (deep_bid + deep_ask), levels 3-5",
+    "direction": "buy YES when ratio in bottom quintile (inverse signal)"
+  },
+  "extra": {
+    "baseline_up_rate": 0.374863,
+    "edge": 0.076988,
+    "q_threshold": 0.356326
+  },
+  "verdict": "failed",
+  "next_steps": "If promising: validate on full dataset, test sensitivity to window size and quintile threshold. If failed: the spoofing hypothesis may not hold in this market structure, or the signal may be too noisy at 5-min resolution."
+}

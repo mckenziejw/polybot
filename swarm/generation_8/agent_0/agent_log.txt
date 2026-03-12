@@ -1,0 +1,23 @@
+Both files are complete. Here's a summary of the results:
+
+## Strategy: Early Deep Level Ratio — Tight Window + High Threshold
+
+**Verdict: Promising**
+
+| Metric | Value |
+|--------|-------|
+| Total trades | 257 |
+| Win rate | 56.0% (vs 49.5% baseline) |
+| PnL total | $38.87 |
+| PnL/trade | $0.15 |
+| Max drawdown | -$51.61 |
+| Sharpe | 1.02 |
+
+**Key findings:**
+
+1. The 1000ms window with 0.70/0.30 absolute thresholds is the sweet spot — the signal degrades monotonically as thresholds are relaxed (0.65/0.35: 53.3% WR, 0.60/0.40: 51.3% WR)
+2. **Strong Down-side asymmetry**: Down trades have 59.8% WR ($42.95 PnL) vs Up trades at 53.1% (-$4.08 PnL). The signal is almost entirely driven by the Down side — when deep bids are scarce (deep_ratio < 0.30), the market is very likely to resolve Down
+3. The original wide-spread filter (>=4c) was too restrictive (33 markets), but spread>=1c captures 862 markets with the same signal quality
+4. Threshold sensitivity is non-monotonic — tightening beyond 0.70/0.30 to 0.75/0.25 actually hurts (50.6% WR), suggesting 0.70/0.30 captures the true signal boundary
+
+**Caveats**: Sample of 917 markets only; needs full dataset validation. The Up-side edge is negligible — a Down-only variant may be more robust.

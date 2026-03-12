@@ -1,0 +1,23 @@
+## Results Summary
+
+**Verdict: FAILED**
+
+The cross-asset book imbalance divergence strategy does not work. Key findings:
+
+| Metric | Value |
+|--------|-------|
+| Total trades | 35 |
+| Win rate | 25.7% (vs 53.6% base rate) |
+| PnL total | -27.47 tokens |
+| Sharpe | -6.42 |
+| Robustness | 0/44 parameter configs positive |
+
+**Why it fails — the hypothesis is empirically inverted:**
+
+1. **All book imbalances are negatively correlated with BTC Up winning** — positive imbalance predicts Down, not Up. The strategy bets in the wrong direction.
+2. **SOL/XRP are more predictive of BTC outcomes than ETH** (correlations: SOL -0.44, XRP -0.36, ETH -0.17). This directly contradicts the "alts carry noise, majors carry signal" assumption.
+3. **Cross-asset correlations are moderate** (0.28–0.52), so divergence events do occur (~32% of the time), but the divergent alt may actually carry independent information rather than noise.
+
+No parameter tuning can rescue a strategy whose directional premise is wrong. The strategy files are at:
+- `swarm/generation_10/agent_0/strategy.py`
+- `swarm/generation_10/agent_0/results.json`

@@ -50,7 +50,9 @@ export class PositionStore {
       return;
     }
 
-    if (event.status !== "MATCHED" && event.status !== "CONFIRMED") return;
+    // Accept MATCHED, MINED, or CONFIRMED — trades can skip MATCHED and arrive
+    // first as MINED. RETRYING/FAILED are not fills.
+    if (event.status !== "MATCHED" && event.status !== "MINED" && event.status !== "CONFIRMED") return;
 
     const isAlreadyConfirmed = event.status === "CONFIRMED";
     const affectedAssets: string[] = [];
@@ -225,6 +227,28 @@ export class PositionStore {
   /** Check if an order ID belongs to us. */
   isOurOrder(orderId: string): boolean {
     return this.knownOrderIds.has(orderId);
+  }
+
+  /**
+   * Reconcile local open orders against the CLOB's truth.
+   * Removes any local orders not found on the CLOB (phantom orders).
+   * Returns the number of phantom orders removed.
+   */
+  reconcileOrders(clobOrderIds: Set<string>): number {
+    let removed = 0;
+    for (const [orderId] of this.openOrders) {
+      if (!clobOrderIds.has(orderId)) {
+        console.log(`[PositionStore] Removing phantom order: ${orderId.slice(0, 16)}…`);
+        this.openOrders.delete(orderId);
+        removed++;
+      }
+    }
+    return removed;
+  }
+
+  /** Optimistically remove an order (e.g. after sending cancel to CLOB). */
+  removeOrder(orderId: string): void {
+    this.openOrders.delete(orderId);
   }
 
   /** Reset all state (on market rotation or startup). */

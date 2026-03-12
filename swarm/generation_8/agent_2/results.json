@@ -1,0 +1,46 @@
+{
+  "strategy_name": "early_deep_level_ratio_wide_spread_midprice_utc",
+  "description": "Deep level ratio signal (2s window, threshold 0.3) filtered by mid-price 0.35-0.65 and UTC hours 0-6",
+  "hypothesis": "Mid-price filter isolates uncertain markets where orderbook information content is highest. UTC hour filter targets peak market-maker activity.",
+  "metrics": {
+    "total_trades": 21,
+    "win_rate": 0.6667,
+    "pnl_total": 16.5441,
+    "pnl_per_trade": 0.7878,
+    "max_drawdown": 2.5509,
+    "sharpe": 0.3288
+  },
+  "parameters": {
+    "window_ms": 2000,
+    "signal_threshold": 0.3,
+    "mid_price_range": [
+      0.35,
+      0.65
+    ],
+    "utc_hour_max": 6,
+    "entry_price_cap": 0.85,
+    "min_order_tokens": 5
+  },
+  "comparisons": {
+    "mid_price_only": {
+      "total_trades": 95,
+      "win_rate": 0.5684,
+      "pnl_total": 30.655,
+      "sharpe": 0.1291
+    },
+    "baseline": {
+      "total_trades": 199,
+      "win_rate": 0.5779,
+      "pnl_total": 74.14,
+      "sharpe": 0.1504
+    },
+    "mid_price_wide_spread": {
+      "total_trades": 95,
+      "win_rate": 0.5684,
+      "pnl_total": 30.655,
+      "sharpe": 0.1291
+    }
+  },
+  "verdict": "promising",
+  "next_steps": "Validate on full 7,187-market dataset. Test spread-weighted position sizing. Explore combining with book_imbalance for signal confirmation."
+}

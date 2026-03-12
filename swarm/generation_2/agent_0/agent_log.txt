@@ -1,0 +1,10 @@
+**Strategy verdict: FAILED**
+
+Key findings:
+
+- **57 trades, 19.3% WR, -$34.57 total PnL, -$0.61/trade** — strongly negative
+- The deep ratio distribution is extremely bimodal (quintile thresholds at ~0.01 and ~0.99), meaning most high-spread markets have zero or near-zero depth at levels 3-5 on one side. This makes the "ratio" essentially a binary indicator of which side has *any* depth, not a nuanced signal.
+- High-spread markets (only 491 of 7,187 = 6.8%) are already adversely selected — they're likely illiquid/uncertain markets where the baseline win rate for buying Up is only 30.3%
+- Both sides of the trade (buy Up on high deep_ratio, buy Down on low deep_ratio) lose money, with the Down side performing even worse (15.6% WR)
+
+The hypothesis is rejected: wide spreads don't create a regime where deep level layering becomes more informative. Instead, wide-spread markets are simply low-liquidity markets with sparse orderbooks where levels 3-5 are mostly empty.

@@ -1,0 +1,26 @@
+Strategy implementation and backtest complete. Here's the summary:
+
+**Strategy: Orderbook Shape Convexity Filter**
+
+**Results: MARGINAL**
+
+| Metric | Filtered (best) | Baseline (no filter) |
+|--------|-----------------|---------------------|
+| Trades | 269 | 911 |
+| Win Rate | 33.09% | 42.26% |
+| Total PnL | +$9.23 | -$157.17 |
+| PnL/Trade | +$0.034 | -$0.173 |
+| Sharpe | 0.018 | -0.070 |
+| Max DD | -$31.07 | -$200.01 |
+
+**Key findings:**
+
+1. The convexity filter at threshold=-50 is the only parameter producing positive PnL across the sweep, but it's extremely marginal ($0.034/trade, Sharpe 0.018).
+
+2. The filter systematically selects cheaper tokens (avg entry 0.32 vs 0.46 baseline) with correspondingly lower win rates. The positive PnL comes from payoff asymmetry on cheap tokens, not from genuine predictive alpha.
+
+3. Win rate of 33% is *below* random (50%), meaning the convexity filter is actually worse at predicting direction - it just happens to buy cheaply enough that the occasional $1 payout covers the losses.
+
+4. The $9.23 total profit on 269 trades is not statistically significant and likely doesn't survive transaction costs, slippage, or out-of-sample testing.
+
+**Verdict:** The hypothesis that orderbook shape convexity identifies low-uncertainty regimes for mean-reversion is not supported by the data.

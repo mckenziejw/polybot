@@ -1,0 +1,25 @@
+## Results Summary
+
+**Verdict: FAILED** — Early liquidity asymmetry decay has zero predictive power for 5m BTC Up/Down markets.
+
+### Key findings:
+
+| Metric | Value |
+|--------|-------|
+| Total trades | 451 |
+| Win rate | 46.8% |
+| Total P&L | -$52.32 |
+| P&L/trade | -$0.116 |
+| Max drawdown | -$87.32 |
+| Sharpe | -0.797 |
+
+### Why it fails:
+
+1. **No correlation exists** — point-biserial r=0.0135, p=0.77 between initial book asymmetry and market outcome. The signal is pure noise.
+2. **Robust across all parameters** — swept persistence threshold (0.05–0.50) and decay threshold (0.0–1.5). Win rate was below 50% in every single combination. No cherry-pickable sweet spot.
+3. **Not even anti-predictive** — fading the signal also loses, confirming it's noise rather than a mislabeled edge.
+4. **Root cause**: The dominant whale MMs quote symmetrically, and transient size imbalances in the first 30s reflect queue jockeying, not directional intent. BTC 5-minute outcomes are driven by macro/momentum factors absent from opening book shape.
+
+Files written:
+- `swarm/generation_0/agent_2/strategy.py` — full implementation
+- `swarm/generation_0/agent_2/results.json` — standardized results

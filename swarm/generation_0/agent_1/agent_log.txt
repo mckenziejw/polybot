@@ -1,0 +1,13 @@
+Wait — the Phase 2 used threshold=0.15 (default) instead of the "best" 0.30 from the sweep. That's because all parameter combos had negative PnL, so `best['ppt'] > 0` was false and it fell through to default. The results are consistent either way — the strategy fails across all parameters.
+
+**Results Summary: FAILED**
+
+The cross-timeframe book imbalance divergence strategy shows no edge:
+
+- **5,327 trades** across 24 parameter combinations, all negative PnL
+- **Win rate: 49.1%** — essentially coin-flip, no predictive power
+- **PnL/trade: -$0.0084** — losing money even before considering realistic slippage
+- **Sharpe: -5.47** — deeply negative
+- The quintile analysis is particularly damning: **larger divergences perform worse** (Q0 at 51.5% WR vs Q4 at 47.8%), which is the opposite of what the hypothesis predicts. If the signal were real, bigger divergences should mean bigger mispricings and higher win rates.
+
+**Why it fails:** The 5m book imbalance divergence from the 4h book does not represent mispricing — it likely reflects legitimate new information arriving at market open (or simply noise from thin early books). The 5m book forms within seconds and its initial state has no predictive relationship with the enclosing 4h market's consensus.

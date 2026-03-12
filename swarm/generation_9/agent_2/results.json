@@ -1,0 +1,26 @@
+{
+  "strategy_name": "tight_window_wide_spread_extreme_imbalance",
+  "description": "1000ms window + 75th-pctile spread filter + mid-price 0.35-0.65 + book imbalance threshold 0.4. Buy Up when imbalance >= 0.4 (strong bid), buy Down when imbalance <= -0.4 (strong ask on Up token).",
+  "hypothesis": "Tighten window from 2000ms to 1000ms while keeping wide-spread filter (spread >= 75th pctile) and mid-price filter (0.35-0.65), raise signal threshold from 0.3 to 0.4 to capture only extreme imbalances. The 1s window showed Sharpe 1.02 on broader sample; combining with filters that produced highest per-trade PnL ($0.79) and win rate (66.7%) should yield fewer but higher-quality trades.",
+  "metrics": {
+    "total_trades": 236,
+    "win_rate": 0.4661,
+    "pnl_total": -169.79,
+    "pnl_per_trade": -0.7194,
+    "max_drawdown": -208.43,
+    "sharpe": -35.52
+  },
+  "parameters": {
+    "window_ms": 1000,
+    "spread_percentile": 75,
+    "mid_price_range": [
+      0.35,
+      0.65
+    ],
+    "imbalance_threshold": 0.4,
+    "max_entry_price": 0.85,
+    "order_size": 10
+  },
+  "verdict": "failed",
+  "next_steps": "The book imbalance signal has near-zero correlation (-0.02) with outcomes across all imbalance levels. Win rates by imbalance bin range 46-58% (noise). The wide-spread filter slightly worsens predictive power (corr -0.10). The fundamental issue is that early orderbook imbalance does not predict 5m BTC direction regardless of filtering. Abandon imbalance-based approaches and explore: (1) trade flow / aggressor-side signals from trade_events data, (2) cross-market momentum from 4h book data, (3) price-level clustering or support/resistance signals."
+}

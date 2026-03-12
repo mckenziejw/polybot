@@ -1,0 +1,35 @@
+{
+  "strategy_name": "opening_auction_imbalance_decay",
+  "description": "No edge found: opening imbalance decay rate has no predictive power for 5m BTC Up/Down market outcomes. All correlations near zero (max ±0.02), win rates 48-54% regardless of parameters.",
+  "hypothesis": "Opening auction imbalance decay rate: Measure how fast the bid-ask imbalance at market open (first 2s) mean-reverts over the next 10-20s. Slow decay = informed flow (trade with it), fast reversion = noise (fade it).",
+  "metrics": {
+    "total_trades": 652,
+    "win_rate": 0.488,
+    "pnl_total": -20.55,
+    "pnl_per_trade": -0.0315,
+    "max_drawdown": -28.81,
+    "sharpe": -1.059
+  },
+  "parameters": {
+    "open_window_s": 2.0,
+    "decay_window_s": 20.0,
+    "min_snapshots_open": 3,
+    "min_snapshots_decay": 5,
+    "entry_price_cap": 0.85,
+    "decay_threshold": 0.5
+  },
+  "analysis_details": {
+    "markets_analyzed": 1395,
+    "imbalance_outcome_correlations": {
+      "0-2s": -0.019,
+      "0-5s": 0.020,
+      "0-10s": 0.013,
+      "2-20s": 0.005
+    },
+    "decay_ratio_finding": "Fast decay (Q25) WR=54.8% vs slow decay (Q75) WR=49.0% — opposite of hypothesis",
+    "simple_direction_0-2s": "Follow WR=48.4%, Fade WR=51.6% — neither survives fees",
+    "base_rate": "Up wins 52.3% (730/1395)"
+  },
+  "verdict": "failed",
+  "next_steps": "Opening book imbalance is noise in 5m BTC markets — MMs reprice too fast for initial imbalance to carry information. More promising: (1) trade flow from trade_events, (2) cross-market momentum, (3) external BTC price in first seconds."
+}

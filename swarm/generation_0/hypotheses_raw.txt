@@ -1,0 +1,9 @@
+
+
+```json
+[
+  "Orderbook shape convexity at market open: measure the curvature of the bid/ask depth curve (second derivative of cumulative size across levels 1-5) in the first snapshot after market opens. A convex bid curve (accelerating size deeper in book) vs concave ask curve may signal informed market makers layering defensively, predicting upward resolution. Trade the side with greater convexity.",
+  "Cross-timeframe book imbalance divergence: compare the level-weighted bid/ask imbalance ratio in the current 5m market's opening snapshot against the same metric in the enclosing 4h market's concurrent snapshot. When the 5m market opens with imbalance sharply divergent from the 4h book (e.g., 5m skewed bullish while 4h is neutral), this may indicate short-term mispricing before the 5m book converges to the 4h consensus — fade the 5m divergence.",
+  "Early liquidity asymmetry decay rate: capture the first 2-3 orderbook snapshots after a 5m market opens and measure how quickly the bid-ask size asymmetry normalizes (ratio of top-3 bid size to top-3 ask size converging toward 1.0). Markets where asymmetry persists or widens may reflect genuine informed flow rather than transient noise — trade in the direction of the persistent heavier side, filtering out markets where asymmetry decays within the first snapshot interval."
+]
+```

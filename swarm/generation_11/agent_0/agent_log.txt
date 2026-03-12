@@ -1,0 +1,28 @@
+The strategy is complete. Here's the summary:
+
+## Results: Deep Level Ratio — Down-Side Only
+
+**Verdict: MARGINAL**
+
+| Metric | Value |
+|--------|-------|
+| Total trades | 701 |
+| Win rate | 52.21% (366/701) |
+| Total P&L | +54.11 |
+| P&L/trade | +0.077 |
+| Max drawdown | -106.76 |
+| Sharpe | 0.53 |
+
+### Key findings:
+
+1. **The signal IS predictive at the market level** — quintile analysis shows markets with high mean deep ratio resolve Down 81% of the time vs 31% for low. This is a very strong effect.
+
+2. **But it requires look-ahead** — the full-window mean (using all ~60s of snapshots) gives 63.7% WR / 4.33 Sharpe, but this uses future information. The expanding mean (no look-ahead) drops to 52.2% WR / 0.53 Sharpe.
+
+3. **The signal doesn't stabilize quickly enough** — at 5s of observation, the expanding mean has only 0.03 correlation with the full-window mean. The deep ratio is very noisy snapshot-to-snapshot.
+
+4. **The original hypothesis threshold (0.3) was far too low** — 95.7% of snapshots exceed it. The median deep ratio is 2.65.
+
+5. **High-threshold variant is interesting but low-N** — threshold=10.0 gives 57-65% WR but only 23-75 trades, insufficient for statistical significance.
+
+The Down-side asymmetry exists but isn't exploitable in real-time with only early orderbook data. The signal needs more observation time than what's available before entry.

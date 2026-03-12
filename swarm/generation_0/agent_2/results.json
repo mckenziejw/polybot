@@ -1,0 +1,24 @@
+{
+  "strategy_name": "early_liquidity_asymmetry_decay",
+  "description": "Measures bid-ask size asymmetry decay rate in first 30s of 5m BTC markets. Trades in direction of persistent asymmetry (non-decaying imbalance = informed flow).",
+  "hypothesis": "Markets where top-3 bid/ask size asymmetry persists or widens across the first 3 ten-second windows reflect informed flow rather than noise. Trading in the direction of persistent asymmetry captures this edge.",
+  "metrics": {
+    "total_trades": 451,
+    "win_rate": 0.4678,
+    "pnl_total": -52.32,
+    "pnl_per_trade": -0.116,
+    "max_drawdown": -87.32,
+    "sharpe": -0.797
+  },
+  "parameters": {
+    "window_ms": 10000,
+    "n_windows": 3,
+    "persistence_threshold": 0.15,
+    "decay_threshold": 0.5,
+    "entry_price_cap": 0.85,
+    "min_order_size": 5,
+    "fee_constant": 0.0222
+  },
+  "verdict": "failed",
+  "next_steps": "Asymmetry decay rate does not reliably predict 5m market outcomes. Point-biserial correlation between initial asymmetry and Up winning is r=0.0135 (p=0.77) — essentially zero. Win rate is below 50% across ALL parameter sweeps (persistence threshold 0.05-0.50, decay threshold 0.0-1.5). The signal is not even anti-predictive (fading it also loses). Orderbook size asymmetry in early snapshots appears to be pure noise for these 5m binary markets, likely because: (1) the dominant whale MMs set symmetric quotes, (2) transient size imbalances reflect queue position jockeying not directional intent, (3) BTC 5m outcomes are driven by macro/momentum factors not captured in opening book shape."
+}

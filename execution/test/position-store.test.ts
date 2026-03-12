@@ -155,9 +155,19 @@ describe("PositionStore", () => {
       expect(pos.size).toBe(60);
     });
 
-    test("ignores fill events with non-MATCHED/CONFIRMED status", () => {
+    test("processes fill events with MINED status (trades can skip MATCHED)", () => {
       store.addOrder(makeOpenOrder({ orderId: "order-1" }));
-      store.applyFill(makeTradeEvent({ status: "MINED" }));
+      store.applyFill(makeTradeEvent({ status: "MINED", size: 25, price: 0.5 }));
+      const positions = store.getPositions();
+      expect(positions).toHaveLength(1);
+      expect(positions[0]!.size).toBe(25);
+    });
+
+    test("ignores fill events with RETRYING/FAILED status", () => {
+      store.addOrder(makeOpenOrder({ orderId: "order-1" }));
+      store.applyFill(makeTradeEvent({ status: "RETRYING" }));
+      expect(store.getPositions()).toHaveLength(0);
+      store.applyFill(makeTradeEvent({ id: "t-fail", status: "FAILED" }));
       expect(store.getPositions()).toHaveLength(0);
     });
 

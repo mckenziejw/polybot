@@ -1,0 +1,24 @@
+{
+  "strategy_name": "deep_level_ratio_narrow_band",
+  "description": "Uses normalized deep-level orderbook ratio (fraction of each side at levels 3-5 vs total) to detect MM positioning in narrow mid-price band (0.45-0.55) markets during UTC 0-6 hours. Signal = bid_deep_frac - ask_deep_frac, bounded [-1,1]. 2s aggregation window with median, threshold 0.25.",
+  "hypothesis": "In the most uncertain markets (true coin-flip territory, mid_price 0.45-0.55), MM positioning at deeper orderbook levels carries maximum informational content since there is no strong prior to anchor prices. Lower threshold (0.25) compensates for reduced universe size. UTC 0-6 filter targets low-activity hours where MM signals are less noisy.",
+  "metrics": {
+    "total_trades": 24,
+    "win_rate": 0.5,
+    "pnl_total": -0.5099,
+    "pnl_per_trade": -0.0212,
+    "max_drawdown": -11.3009,
+    "sharpe": -0.1351
+  },
+  "parameters": {
+    "mid_price_band": [0.45, 0.55],
+    "signal_threshold": 0.25,
+    "window_ms": 2000,
+    "utc_hour_filter": [0, 6],
+    "entry_price_cap": 0.85,
+    "min_order_size": 5,
+    "hour_filter_active": true
+  },
+  "verdict": "failed",
+  "next_steps": "The exact hypothesis (2s window, T=0.25, UTC 0-6, 0.45-0.55 band) produces 50.0% WR on 24 trades — no predictive power, PnL negative purely from fees. Grid search without the UTC filter found W=5000ms T=0.25 at 57.9% WR on 95 trades, but OOS split shows inconsistency (first half 53.3% WR vs second half 62.0% WR), suggesting overfitting. The UTC 0-6 filter reduces the universe to only 34 markets (24 resolved), too small for reliable inference. The deep_level_ratio signal is well-behaved after normalization but does not consistently predict direction in coin-flip markets. Consider: (1) wider mid-price band where a prior exists to lean on, (2) signal as feature in multi-factor model, (3) time-series dynamics (signal changes) rather than level."
+}

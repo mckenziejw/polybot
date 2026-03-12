@@ -1,0 +1,15 @@
+**Strategy: Spread-Volatility Divergence — FAILED**
+
+Backtested across 6,543 resolved 5m BTC Up/Down markets (2,525 trades generated).
+
+**Results:**
+- **Win rate: 38.5%**, PnL: **-$3,063**, Sharpe: **-1.16**
+- Tested both signal directions (original hypothesis + inverted). Both lose.
+
+**Key findings:**
+1. **Spread/RV ratio is not informative** — when controlling for entry price, both "wide" and "tight" regimes produce identical ~55.8% WRs. The ratio adds zero signal.
+2. **Book imbalance is not directionally predictive** in 5m binary markets regardless of volatility regime.
+3. The only weak "edge" ($0.24/trade in the 0.40-0.70 price range) comes entirely from the price filter, not the spread-vol signal — and is too thin for live trading.
+4. Buying low-probability tokens (<$0.40) is catastrophic: 17.8% WR on 1,369 trades, losing $2,974.
+
+The hypothesis that the spread-to-realized-vol ratio reveals MM information asymmetry does not hold in these markets. Results written to `swarm/generation_1/agent_2/results.json`.

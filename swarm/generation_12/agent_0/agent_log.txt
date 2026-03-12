@@ -1,0 +1,24 @@
+Results are valid. Here's the summary:
+
+## Strategy: Entropy-Weighted Imbalance — Verdict: **Marginal**
+
+### Key Finding
+In Polymarket binary markets, Up and Down order books are **perfect mirrors** (Up bids = Down asks), so the original hypothesis of comparing combined entropy between sides was degenerate (ratio always = 1.0). After correcting to use **bid-side-only entropy**, genuine asymmetry exists (std of entropy diff = 0.36).
+
+### Results
+| Metric | Best Simple Threshold | Best Composite |
+|--------|----------------------|----------------|
+| Trades | 78 | 153 |
+| Win Rate | 53.85% | 54.90% |
+| PnL/Trade | 0.031 | 0.024 |
+| Sharpe | 1.03 | ~0.8 |
+| Total PnL | +2.43 | +3.70 |
+
+### Why It's Marginal, Not Promising
+1. **Tiny correlations**: All signal-to-outcome correlations are < 0.04 — barely above noise
+2. **Quintile analysis is flat**: Up win rate ranges from 45.5% to 53.8% across entropy quintiles — no clean monotonic relationship
+3. **Best parameters are restrictive**: entropy_ratio < 0.85 AND concentration > 0.5 filters to only 78/714 markets
+4. **Overfitting risk**: With ~100 parameter combinations tested on 714 markets, the "best" combo likely benefits from noise
+
+### Root Cause
+In the first 5 seconds, market makers set symmetric books with similar depth profiles. Entropy differences are small and mostly reflect market-maker-specific quoting patterns, not informed directional positioning. The signal-to-noise ratio is too low for reliable prediction from static book snapshots alone.

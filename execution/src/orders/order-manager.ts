@@ -191,6 +191,18 @@ export class OrderManager {
     }
   }
 
+  /** Fetch open orders from the CLOB for reconciliation. */
+  async getOpenOrders(): Promise<{ id: string; size_matched: string; original_size: string; price: string; side: string; asset_id: string; status: string }[]> {
+    this.ensureInit();
+    try {
+      const orders = await this.client.getOpenOrders();
+      return (orders ?? []) as any[];
+    } catch (err) {
+      console.error("[OrderManager] getOpenOrders failed:", err instanceof Error ? err.message : err);
+      return [];
+    }
+  }
+
   /** Get the derived L2 API credentials (available after init). */
   getDerivedCreds(): { key: string; secret: string; passphrase: string } {
     if (!this.derivedCreds) {

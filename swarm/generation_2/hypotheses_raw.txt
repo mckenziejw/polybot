@@ -1,0 +1,8 @@
+
+
+```json
+[
+  "Deep level ratio filtered to high-spread markets only (spread >= 4 cents at snapshot time). The hypothesis is that in tight-spread markets, MM layering is less informative because there's less room to express directional views, while wide-spread markets give MMs more latitude to layer defensively. Use the same top/bottom 20% quintile filter on deep_ratio but restrict the universe to high-spread snapshots.",
+  "Deep level ratio computed from a later snapshot window (15-30 seconds after market open instead of 0-5 seconds). The first 5 seconds may capture stale/pre-positioned orders rather than informed reactions. By waiting 15-30s, MMs have had time to observe the opening mid-price and adjust their deep levels accordingly, potentially producing a stronger and more stable signal. Same quintile filter and entry price cap.",
+  "Deep level ratio interacted with mid-price level as a filter: only trade when deep_ratio is in the top/bottom 20% AND the mid-price is between 0.40-0.60 (uncertain markets). In lopsided markets (mid near 0.20 or 0.80), the orderbook shape is mechanically skewed by the price level itself, making deep_ratio noisy. Restricting to uncertain markets should isolate the informational component of MM layering from the mechanical component."
+]

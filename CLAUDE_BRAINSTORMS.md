@@ -391,17 +391,189 @@ If a 4h "Up" market is at 0.70, the three 5m "Up" markets within that window sho
 
 ---
 
+## TIER 0: Novel Alpha Ideas (March 2026 Brainstorm)
+
+These ideas emerged from a systematic brainstorm after exhausting standard quant playbook approaches. They focus on structural edges unique to on-chain prediction markets.
+
+### 0A. On-Chain Trade Attribution (HIGHEST PRIORITY)
+
+**Core insight:** Every Polymarket trade settles as an ERC-1155 `TransferSingle` event on Polygon with wallet addresses attached. This solves the exact problem that killed our trade flow strategies — we couldn't distinguish informed from noise flow. With on-chain attribution, we can.
+
+**The system:**
+1. Backfill historical `TransferSingle` events from CTF Core (`0x4D97DCd97eC945f40cF65F87097ACe5EA0476045`)
+2. Cross-reference with market resolutions to score each wallet's historical PnL and win rate
+3. Identify the top 20-50 "sharp" wallets with >60% WR across 100+ resolved markets
+4. Monitor their positions in real-time — when sharp wallets cluster on one side, that's the signal
+5. Real-time: use `watchContractEvent` on CTF Core for `TransferSingle`, decode `id` field to map to market via `getPositionId`, join with CLOB WebSocket feed by timestamp proximity
+
+**Latency reality:** On-chain events arrive 5-30s after CLOB fills. Not HFT. For 5-minute markets, gives ~10 data points per market. For 4-hour markets, builds a slow-updating directional bias traded via limit orders.
+
+**Why this is different from the killed whale signal (3D below):** The whale signal was about 2 MMs pulling/repositioning orders on BTC books. This tracks *directional bets* by sharp wallets across ALL market types. The alpha is in wallet identification, not market microstructure.
+
+**Infrastructure leverage:** Already have viem, RPC, WebSocket feeds. The backfill is a one-time data pipeline project. Uses existing execution engine for live trading.
+
+**Key risks:**
+- Settlement latency means price may have moved by the time the on-chain transfer is visible
+- Sharp wallets may use multiple addresses (Sybil)
+- Copy-trading alpha decays if others do it too
+- Need sufficient resolved markets per wallet to establish statistical significance
+
+**Status:** Not started. First step: pull historical ERC-1155 events and score wallets.
+
+---
+
+### 0B. Multi-Outcome Dutch Book Scanner
+
+**Core insight:** Markets with 3+ outcomes (election fields, awards, sports divisions) frequently have prices summing to >$1.00 or <$1.00. This is pure arbitrage — no prediction skill needed.
+
+**How it works:**
+- When `sum(best_bids) > $1.00 + fees`: sell all outcomes → guaranteed profit
+- When `sum(best_asks) < $1.00 - fees`: buy all outcomes → guaranteed $1.00 at resolution
+- Can also mint all outcomes for $1.00 and sell each at market when sum of bids > $1.00
+
+**Why it might be under-exploited:** The more outcomes in a market, the more likely mispricing exists. Wide-field election markets, sports division winners, "who will win the Grammy" etc. Individual outcomes may have thin liquidity, meaning arbs can't fully exploit the mispricing.
+
+**Fee considerations:** Sports markets are mostly fee-free. Crypto multi-outcome markets have taker fees (max 1.56% at p=0.50). Need `sum > $1.02` to clear spread + fees.
+
+**Key risks:**
+- Thin liquidity on individual outcomes may prevent execution of all legs
+- Partial fills leave directional exposure
+- Need fast multi-leg execution (sequential limit orders vs. market orders)
+- Competition from other arb bots
+
+**Status:** TESTED — NOT VIABLE. Scanned all 2,654 active NegRisk events with orderbooks (out of 8,158 total active events). Only 2 had bid_sum > $1.02, both from stale/phantom bids on illiquid long-tail outcomes with $0.34-0.97 spreads. The NegRisk conversion mechanism + existing arb bots keep prices extremely tight. 352 events had bid_sum in $0.98-1.00 range. Market is well-arbitraged.
+
+---
+
+### 0C. Resolution Timing Arbitrage
+
+**Core insight:** There's a window between when an outcome is *knowable* (game ends, vote counted, data released) and when UMA oracle *resolves* it. During this window, losing contracts may still trade above zero.
+
+**Mechanism:**
+- UMA Optimistic Oracle resolution process: (1) `proposePrice` with outcome, (2) dispute window, (3) `reportPayouts` on CTF Core
+- For BTC 5m/4h markets: automated resolver shortcuts the dispute window, but there's still latency
+- For sports/events: game ends → result is public → but resolution takes minutes to hours
+- During this window, can buy winning side at discount or sell losing side before it zeroes
+
+**On-chain variant (Resolution Race):**
+- Monitor Polygon mempool for `reportPayouts` calls targeting your market's conditionId
+- When you see one in pending transactions, you know the resolution outcome before the CLOB freezes
+- Submit a market order buying the winning side at whatever price is available
+- Window: ~2 seconds (Polygon block time)
+
+**Key risks:**
+- Polymarket's operator may freeze the CLOB server-side before the chain tx confirms (likely for automated markets)
+- Narrow mempool window (2s block times on Polygon)
+- Need mempool access (Alchemy/QuickNode/Blocknative)
+- Stale liquidity may not exist on the book at resolution time
+
+**Investigation plan:** Monitor a handful of sports markets through resolution, measure latency and residual prices. Check if CLOB freezes before or after on-chain resolution.
+
+**Status:** INVESTIGATED — MARGINAL. Analyzed 1,000 raw Telonex files (Feb-Mar 2026 BTC 5m markets):
+- CLOB stays open ~1-2 seconds after market close before book is cleared
+- 3.4% of markets had actionable stale liquidity post-close (both sides)
+- Average profit: $6.73/opportunity, available at ~0.3s after close
+- Extrapolated: ~$67/day gross (~$2k/month) from ~10 opportunities/day
+- BUT: sub-second execution window, someone already exploiting (0.99 bid spikes visible), taker fees apply
+- Would require dedicated low-latency infrastructure watching every 5m market
+- Not worth building as standalone strategy; could be a "bonus" on top of existing market-watching infra
+- **4x multiplier**: BTC+ETH+SOL+XRP all have 5m markets → ~$270/day, ~$8k/month gross
+- **Pre-open sell straddle idea**: orderbook opens 12+ hours before market start. Place limit sells at ~$0.51 on both YES+NO → first in queue. BACKTESTED: both-fill rate 25%, single-fill 45%, neither 30%. Mean PnL = -$0.038/market. Adverse selection kills it: when one side fills, the buyer was informed (55-66% of the time they bought the winner). Same adverse selection problem as market making. Would need a way to avoid single fills or exit the losing position quickly.
+
+---
+
+### 0D. Split/Merge Parity Arbitrage (CTF Mint/Merge)
+
+**Core insight:** YES + NO must equal $1.00 via CTF split/merge, but the CLOB only approximates this through arbitrageurs.
+
+**How it works:**
+- When `YES_ask + NO_ask < $0.995`: buy both on CLOB, merge on-chain for $1.00
+- When `YES_bid + NO_bid > $1.005`: split $1.00 on-chain, sell both on CLOB
+- Gas costs on Polygon are negligible (~0.01 MATIC)
+
+**Where it might be under-exploited:** Well-arbitraged on high-liquidity markets, but on thin BTC 5m/4h markets during transitions (new market opens, old one resolving), parity can break briefly. BTC volatility events can also knock books out of parity.
+
+**Key constraint:** On-chain split/merge via Gnosis Safe takes ~5-10s. Someone with a direct EOA could beat you. The window needs to persist long enough for execution.
+
+**Implementation:** Add a parity check to existing WebSocket market data handler. Log frequency and duration of parity breaks before committing to execution.
+
+**Status:** SKIPPED — likely well-arbed. If 2,654 multi-outcome NegRisk markets maintain tight parity, simple binary YES+NO parity (even easier to arb) is almost certainly locked down.
+
+---
+
+### 0E. New Market Sniping
+
+**Core insight:** Fresh markets often have inefficient initial pricing before sophisticated participants arrive. First-mover advantage in thinly-traded new markets.
+
+**Two approaches:**
+
+**1. CLOB monitoring:** Watch Polymarket's market creation feed, evaluate mispricing against external data, take positions early in the first hour when spreads are wide (often 5-10 cents).
+
+**2. On-chain `registerToken` sniping:** Before a market goes live on the CLOB, the admin calls `registerToken(tokenId, complementId, conditionId)` on the CTF Exchange contract. This on-chain tx is visible before the market appears in the Polymarket UI/API. Pre-split USDC into YES+NO, post initial quotes as soon as CLOB opens.
+
+- CTF Exchange: `0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E`
+- NegRisk CTF Exchange: `0xC5d563A36AE78145C45a50134d48A1215220f80a`
+
+**Key risks:**
+- Need to correctly price the market to avoid adverse selection from informed traders
+- `questionId` in `prepareCondition` may not be human-readable
+- BTC recurring markets are programmatic (less edge), event markets have larger spreads but require domain knowledge
+
+**Status:** INVESTIGATED — LIMITED. Key findings:
+- On-chain `registerToken` happens AFTER market appears in Gamma API (3-7s later). No on-chain detection advantage for event markets.
+- Exception: recurring crypto markets are pre-registered on-chain ~5min before API appearance, but these are predictable anyway.
+- Sports markets: created minutes before games with tight spreads (2-5c) and immediate MM liquidity. Already efficiently priced.
+- Esports/niche: wide spreads (8-95c) but near-zero liquidity ($50-800). Not enough capital at stake to matter.
+- High-value event markets (politics, elections): created weeks/months ahead, efficiently priced within hours.
+- Conclusion: no practical sniping edge via on-chain detection. API polling could catch new markets but they're either efficiently priced (sports, politics) or too thin to bother (esports, niche).
+
+---
+
+### 0F. PACER / Primary Source Monitoring
+
+**Core insight:** Court filings (PACER), SEC EDGAR filings, government data releases are public but not widely monitored in real-time. Markets on legal/regulatory outcomes could be front-run by monitoring primary sources.
+
+**Examples:**
+- SEC enforcement actions → crypto regulatory markets
+- Court rulings → legal outcome markets
+- Government economic data → inflation/employment markets
+- FDA approvals → pharma prediction markets
+
+**Key barriers:**
+- Requires domain-specific parsing and market mapping
+- PACER charges per-document fees ($0.10/page)
+- Need to identify which Polymarket markets correspond to which filings
+- Latency between filing and market price reaction is unknown
+
+**Status:** REJECTED — requires deep domain expertise per market category that we don't have, and monitoring infrastructure would be complex for uncertain payoff.
+
+---
+
+### 0G. Operator Settlement Batching Pattern Exploitation
+
+**Core insight:** The Polymarket operator batches trades into `fillOrders` transactions with a predictable timing pattern (already measured via `settlement_latency.py`).
+
+**Use cases:**
+- Time own on-chain operations (splits, merges, nonce increments) to avoid colliding with operator batches — reduces Gnosis Safe nonce collision issues
+- Observe operator's batch tx in mempool → infer CLOB book state
+- Infrastructure optimization more than standalone alpha
+
+**Status:** Partially explored via settlement_latency.py. Low priority as standalone strategy.
+
+---
+
 ## Recommended Next Steps (Priority Order)
 
-1. **Build XGBoost feature pipeline** (1A) — cheapest experiment, uses existing data, no GPU costs. If it can identify high-confidence subsets of mid-drift trades, it directly improves our existing strategy.
+**Novel strategies (Tier 0):**
+1. **On-chain trade attribution** (0A) — highest EV, solves the core problem that killed earlier strategies. Build wallet scorecards from historical on-chain data first.
+2. **Dutch book scanner** (0B) — low-effort scanner, either finds opportunities or doesn't. Run alongside #1.
+3. **Resolution timing feasibility check** (0C) — 1-hour investigation: monitor a few markets through resolution, check if CLOB freezes before/after chain tx.
+4. **Parity break monitoring** (0D) — add monitoring to existing WebSocket handler, measure frequency/duration of breaks.
 
-2. **Investigate Kalshi-Polymarket arb** (1B) — explore the Kalshi API, identify overlapping markets, measure historical price divergences. True arb is the holy grail if it exists.
-
-3. **Sports market signal** (1C) — get sportsbook odds data, check if Polymarket sports prices lag. Quick feasibility check before investing.
-
-4. **If XGBoost works, consider RL** (2B) — only if the feature pipeline reveals that there's signal in the data that a simple model can't capture. Use the efficient training pipeline to keep costs under $5/run.
-
-5. **Funding rate arb** (2A) — steady, boring income. Good for capital that's not deployed in prediction markets. Different infrastructure entirely.
+**Previously explored strategies (Tiers 1-4):**
+5. **XGBoost confidence filter** (1A) — currently live as v3.3, walk-forward confirmed 85.8% WR. Ongoing refinement.
+6. **Cross-platform arb** (1B) — viable but competitive, fees eat margins. Kalshi API integration needed.
+7. **Sports market mispricing** (1C) — favorite-longshot bias confirmed but not tradeable (spread absorbs edge).
 
 ---
 

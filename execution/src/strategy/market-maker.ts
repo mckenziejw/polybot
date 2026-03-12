@@ -6,6 +6,8 @@ import type {
   OpenOrder,
   OrderBookState,
   MarketMakerMode,
+  PricingMode,
+  PriceLevel,
 } from "../types.ts";
 import type { Strategy } from "./strategy.ts";
 import { registerStrategy } from "./strategy.ts";
@@ -47,7 +49,8 @@ const MIN_ASK_PRICE = 0.10;
 const MIN_BID_PRICE = 0.01;
 
 // How long to wait for a mint tx before allowing another (ms)
-const MINT_COOLDOWN_MS = 30_000;
+// Polygon on-chain txs can take 60-120s during congestion
+const MINT_COOLDOWN_MS = 120_000;
 
 export class MintAndSellMaker implements Strategy {
   readonly id = "market-maker";
@@ -55,11 +58,16 @@ export class MintAndSellMaker implements Strategy {
 
   // ── Config ──
   private readonly mode: MarketMakerMode;
+  private readonly pricing: PricingMode;
   private readonly k: number;                     // A-S skew parameter (cents per unit of imbalance)
   private readonly initialPairs: number;           // pairs to mint at market open (mint-and-sell only)
-  private readonly maxInventoryPerSide: number;    // safety cap
-  private readonly replenishThreshold: number;     // mint more when inventory drops below this
+  private readonly maxTotalInventory: number;      // max tokens per side (USDC capital at risk)
+  private readonly maxUnhedgedExposure: number;    // max |invUp - invDown| before pausing lagging side
+  private readonly replenishThreshold: number;     // mint more when min(invUp,invDown) drops below this
   private readonly requoteThreshold: number;       // price change needed to trigger requote (cents)
+  private readonly whaleThreshold: number;         // min size to identify whale resting orders
+  private readonly whalePullCooldownMs: number;    // cooldown duration after whale signal
+  private readonly whaleMoveTicks: number;         // bid/ask move >= this triggers cooldown
 
   // ── Inventory tracking ──
   // In mint-and-sell: tokens we hold from minting, decreased by sell fills
@@ -88,20 +96,37 @@ export class MintAndSellMaker implements Strategy {
   private pendingMint = false;
   private lastMintRequestMs = 0;  // when the last mint was requested (for cooldown)
 
+  // ── Whale tracking (whale-front mode) ──
+  private lastWhaleAskUp: number | null = null;   // whale ask level last tick
+  private lastWhaleAskDown: number | null = null;
+  private lastWhaleBidUp: number | null = null;    // whale bid level last tick
+  private lastWhaleBidDown: number | null = null;
+  private whalePullUntilMs = 0;  // cancel our orders until this timestamp (cooldown after whale signal)
+
   constructor(
     mode: MarketMakerMode = "mint-and-sell",
     k = 0.005,
-    initialPairs = 50,
-    maxInventoryPerSide = 200,
-    replenishThreshold = 10,
+    initialPairs = 100,
+    maxTotalInventory = 200,
+    maxUnhedgedExposure = 50,
+    replenishThreshold = 20,
     requoteThreshold = 0.005,
+    pricing: PricingMode = "inventory-skew",
+    whaleThreshold = 1000,
+    whalePullCooldownMs = 3000,
+    whaleMoveTicks = 3,
   ) {
     this.mode = mode;
+    this.pricing = pricing;
     this.k = k;
     this.initialPairs = initialPairs;
-    this.maxInventoryPerSide = maxInventoryPerSide;
+    this.maxTotalInventory = maxTotalInventory;
+    this.maxUnhedgedExposure = maxUnhedgedExposure;
     this.replenishThreshold = replenishThreshold;
     this.requoteThreshold = requoteThreshold;
+    this.whaleThreshold = whaleThreshold;
+    this.whalePullCooldownMs = whalePullCooldownMs;
+    this.whaleMoveTicks = whaleMoveTicks;
   }
 
   // ── Strategy interface ──
@@ -130,10 +155,16 @@ export class MintAndSellMaker implements Strategy {
     this.initialMintSent = false;
     this.pendingMint = false;
     this.lastMintRequestMs = 0;
+    this.lastWhaleAskUp = null;
+    this.lastWhaleAskDown = null;
+    this.lastWhaleBidUp = null;
+    this.lastWhaleBidDown = null;
+    this.whalePullUntilMs = 0;
 
     console.log(
-      `[MM] Market open: ${market.slug} | mode=${this.mode} | ` +
-      `k=${this.k} maxInv=${this.maxInventoryPerSide}` +
+      `[MM] Market open: ${market.slug} | mode=${this.mode} pricing=${this.pricing} | ` +
+      `k=${this.k} maxTotal=${this.maxTotalInventory} maxUnhedged=${this.maxUnhedgedExposure}` +
+      (this.pricing === "whale-front" ? ` whaleThreshold=${this.whaleThreshold}` : "") +
       (this.mode === "mint-and-sell"
         ? ` | initial mint: ${this.initialPairs} pairs ($${this.initialPairs})`
         : ` | starting empty, building inventory from bid fills`)
@@ -152,11 +183,7 @@ export class MintAndSellMaker implements Strategy {
       this.lastMintRequestMs = now;
       const amount = BigInt(this.initialPairs) * USDC_DECIMALS;
       console.log(`[MM] Minting initial ${this.initialPairs} pairs`);
-      // Optimistically credit inventory — if mint fails, we'll have no tokens
-      // to sell and order placements will fail gracefully at the CLOB level.
-      this.inventoryUp = this.initialPairs;
-      this.inventoryDown = this.initialPairs;
-      this.pairsMinted = this.initialPairs;
+      // Inventory is credited in onMintComplete() after on-chain confirmation
       return [{
         type: "SPLIT",
         conditionId: this.conditionId,
@@ -169,8 +196,9 @@ export class MintAndSellMaker implements Strategy {
       this.initialMintSent = true;
     }
 
-    // ── Clear pending mint after cooldown ──
+    // ── Safety fallback: clear pending mint after cooldown if onMintComplete was never called ──
     if (this.pendingMint && now - this.lastMintRequestMs > MINT_COOLDOWN_MS) {
+      console.log(`[MM] Mint cooldown expired without onMintComplete — clearing pendingMint`);
       this.pendingMint = false;
     }
 
@@ -201,7 +229,7 @@ export class MintAndSellMaker implements Strategy {
       return [{ type: "NOOP" }];
     }
 
-    // ── Compute A-S skewed prices ──
+    // ── Compute prices ──
     const imbalance = this.inventoryUp - this.inventoryDown;
     // Positive imbalance = hold more Up -> lower Up ask/bid (more eager to sell Up, less eager to buy)
 
@@ -212,9 +240,92 @@ export class MintAndSellMaker implements Strategy {
 
     const tick = market.tickSize || 0.01;
 
-    // Skewed asks: lower when we hold excess on that side
-    let ourAskUp = bestAskUp - this.k * imbalance;
-    let ourAskDown = bestAskDown + this.k * imbalance;
+    let ourAskUp: number;
+    let ourAskDown: number;
+
+    if (this.pricing === "whale-front") {
+      // ── Whale front-run pricing ──
+      // Find whale resting orders (asks and bids) and place one tick inside their asks.
+      // Falls back to best ask if no whale level found.
+      const whaleAskUp = this.findWhaleLevel(upBook.asks, this.whaleThreshold);
+      const whaleAskDown = this.findWhaleLevel(downBook.asks, this.whaleThreshold);
+      const whaleBidUp = this.findWhaleLevel(upBook.bids, this.whaleThreshold);
+      const whaleBidDown = this.findWhaleLevel(downBook.bids, this.whaleThreshold);
+
+      // ── Whale signal detection ──
+      // Signals that whales have advance info and we should pull our orders:
+      //   1. Whale ask disappears (pulled entirely)
+      //   2. Whale bid drops N+ ticks (retreating from a side = expects it to lose)
+      //   3. Whale ask drops N+ ticks toward mid (rushing to sell = expects it to be worthless)
+      const moveThreshold = this.whaleMoveTicks * tick;
+      const signals: string[] = [];
+
+      // Ask pulls
+      if (this.lastWhaleAskUp !== null && whaleAskUp === null) signals.push("Up ask GONE");
+      if (this.lastWhaleAskDown !== null && whaleAskDown === null) signals.push("Down ask GONE");
+
+      // Bid retreats (price drops = pulling back)
+      if (this.lastWhaleBidUp !== null && whaleBidUp !== null &&
+          this.lastWhaleBidUp - whaleBidUp >= moveThreshold) {
+        signals.push(`Up bid dropped ${((this.lastWhaleBidUp - whaleBidUp) / tick).toFixed(0)} ticks`);
+      }
+      if (this.lastWhaleBidDown !== null && whaleBidDown !== null &&
+          this.lastWhaleBidDown - whaleBidDown >= moveThreshold) {
+        signals.push(`Down bid dropped ${((this.lastWhaleBidDown - whaleBidDown) / tick).toFixed(0)} ticks`);
+      }
+      // Bid pulls
+      if (this.lastWhaleBidUp !== null && whaleBidUp === null) signals.push("Up bid GONE");
+      if (this.lastWhaleBidDown !== null && whaleBidDown === null) signals.push("Down bid GONE");
+
+      // Ask tightening toward mid (rushing to dump = expects token to lose value)
+      if (this.lastWhaleAskUp !== null && whaleAskUp !== null &&
+          this.lastWhaleAskUp - whaleAskUp >= moveThreshold) {
+        signals.push(`Up ask tightened ${((this.lastWhaleAskUp - whaleAskUp) / tick).toFixed(0)} ticks`);
+      }
+      if (this.lastWhaleAskDown !== null && whaleAskDown !== null &&
+          this.lastWhaleAskDown - whaleAskDown >= moveThreshold) {
+        signals.push(`Down ask tightened ${((this.lastWhaleAskDown - whaleAskDown) / tick).toFixed(0)} ticks`);
+      }
+
+      if (signals.length > 0) {
+        this.whalePullUntilMs = now + this.whalePullCooldownMs;
+        console.log(`[MM] Whale signal: [${signals.join(", ")}] — cooldown ${this.whalePullCooldownMs}ms`);
+      }
+
+      // Update tracking for next tick
+      this.lastWhaleAskUp = whaleAskUp;
+      this.lastWhaleAskDown = whaleAskDown;
+      this.lastWhaleBidUp = whaleBidUp;
+      this.lastWhaleBidDown = whaleBidDown;
+
+      // During cooldown, cancel all our orders and skip quoting
+      if (now < this.whalePullUntilMs) {
+        if (openOrders.length > 0) {
+          return [{ type: "CANCEL_ALL" }];
+        }
+        return [{ type: "NOOP" }];
+      }
+
+      ourAskUp = (whaleAskUp ?? bestAskUp) - tick;
+      ourAskDown = (whaleAskDown ?? bestAskDown) - tick;
+
+      // Still apply inventory skew on top — nudge the side we're long
+      ourAskUp -= this.k * imbalance;
+      ourAskDown += this.k * imbalance;
+    } else {
+      // ── Inventory-skew pricing (Avellaneda-Stoikov) ──
+      ourAskUp = bestAskUp - this.k * imbalance;
+      ourAskDown = bestAskDown + this.k * imbalance;
+    }
+
+    // Profitability floor (mint-and-sell): combined asks must exceed $1.00 + margin.
+    // Use best asks as reference for the other side's likely fill price.
+    if (this.mode === "mint-and-sell") {
+      const minCombined = 1.02; // $0.02 margin per pair to cover gas + fees
+      ourAskUp = Math.max(ourAskUp, minCombined - bestAskDown);
+      ourAskDown = Math.max(ourAskDown, minCombined - bestAskUp);
+    }
+
     // Floor at MIN_ASK_PRICE to prevent selling tokens for near-zero when bids are empty
     ourAskUp = this.clampPrice(ourAskUp, Math.max(MIN_ASK_PRICE, bestBidUp + tick), 0.99, tick);
     ourAskDown = this.clampPrice(ourAskDown, Math.max(MIN_ASK_PRICE, bestBidDown + tick), 0.99, tick);
@@ -230,25 +341,67 @@ export class MintAndSellMaker implements Strategy {
     }
 
     // ── Reconcile asks (both modes) ──
-    this.reconcileAsk(actions, openOrders, this.upTokenId, ourAskUp, this.inventoryUp);
-    this.reconcileAsk(actions, openOrders, this.downTokenId, ourAskDown, this.inventoryDown);
+    // In mint-and-sell, cap sell size so imbalance doesn't exceed maxUnhedgedExposure.
+    // Selling n tokens from one side increases imbalance by n (when that side is
+    // already shorter or equal). Cap: n <= maxUnhedgedExposure - currentImbalance.
+    const unhedged = Math.abs(imbalance);
+    let sellableUp = this.inventoryUp;
+    let sellableDown = this.inventoryDown;
+    if (this.mode === "mint-and-sell") {
+      // Cap sell sizes so that if ONE side fills completely while the other gets
+      // ZERO fills, the resulting imbalance stays within maxUnhedgedExposure.
+      //
+      // Selling the longer side first reduces imbalance toward zero, then if we
+      // sell past the balance point it creates imbalance in the other direction.
+      // So the max we can sell of the longer side = imbalance + maxUnhedgedExposure.
+      //
+      // Selling the shorter side always increases imbalance, so cap = headroom.
+      if (unhedged < MIN_ORDER_SIZE) {
+        // Effectively balanced (dust imbalance from CLOB rounding).
+        // Treat as balanced so both sides can post at least MIN_ORDER_SIZE.
+        sellableUp = Math.min(this.inventoryUp, this.maxUnhedgedExposure);
+        sellableDown = Math.min(this.inventoryDown, this.maxUnhedgedExposure);
+      } else if (this.inventoryUp > this.inventoryDown) {
+        // Long Up — can sell up to (imbalance + maxUnhedged) before flipping too far
+        sellableUp = Math.min(this.inventoryUp, unhedged + this.maxUnhedgedExposure);
+        // Short Down — selling increases imbalance
+        const headroom = Math.max(0, this.maxUnhedgedExposure - unhedged);
+        sellableDown = Math.min(this.inventoryDown, headroom);
+      } else if (this.inventoryDown > this.inventoryUp) {
+        // Long Down — can sell up to (imbalance + maxUnhedged) before flipping too far
+        sellableDown = Math.min(this.inventoryDown, unhedged + this.maxUnhedgedExposure);
+        // Short Up — selling increases imbalance
+        const headroom = Math.max(0, this.maxUnhedgedExposure - unhedged);
+        sellableUp = Math.min(this.inventoryUp, headroom);
+      } else {
+        // Perfectly balanced — selling either side creates imbalance from zero
+        sellableUp = Math.min(this.inventoryUp, this.maxUnhedgedExposure);
+        sellableDown = Math.min(this.inventoryDown, this.maxUnhedgedExposure);
+      }
+    }
+    this.reconcileAsk(actions, openOrders, this.upTokenId, ourAskUp, sellableUp);
+    this.reconcileAsk(actions, openOrders, this.downTokenId, ourAskDown, sellableDown);
 
     // ── Reconcile bids (traditional mode only) ──
     if (this.mode === "traditional" && ourBidUp > 0 && ourBidDown > 0) {
-      const bidSizeUp = Math.max(0, this.maxInventoryPerSide - this.inventoryUp);
-      const bidSizeDown = Math.max(0, this.maxInventoryPerSide - this.inventoryDown);
+      const bidSizeUp = Math.max(0, this.maxTotalInventory - this.inventoryUp);
+      const bidSizeDown = Math.max(0, this.maxTotalInventory - this.inventoryDown);
       this.reconcileBid(actions, openOrders, this.upTokenId, ourBidUp, bidSizeUp);
       this.reconcileBid(actions, openOrders, this.downTokenId, ourBidDown, bidSizeDown);
     }
 
     // ── Replenishment minting (mint-and-sell only) ──
+    // Mint adds equal tokens to BOTH sides, so it never changes imbalance.
+    // Trigger: min(invUp, invDown) < replenishThreshold (running low on paired inventory).
+    // Target: bring min side back up to initialPairs.
+    // Cap: neither side exceeds maxTotalInventory.
     if (this.mode === "mint-and-sell") {
       const minInventory = Math.min(this.inventoryUp, this.inventoryDown);
       if (minInventory < this.replenishThreshold && !this.pendingMint) {
         const deficit = this.initialPairs - minInventory;
-        // Cap replenishment so neither side exceeds maxInventoryPerSide
-        const maxMintable = this.maxInventoryPerSide - Math.max(this.inventoryUp, this.inventoryDown);
-        const mintAmount = Math.min(deficit, maxMintable);
+        // Cap so neither side exceeds maxTotalInventory after minting
+        const maxMintable = this.maxTotalInventory - Math.max(this.inventoryUp, this.inventoryDown);
+        const mintAmount = Math.floor(Math.min(deficit, maxMintable));
         if (mintAmount >= MIN_ORDER_SIZE) {
           this.pendingMint = true;
           this.lastMintRequestMs = now;
@@ -257,14 +410,18 @@ export class MintAndSellMaker implements Strategy {
             `[MM] Replenishing: mint ${mintAmount} pairs ` +
             `(inv Up=${this.inventoryUp} Down=${this.inventoryDown})`
           );
-          this.inventoryUp += mintAmount;
-          this.inventoryDown += mintAmount;
-          this.pairsMinted += mintAmount;
           actions.push({
             type: "SPLIT",
             conditionId: this.conditionId,
             amount,
           });
+        } else if (maxMintable < MIN_ORDER_SIZE && minInventory < MIN_ORDER_SIZE) {
+          // Can't mint because one side is near maxTotalInventory.
+          // Need to sell that side to free up room for minting.
+          console.warn(
+            `[MM] Replenish blocked: need ${deficit} pairs but maxMintable=${maxMintable} ` +
+            `(inv Up=${this.inventoryUp} Down=${this.inventoryDown}, cap=${this.maxTotalInventory})`
+          );
         }
       }
     }
@@ -291,7 +448,7 @@ export class MintAndSellMaker implements Strategy {
 
     // Mint-and-sell: merge remaining pairs for $1.00 each
     if (this.mode === "mint-and-sell") {
-      const redeemablePairs = Math.min(this.inventoryUp, this.inventoryDown);
+      const redeemablePairs = Math.floor(Math.min(this.inventoryUp, this.inventoryDown));
       if (redeemablePairs > 0) {
         const amount = BigInt(redeemablePairs) * USDC_DECIMALS;
         console.log(`[MM] Market close — merging ${redeemablePairs} remaining pairs`);
@@ -330,12 +487,12 @@ export class MintAndSellMaker implements Strategy {
     } else if (side === "BUY") {
       if (assetId === this.upTokenId) {
         const newInv = this.inventoryUp + size;
-        if (newInv > this.maxInventoryPerSide) {
+        if (newInv > this.maxTotalInventory) {
           console.warn(
-            `[MM] BUY fill would exceed max inventory: ${newInv} > ${this.maxInventoryPerSide}, capping`
+            `[MM] BUY fill would exceed max inventory: ${newInv} > ${this.maxTotalInventory}, capping`
           );
         }
-        this.inventoryUp = Math.min(this.maxInventoryPerSide, newInv);
+        this.inventoryUp = Math.min(this.maxTotalInventory, newInv);
         this.buyFillsUp += size;
         this.buyCostUp += price * size;
         console.log(
@@ -344,12 +501,12 @@ export class MintAndSellMaker implements Strategy {
         );
       } else if (assetId === this.downTokenId) {
         const newInv = this.inventoryDown + size;
-        if (newInv > this.maxInventoryPerSide) {
+        if (newInv > this.maxTotalInventory) {
           console.warn(
-            `[MM] BUY fill would exceed max inventory: ${newInv} > ${this.maxInventoryPerSide}, capping`
+            `[MM] BUY fill would exceed max inventory: ${newInv} > ${this.maxTotalInventory}, capping`
           );
         }
-        this.inventoryDown = Math.min(this.maxInventoryPerSide, newInv);
+        this.inventoryDown = Math.min(this.maxTotalInventory, newInv);
         this.buyFillsDown += size;
         this.buyCostDown += price * size;
         console.log(
@@ -367,28 +524,26 @@ export class MintAndSellMaker implements Strategy {
     openOrders: OpenOrder[],
     assetId: string,
     targetPrice: number,
-    inventory: number,
+    sellableSize: number,
   ): void {
     const existing = openOrders.filter(o => o.assetId === assetId && o.side === "SELL");
 
-    if (inventory >= MIN_ORDER_SIZE) {
-      // Use first order for requote comparison; cancel all if requoting
-      if (this.shouldRequote(existing[0], targetPrice, inventory)) {
-        for (const order of existing) {
-          actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
-        }
-        const size = Math.min(inventory, this.maxInventoryPerSide);
+    if (sellableSize >= MIN_ORDER_SIZE) {
+      if (existing.length === 0) {
         actions.push({
           type: "PLACE_ORDER",
           assetId,
           side: "SELL" as Side,
           price: targetPrice,
-          size,
+          size: sellableSize,
           orderType: "GTC",
         });
+      } else if (this.shouldRequote(existing[0], targetPrice, sellableSize)) {
+        for (const order of existing) {
+          actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
+        }
       }
     } else {
-      // No inventory — cancel all stale asks
       for (const order of existing) {
         actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
       }
@@ -405,19 +560,19 @@ export class MintAndSellMaker implements Strategy {
     const existing = openOrders.filter(o => o.assetId === assetId && o.side === "BUY");
 
     if (capacity >= MIN_ORDER_SIZE && targetPrice > 0) {
-      if (this.shouldRequote(existing[0], targetPrice, capacity)) {
-        for (const order of existing) {
-          actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
-        }
-        const size = Math.min(capacity, this.maxInventoryPerSide);
+      if (existing.length === 0) {
         actions.push({
           type: "PLACE_ORDER",
           assetId,
           side: "BUY" as Side,
           price: targetPrice,
-          size,
+          size: capacity,
           orderType: "GTC",
         });
+      } else if (this.shouldRequote(existing[0], targetPrice, capacity)) {
+        for (const order of existing) {
+          actions.push({ type: "CANCEL_ORDER", orderId: order.orderId });
+        }
       }
     } else {
       for (const order of existing) {
@@ -429,17 +584,30 @@ export class MintAndSellMaker implements Strategy {
   private shouldRequote(
     existing: OpenOrder | undefined,
     targetPrice: number,
-    targetSize: number,
+    _targetSize: number,
   ): boolean {
-    if (!existing && targetSize >= MIN_ORDER_SIZE) return true;
-    if (existing && Math.abs(existing.price - targetPrice) > this.requoteThreshold) return true;
-    if (existing && Math.abs(existing.remainingSize - targetSize) >= MIN_ORDER_SIZE) return true;
+    if (!existing) return true;
+    // Only requote when price has actually moved beyond threshold.
+    // Size changes at the same price are not worth losing queue priority.
+    if (Math.abs(existing.price - targetPrice) > this.requoteThreshold) return true;
     return false;
   }
 
   private clampPrice(price: number, minPrice: number, maxPrice: number, tick: number): number {
     const clamped = Math.max(minPrice, Math.min(maxPrice, price));
     return Math.round(clamped / tick) * tick;
+  }
+
+  /**
+   * Find the first ask level with size >= threshold (a whale resting order).
+   * Returns the price, or null if no level meets the threshold.
+   * Asks are sorted ascending by price, so the first match is the tightest whale level.
+   */
+  private findWhaleLevel(asks: PriceLevel[], threshold: number): number | null {
+    for (const level of asks) {
+      if (level.size >= threshold) return level.price;
+    }
+    return null;
   }
 
   private logStatus(
@@ -469,17 +637,84 @@ export class MintAndSellMaker implements Strategy {
 
   private computeRealizedPnl(): number {
     if (this.mode === "mint-and-sell") {
-      // Total cost = $1.00 per pair minted
-      // Total recovered = sell revenue + value of mergeable pairs ($1.00 each)
-      const redeemablePairs = Math.min(this.inventoryUp, this.inventoryDown);
-      const totalRecovered = this.sellRevenueUp + this.sellRevenueDown + redeemablePairs;
-      return totalRecovered - this.pairsMinted;
+      // Realized PnL = revenue from completed pairs - cost of those pairs.
+      // A "completed pair" requires one sell on each side.
+      // Cost per pair = $1.00 (the USDC.e spent to mint).
+      // Revenue = sell price UP + sell price DOWN for each completed pair.
+      //
+      // We approximate by using min(sellFills) as completed pairs and
+      // charging $1.00 per completed pair against total sell revenue.
+      const completedPairs = Math.min(this.sellFillsUp, this.sellFillsDown);
+      const totalSellRevenue = this.sellRevenueUp + this.sellRevenueDown;
+      return totalSellRevenue - completedPairs;
     } else {
       // Traditional: realized PnL = sell revenue - buy cost
       // (remaining inventory has unrealized value that settles at 0 or 1)
       const pnlUp = this.sellRevenueUp - this.buyCostUp;
       const pnlDown = this.sellRevenueDown - this.buyCostDown;
       return pnlUp + pnlDown;
+    }
+  }
+
+  getState(): Record<string, unknown> {
+    return {
+      mode: this.mode,
+      pricing: this.pricing,
+      inventoryUp: this.inventoryUp,
+      inventoryDown: this.inventoryDown,
+      pairsMinted: this.pairsMinted,
+      sellFillsUp: this.sellFillsUp,
+      sellFillsDown: this.sellFillsDown,
+      sellRevenueUp: this.sellRevenueUp,
+      sellRevenueDown: this.sellRevenueDown,
+      buyFillsUp: this.buyFillsUp,
+      buyFillsDown: this.buyFillsDown,
+      buyCostUp: this.buyCostUp,
+      buyCostDown: this.buyCostDown,
+      realizedPnl: this.computeRealizedPnl(),
+      pendingMint: this.pendingMint,
+      redeemablePairs: Math.min(this.inventoryUp, this.inventoryDown),
+    };
+  }
+
+  onInventorySync(
+    upBalance: number,
+    downBalance: number,
+    openOrders: { assetId: string; side: string; price: number; size: number }[],
+  ): void {
+    this.inventoryUp = upBalance;
+    this.inventoryDown = downBalance;
+
+    // Count existing inventory as already minted (so PnL doesn't charge for it again)
+    // Only in mint-and-sell mode — these tokens came from previous mints
+    if (this.mode === "mint-and-sell") {
+      const pairsHeld = Math.floor(Math.min(upBalance, downBalance));
+      this.pairsMinted = pairsHeld;
+    }
+
+    // If we already have inventory, skip the initial mint
+    if (upBalance > 0 || downBalance > 0) {
+      this.initialMintSent = true;
+    }
+
+    console.log(
+      `[MM] Inventory synced from on-chain: Up=${upBalance} Down=${downBalance} ` +
+      `openOrders=${openOrders.length}`
+    );
+  }
+
+  onMintComplete(conditionId: string, pairsMinted: number, success: boolean): void {
+    this.pendingMint = false;
+    if (success) {
+      this.inventoryUp += pairsMinted;
+      this.inventoryDown += pairsMinted;
+      this.pairsMinted += pairsMinted;
+      console.log(
+        `[MM] Mint confirmed: +${pairsMinted} pairs → ` +
+        `inv=(Up=${this.inventoryUp} Down=${this.inventoryDown})`
+      );
+    } else {
+      console.error(`[MM] Mint FAILED for ${pairsMinted} pairs — inventory NOT credited`);
     }
   }
 
@@ -523,9 +758,14 @@ registerStrategy("market-maker", () => {
   return new MintAndSellMaker(
     mm.mode ?? "mint-and-sell",
     mm.skewK ?? 0.005,
-    mm.initialPairs ?? 50,
-    mm.maxInventoryPerSide ?? 200,
-    mm.replenishThreshold ?? 10,
+    mm.initialPairs ?? 100,
+    mm.maxTotalInventory ?? 200,
+    mm.maxUnhedgedExposure ?? 50,
+    mm.replenishThreshold ?? 20,
     mm.requoteThreshold ?? 0.005,
+    mm.pricing ?? "inventory-skew",
+    mm.whaleThreshold ?? 1000,
+    mm.whalePullCooldownMs ?? 3000,
+    mm.whaleMoveTicks ?? 3,
   );
 });

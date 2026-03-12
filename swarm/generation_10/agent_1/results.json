@@ -1,0 +1,174 @@
+{
+  "strategy_name": "spread_asymmetry_lead_lag",
+  "description": "Depth-skew signal is unprofitable: -15.6786 PnL over 915 trades (win rate 48.9%).",
+  "hypothesis": "When market makers pull ask-side quotes (ask depth thins relative to bid depth), the Up token is underpriced if the spread hasn't yet widened to reflect reduced liquidity. Original cross-market variant requires concurrent markets; adapted to within-market depth-skew dynamics for sample data testing.",
+  "metrics": {
+    "total_trades": 915,
+    "win_rate": 0.4885,
+    "pnl_total": -15.6786,
+    "pnl_per_trade": -0.0171,
+    "max_drawdown": 21.4038,
+    "sharpe": -0.5821
+  },
+  "parameters": {
+    "depth_ratio_zscore_entry": 1.5,
+    "spread_zscore_max": 0.5,
+    "rolling_window": 50,
+    "min_snapshots_warmup": 20,
+    "entry_price_cap": 0.85
+  },
+  "verdict": "failed",
+  "next_steps": "Depth skew does not predict Up/Down resolution on this data. 1) Test cross-market variant on full dataset with concurrent markets. 2) Skew may predict spread widening, not direction \u2014 explore as market-making signal instead. 3) Combine with trade imbalance for directional edge.",
+  "sensitivity_analysis": [
+    {
+      "depth_ratio_zscore_thresh": 1.0,
+      "spread_zscore_max": 0.25,
+      "total_trades": 865,
+      "win_rate": 0.489,
+      "pnl_total": -13.9799,
+      "pnl_per_trade": -0.0162,
+      "max_drawdown": 18.8963,
+      "sharpe": -0.5496
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.0,
+      "spread_zscore_max": 0.5,
+      "total_trades": 915,
+      "win_rate": 0.4885,
+      "pnl_total": -15.6786,
+      "pnl_per_trade": -0.0171,
+      "max_drawdown": 21.4038,
+      "sharpe": -0.5821
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.0,
+      "spread_zscore_max": 1.0,
+      "total_trades": 915,
+      "win_rate": 0.4885,
+      "pnl_total": -15.6786,
+      "pnl_per_trade": -0.0171,
+      "max_drawdown": 21.4038,
+      "sharpe": -0.5821
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.25,
+      "spread_zscore_max": 0.25,
+      "total_trades": 865,
+      "win_rate": 0.489,
+      "pnl_total": -13.9799,
+      "pnl_per_trade": -0.0162,
+      "max_drawdown": 18.8963,
+      "sharpe": -0.5496
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.25,
+      "spread_zscore_max": 0.5,
+      "total_trades": 915,
+      "win_rate": 0.4885,
+      "pnl_total": -15.6786,
+      "pnl_per_trade": -0.0171,
+      "max_drawdown": 21.4038,
+      "sharpe": -0.5821
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.25,
+      "spread_zscore_max": 1.0,
+      "total_trades": 915,
+      "win_rate": 0.4885,
+      "pnl_total": -15.6786,
+      "pnl_per_trade": -0.0171,
+      "max_drawdown": 21.4038,
+      "sharpe": -0.5821
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.5,
+      "spread_zscore_max": 0.25,
+      "total_trades": 865,
+      "win_rate": 0.489,
+      "pnl_total": -13.9799,
+      "pnl_per_trade": -0.0162,
+      "max_drawdown": 18.8963,
+      "sharpe": -0.5496
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.5,
+      "spread_zscore_max": 0.5,
+      "total_trades": 915,
+      "win_rate": 0.4885,
+      "pnl_total": -15.6786,
+      "pnl_per_trade": -0.0171,
+      "max_drawdown": 21.4038,
+      "sharpe": -0.5821
+    },
+    {
+      "depth_ratio_zscore_thresh": 1.5,
+      "spread_zscore_max": 1.0,
+      "total_trades": 915,
+      "win_rate": 0.4885,
+      "pnl_total": -15.6786,
+      "pnl_per_trade": -0.0171,
+      "max_drawdown": 21.4038,
+      "sharpe": -0.5821
+    },
+    {
+      "depth_ratio_zscore_thresh": 2.0,
+      "spread_zscore_max": 0.25,
+      "total_trades": 424,
+      "win_rate": 0.4646,
+      "pnl_total": -17.3935,
+      "pnl_per_trade": -0.041,
+      "max_drawdown": 19.6796,
+      "sharpe": -1.3989
+    },
+    {
+      "depth_ratio_zscore_thresh": 2.0,
+      "spread_zscore_max": 0.5,
+      "total_trades": 458,
+      "win_rate": 0.4629,
+      "pnl_total": -19.9793,
+      "pnl_per_trade": -0.0436,
+      "max_drawdown": 23.4735,
+      "sharpe": -1.4859
+    },
+    {
+      "depth_ratio_zscore_thresh": 2.0,
+      "spread_zscore_max": 1.0,
+      "total_trades": 458,
+      "win_rate": 0.4629,
+      "pnl_total": -19.9793,
+      "pnl_per_trade": -0.0436,
+      "max_drawdown": 23.4735,
+      "sharpe": -1.4859
+    },
+    {
+      "depth_ratio_zscore_thresh": 2.5,
+      "spread_zscore_max": 0.25,
+      "total_trades": 267,
+      "win_rate": 0.4382,
+      "pnl_total": -18.0563,
+      "pnl_per_trade": -0.0676,
+      "max_drawdown": 20.0181,
+      "sharpe": -2.3091
+    },
+    {
+      "depth_ratio_zscore_thresh": 2.5,
+      "spread_zscore_max": 0.5,
+      "total_trades": 292,
+      "win_rate": 0.4349,
+      "pnl_total": -21.0105,
+      "pnl_per_trade": -0.072,
+      "max_drawdown": 23.6906,
+      "sharpe": -2.4525
+    },
+    {
+      "depth_ratio_zscore_thresh": 2.5,
+      "spread_zscore_max": 1.0,
+      "total_trades": 292,
+      "win_rate": 0.4349,
+      "pnl_total": -21.0105,
+      "pnl_per_trade": -0.072,
+      "max_drawdown": 23.6906,
+      "sharpe": -2.4525
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+Strategy implementation and backtest complete. Here's the summary:
+
+## Results: Concurrent Resolution Conditional Entropy
+
+**Verdict: Marginal**
+
+### Key Findings
+
+**The hypothesis is partially validated:**
+- 2,700 concurrent epochs found across BTC/ETH/SOL/XRP
+- Joint outcome distribution is heavily bimodal: state 0000 (all Down) = 38.9%, state 1111 (all Up) = 37.8% — confirming strong cross-asset coupling
+- Conditional entropy successfully identifies tight-coupling regimes
+
+**Oracle test (BTC outcome known — sanity check):**
+- 88% win rate, massive PnL — confirms that when you *know* BTC direction, alts follow reliably in low-entropy windows
+
+**Realistic test (BTC book imbalance — no look-ahead):**
+- 2,644 trades, 52.5% win rate, +375.97 PnL total
+- +0.14 PnL per trade, max drawdown -111.57
+- Conservative Sharpe: ~0.45
+
+### Honest Assessment
+
+The **entropy regime detection works** — it correctly identifies when alts are tightly coupled to BTC. The **bottleneck is the BTC direction signal**: early book imbalance only predicts BTC's own 5-minute outcome ~52.5% of the time, which barely overcomes the binary market's inherent structure. The edge is real but thin.
+
+### Files
+- Strategy: `swarm/generation_10/agent_2/strategy.py`
+- Results: `swarm/generation_10/agent_2/results.json`

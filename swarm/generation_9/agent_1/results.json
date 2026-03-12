@@ -1,0 +1,24 @@
+{
+  "strategy_name": "deep_ratio_l1_contrarian",
+  "description": "Contrarian strategy combining deep-level ratio (L3-5 bid/ask imbalance) with L1 book imbalance. When both signals agree on direction (both bullish or both bearish), bet the OPPOSITE direction. Theory: MMs layer visible depth deceptively, so agreement between deep and shallow book indicates a trap. Restricted to first 2s and mid-price 0.35-0.65.",
+  "hypothesis": "Agreement between deep liquidity (L3-5) and L1 imbalance is deceptive \u2014 MMs layer visible depth opposite to intended direction. Combining this contrarian insight with the uncertainty filter (mid 0.35-0.65) should isolate the highest-conviction subset of deceptive signals.",
+  "metrics": {
+    "total_trades": 580,
+    "win_rate": 0.4966,
+    "pnl_total": 5.07,
+    "pnl_per_trade": 0.0087,
+    "max_drawdown": -80.21,
+    "sharpe": 0.0594
+  },
+  "parameters": {
+    "entry_window_ms": 2000,
+    "mid_price_low": 0.35,
+    "mid_price_high": 0.65,
+    "max_entry_price": 0.85,
+    "min_order_size": 5,
+    "deep_ratio_threshold": 0.0,
+    "imbalance_threshold": 0.0
+  },
+  "verdict": "failed",
+  "next_steps": "Strategy failed on 580 trades with 49.7% win rate. The contrarian hypothesis (deep+L1 agreement is deceptive) does not hold. Stronger agreement signals actually performed worse, ruling out a threshold-tuning fix. The slight Down-bias in results mirrors the base rate, not a signal. Consider: (1) the agreement signal may only be predictive at specific spread/liquidity regimes not captured by the mid-price filter, (2) the 2s window may be too early for MM deception to manifest, (3) the signal may need to be combined with cross-token (Up vs Down book) analysis rather than single-side analysis."
+}

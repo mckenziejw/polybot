@@ -1,0 +1,31 @@
+{
+  "strategy_name": "deep_level_ratio_down_only",
+  "description": "Buy Down tokens when deep orderbook liquidity (levels 3-5) is concentrated on the ask side (deep_level_ratio < threshold), filtered for wide spreads. Down-only variant based on observed asymmetry.",
+  "hypothesis": "When deep liquidity is concentrated on the ask side (ratio < 0.3), MMs are layering defensively expecting downward resolution. This signal is stronger for Down-side trades (59.8% WR) than Up-side (53.1% WR).",
+  "metrics": {
+    "total_trades": 42,
+    "win_rate": 0.4286,
+    "pnl_total": -1.4766,
+    "pnl_per_trade": -0.0352,
+    "max_drawdown": -3.1124,
+    "sharpe": -1.1799
+  },
+  "parameters": {
+    "deep_ratio_threshold": 0.3,
+    "spread_filter": "p75 (0.038)",
+    "window_ms": 2000,
+    "entry_window_s": 60,
+    "entry_price_cap": 0.85,
+    "side": "Down only",
+    "sweep_best_config": {
+      "note": "7 trades only - not statistically significant, likely overfitted",
+      "ratio_threshold": 0.25,
+      "spread_quantile": 0.9,
+      "window_seconds": 10,
+      "n_trades": 7,
+      "win_rate": 0.7143
+    }
+  },
+  "verdict": "failed",
+  "next_steps": "The Down-only deep_level_ratio signal fails at the hypothesized parameters (42.9% WR, negative PnL). Key findings: (1) The asymmetry is REVERSED in this sample — Up-side (ratio>0.7) shows 57.3% WR vs Down-side (ratio<0.3) at 42.7% WR, contradicting the hypothesis. (2) Without spread filter, ratio<0.2 shows marginal positive PnL (48.1% WR) suggesting deep-ratio extremes may have weak signal but not Down-specific. (3) Parameter sweep found a 7-trade config with 71% WR but this is not statistically reliable. (4) Consider testing the reversed hypothesis (Up-side with high deep ratio) or combining deep_level_ratio with other signals like book_imbalance."
+}

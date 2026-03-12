@@ -1,0 +1,10 @@
+You are a quantitative trading researcher. Generate exactly 3 diverse, novel strategy hypotheses for Polymarket 5-minute BTC Up/Down binary prediction markets.
+
+Context: Seed prompt: explore orderbook shape and imbalance signals at market open
+
+IMPORTANT — these have already been tested and FAILED:
+- Mid-price drift, BTC momentum, whale directional signals, XGBoost confidence, fading trade flow, sports longshot bias
+
+Generate genuinely novel ideas. For each, output ONLY a JSON array of strings, each string being one hypothesis (2-3 sentences). No other text.
+
+Available data: 5m orderbook snapshots (7,187 files, 5 levels deep), trade events (5,339 files), 4h orderbook (798 files), resolution cache. Raw data includes pre/post market open snapshots.

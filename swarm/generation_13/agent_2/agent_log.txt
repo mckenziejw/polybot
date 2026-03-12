@@ -1,0 +1,24 @@
+## Results Summary
+
+**Strategy**: Deep Level Ratio in Narrow Mid-Price Band (0.45-0.55) with UTC 0-6 Filter
+
+**Verdict: FAILED**
+
+| Metric | Value |
+|--------|-------|
+| Total trades | 24 |
+| Win rate | 50.0% |
+| Total PnL | -$0.51 |
+| PnL/trade | -$0.02 |
+| Max drawdown | -$11.30 |
+| Sharpe | -0.14 |
+
+**Key findings**:
+
+1. **Exact hypothesis has zero edge**: 2s window, T=0.25, UTC 0-6 hours produces exactly 50% win rate — the signal has no predictive power in true coin-flip markets. The small negative PnL is entirely from fees.
+
+2. **Universe too small**: UTC 0-6 + mid-price 0.45-0.55 yields only 34 markets (24 resolved), insufficient for statistical significance.
+
+3. **Grid search found apparent edge but it's fragile**: Without the hour filter, W=5000ms T=0.25 shows 57.9% WR on 95 trades — but OOS split reveals inconsistency (53.3% vs 62.0% across halves), suggesting overfitting.
+
+4. **The core premise is likely wrong**: In true coin-flip markets, MM deep-level positioning may itself be noise rather than signal, precisely because there's no directional information to hide.

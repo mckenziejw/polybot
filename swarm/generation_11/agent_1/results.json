@@ -1,0 +1,42 @@
+{
+  "strategy_name": "deep_level_l1_contrarian_disagreement",
+  "description": "Trade when deep orderbook levels (L3-5) disagree with L1 imbalance direction. Use deep level signal as trade direction, hypothesizing L1 is deceptive MM layering.",
+  "hypothesis": "When deep levels (L3-5) and L1 book imbalance DISAGREE on direction, deep levels reflect genuine MM positioning while L1 is noise/deception. Disagreement isolates real signal from layering.",
+  "metrics": {
+    "total_trades": 155,
+    "win_rate": 0.5419,
+    "pnl_total": 4.0348,
+    "pnl_per_trade": 0.026,
+    "max_drawdown": -7.9475,
+    "sharpe": 0.8846
+  },
+  "parameters": {
+    "window_ms": 2000,
+    "deep_threshold": 0.3,
+    "mid_price_range": [
+      0.35,
+      0.65
+    ],
+    "max_entry_price": 0.85,
+    "signal": "deep_ratio = (deep_bid_L3-5 - deep_ask_L3-5) / total_deep",
+    "filter": "disagreement between deep_ratio sign and L1 imbalance sign"
+  },
+  "verdict": "promising",
+  "next_steps": "Test on full dataset. 500ms window showed strongest results (194 trades, 57.7% WR, 0.064 PnL/trade) but needs validation for overfitting. Threshold 0.3 is robust sweet spot - monotonically improving WR from 0.1 to 0.4. Explore time-of-day effects and spread filters.",
+  "sensitivity": {
+    "threshold_sweep": {
+      "0.1": {"trades": 304, "win_rate": 0.5066, "pnl_per_trade": -0.0021},
+      "0.2": {"trades": 224, "win_rate": 0.5268, "pnl_per_trade": 0.0141},
+      "0.3": {"trades": 155, "win_rate": 0.5419, "pnl_per_trade": 0.026},
+      "0.4": {"trades": 95, "win_rate": 0.5474, "pnl_per_trade": 0.0249},
+      "0.5": {"trades": 63, "win_rate": 0.5397, "pnl_per_trade": 0.0173}
+    },
+    "window_sweep": {
+      "500ms": {"trades": 194, "win_rate": 0.5773, "pnl_per_trade": 0.0643},
+      "1000ms": {"trades": 192, "win_rate": 0.5417, "pnl_per_trade": 0.0278},
+      "2000ms": {"trades": 155, "win_rate": 0.5419, "pnl_per_trade": 0.026},
+      "5000ms": {"trades": 80, "win_rate": 0.55, "pnl_per_trade": 0.0346},
+      "10000ms": {"trades": 44, "win_rate": 0.5227, "pnl_per_trade": 0.0044}
+    }
+  }
+}

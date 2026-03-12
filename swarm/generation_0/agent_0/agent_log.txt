@@ -1,0 +1,16 @@
+## Results Summary
+
+**Strategy: Orderbook Shape Convexity** — tested on 2,872 resolved 5m BTC Up/Down markets.
+
+### Signal 1: Raw Convexity (second derivative of cumulative depth)
+- **Failed.** 50.3% WR, correlation -0.019. No predictive power at any threshold. The original hypothesis that curvature of bid vs ask depth signals informed positioning does not hold.
+
+### Signal 2: Deep Level Ratio (L3-L5 bid share of total deep liquidity)
+- **Marginal.** A simplified derivative of the convexity idea — just measuring where deep book liquidity is concentrated.
+- 55.1% WR on 1,150 trades (top+bottom 20% quintile filter), +$264 total PnL, $0.23/trade
+- Top 5% shows 63.9% Up WR, Bottom 5% shows 38.9% Up WR (strong monotonic signal)
+- **BUT temporally unstable**: Mar 1-3 drove 90% of profits (62% WR, +$239). The final chunk (Mar 3-6) was slightly negative (50.2% WR, -$60).
+
+### Verdict: **Marginal**
+
+The deep level ratio has a real statistical relationship with outcomes (0.086 correlation, monotonic across quintiles), but it's regime-dependent. The signal likely reflects specific dominant MM behavior that changed over the sample period. Not robust enough for live deployment without additional filters or confirmation signals.

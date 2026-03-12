@@ -1,0 +1,23 @@
+{
+  "strategy_name": "deep_level_ratio_uncertainty_filter",
+  "description": "Trade based on deep orderbook layering (levels 3-5 vs 1-2 net bid-ask ratio) filtered to uncertain markets (mid 0.40-0.60). Uses first snapshot in market window. net_deep signal: 1686 trades, 51.5% WR, $0.085/trade. All other imbalance signals (total, L1, weighted) were negative. Statistical test: z=0.59, p=0.28 — NOT significant vs baseline.",
+  "hypothesis": "In lopsided markets, orderbook shape is mechanically skewed by price level. Restricting to uncertain markets (mid 0.40-0.60) should isolate the informational component of MM layering from the mechanical component.",
+  "metrics": {
+    "total_trades": 1686,
+    "win_rate": 0.5154,
+    "pnl_total": 143.86,
+    "pnl_per_trade": 0.0853,
+    "max_drawdown": -168.57,
+    "sharpe": 0.29
+  },
+  "parameters": {
+    "mid_price_range": [0.4, 0.6],
+    "max_spread": 0.10,
+    "deep_ratio_quantile": 0.20,
+    "entry_price_cap": 0.85,
+    "position_size": 10,
+    "max_entry_offset_s": 90
+  },
+  "verdict": "marginal",
+  "next_steps": "net_deep shows slight positive PnL ($0.085/trade) but is NOT statistically significant (p=0.28, z=0.59). The 0.7% WR edge over baseline is consistent with noise. Total/L1/weighted imbalance signals all lost money (~48.9% WR). The hypothesis that uncertainty filtering isolates informational MM layering is not supported — the signal is too weak. Most 5m BTC markets have well-populated 5-level books at open, but the layering pattern carries negligible directional information. Not worth pursuing further as a standalone signal."
+}

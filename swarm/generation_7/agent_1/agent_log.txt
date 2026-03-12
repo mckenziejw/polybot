@@ -1,0 +1,25 @@
+The backtest is complete. Here's the summary:
+
+## Results
+
+**Verdict: Promising** — but with important caveats.
+
+### Key Findings
+
+| Variant | Trades | Win Rate | PnL/Trade | Sharpe (ann) |
+|---------|--------|----------|-----------|-------------|
+| **Full hypothesis (2h UTC + Q15%)** | 6 | 16.7% | -0.232 | -273 |
+| No time filter + Q15% | 86 | 52.3% | +0.048 | 37 |
+| **No time filter + Q20% (best)** | 114 | 52.6% | +0.049 | 37 |
+| First 4h UTC + Q15% | 14 | 50.0% | +0.023 | 17 |
+| First 6h UTC + Q15% | 22 | 50.0% | +0.027 | 20 |
+
+### Interpretation
+
+1. **The original hypothesis (first 2h UTC) failed** — only 17 markets fell in that window after mid-price filtering, yielding just 6 trades with terrible performance. The sample dataset doesn't have enough concentration in early-UTC hours.
+
+2. **The deep_level_ratio signal itself shows promise** — without the time filter, buying Down when DLR is low (deep ask > deep bid) worked well: 57.9% win rate on the Down side, driving most of the profit (+5.81 PnL).
+
+3. **Asymmetry**: The signal is notably one-sided — buying Down on low DLR works much better than buying Up on high DLR. This suggests deep ask-side liquidity concentration in early snapshots is a meaningful signal for Down outcomes.
+
+4. **Caveat**: This is a 401-market sample (only markets with resolution data matched). Needs validation on the full 7,187-market dataset before any confidence in the signal.

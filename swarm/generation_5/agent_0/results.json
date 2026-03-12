@@ -1,0 +1,298 @@
+{
+  "strategy_name": "orderbook_asymmetry_decay",
+  "description": "Strategy systematically picks the wrong side (10-17% win rate vs ~50% baseline). Persistent orderbook asymmetry signals informed flow, not mean-reversion. Fading it is anti-predictive.",
+  "hypothesis": "Orderbook asymmetry (bid/ask depth ratio) that persists across multiple consecutive snapshots signals informed positioning. Fading the slow-decay side after asymmetry begins to revert should capture the snap-back to equilibrium.",
+  "metrics": {
+    "total_trades": 93,
+    "win_rate": 0.172,
+    "pnl_total": -0.4781,
+    "pnl_per_trade": -0.0051,
+    "max_drawdown": 0.0,
+    "sharpe": -0.0189
+  },
+  "parameters": {
+    "asym_threshold": 0.05,
+    "persistence_snapshots": 2,
+    "entry_price_cap": 0.85,
+    "snapshot_bucket_sec": 5
+  },
+  "verdict": "failed",
+  "next_steps": "1. The fade hypothesis is rejected: persistent asymmetry indicates informed positioning that CONTINUES (not reverts). Win rates of 10-17% are strong anti-signal. 2. A FOLLOW strategy (buy the side with persistent depth) would flip the edge positive. 3. Autocorrelation analysis confirms: high-autocorr Up tokens resolve Up only 28.8% vs 71.4% for low-autocorr, suggesting asymmetry persistence on one side predicts the OPPOSITE outcome. 4. The 60s sample window further limits signal quality; full dataset may clarify.",
+  "parameter_sweep": [
+    {
+      "asym_threshold": 0.05,
+      "persistence_n": 2,
+      "trades": 93,
+      "win_rate": 0.172,
+      "pnl_total": -0.4781,
+      "pnl_per_trade": -0.0051,
+      "sharpe": -0.0189
+    },
+    {
+      "asym_threshold": 0.05,
+      "persistence_n": 3,
+      "trades": 88,
+      "win_rate": 0.1364,
+      "pnl_total": -4.2074,
+      "pnl_per_trade": -0.0478,
+      "sharpe": -0.1797
+    },
+    {
+      "asym_threshold": 0.05,
+      "persistence_n": 4,
+      "trades": 105,
+      "win_rate": 0.1429,
+      "pnl_total": -2.0294,
+      "pnl_per_trade": -0.0193,
+      "sharpe": -0.0805
+    },
+    {
+      "asym_threshold": 0.05,
+      "persistence_n": 5,
+      "trades": 106,
+      "win_rate": 0.1132,
+      "pnl_total": -2.2277,
+      "pnl_per_trade": -0.021,
+      "sharpe": -0.0874
+    },
+    {
+      "asym_threshold": 0.05,
+      "persistence_n": 6,
+      "trades": 109,
+      "win_rate": 0.1009,
+      "pnl_total": -3.9406,
+      "pnl_per_trade": -0.0362,
+      "sharpe": -0.1592
+    },
+    {
+      "asym_threshold": 0.1,
+      "persistence_n": 2,
+      "trades": 91,
+      "win_rate": 0.1648,
+      "pnl_total": -0.6847,
+      "pnl_per_trade": -0.0075,
+      "sharpe": -0.0274
+    },
+    {
+      "asym_threshold": 0.1,
+      "persistence_n": 3,
+      "trades": 86,
+      "win_rate": 0.1395,
+      "pnl_total": -3.9571,
+      "pnl_per_trade": -0.046,
+      "sharpe": -0.1712
+    },
+    {
+      "asym_threshold": 0.1,
+      "persistence_n": 4,
+      "trades": 101,
+      "win_rate": 0.1386,
+      "pnl_total": -2.6329,
+      "pnl_per_trade": -0.0261,
+      "sharpe": -0.1107
+    },
+    {
+      "asym_threshold": 0.1,
+      "persistence_n": 5,
+      "trades": 102,
+      "win_rate": 0.1078,
+      "pnl_total": -2.1136,
+      "pnl_per_trade": -0.0207,
+      "sharpe": -0.085
+    },
+    {
+      "asym_threshold": 0.1,
+      "persistence_n": 6,
+      "trades": 105,
+      "win_rate": 0.0952,
+      "pnl_total": -3.6866,
+      "pnl_per_trade": -0.0351,
+      "sharpe": -0.1529
+    },
+    {
+      "asym_threshold": 0.15,
+      "persistence_n": 2,
+      "trades": 90,
+      "win_rate": 0.1667,
+      "pnl_total": -0.6367,
+      "pnl_per_trade": -0.0071,
+      "sharpe": -0.0256
+    },
+    {
+      "asym_threshold": 0.15,
+      "persistence_n": 3,
+      "trades": 84,
+      "win_rate": 0.1429,
+      "pnl_total": -3.6314,
+      "pnl_per_trade": -0.0432,
+      "sharpe": -0.1598
+    },
+    {
+      "asym_threshold": 0.15,
+      "persistence_n": 4,
+      "trades": 97,
+      "win_rate": 0.134,
+      "pnl_total": -2.8436,
+      "pnl_per_trade": -0.0293,
+      "sharpe": -0.1223
+    },
+    {
+      "asym_threshold": 0.15,
+      "persistence_n": 5,
+      "trades": 96,
+      "win_rate": 0.1042,
+      "pnl_total": -2.4278,
+      "pnl_per_trade": -0.0253,
+      "sharpe": -0.1049
+    },
+    {
+      "asym_threshold": 0.15,
+      "persistence_n": 6,
+      "trades": 97,
+      "win_rate": 0.0825,
+      "pnl_total": -3.2258,
+      "pnl_per_trade": -0.0333,
+      "sharpe": -0.1541
+    },
+    {
+      "asym_threshold": 0.2,
+      "persistence_n": 2,
+      "trades": 87,
+      "win_rate": 0.1494,
+      "pnl_total": -1.7496,
+      "pnl_per_trade": -0.0201,
+      "sharpe": -0.0766
+    },
+    {
+      "asym_threshold": 0.2,
+      "persistence_n": 3,
+      "trades": 81,
+      "win_rate": 0.1358,
+      "pnl_total": -4.2519,
+      "pnl_per_trade": -0.0525,
+      "sharpe": -0.1987
+    },
+    {
+      "asym_threshold": 0.2,
+      "persistence_n": 4,
+      "trades": 95,
+      "win_rate": 0.1368,
+      "pnl_total": -2.7665,
+      "pnl_per_trade": -0.0291,
+      "sharpe": -0.1203
+    },
+    {
+      "asym_threshold": 0.2,
+      "persistence_n": 5,
+      "trades": 91,
+      "win_rate": 0.1099,
+      "pnl_total": -2.2926,
+      "pnl_per_trade": -0.0252,
+      "sharpe": -0.1017
+    },
+    {
+      "asym_threshold": 0.2,
+      "persistence_n": 6,
+      "trades": 88,
+      "win_rate": 0.0795,
+      "pnl_total": -3.5134,
+      "pnl_per_trade": -0.0399,
+      "sharpe": -0.1853
+    },
+    {
+      "asym_threshold": 0.3,
+      "persistence_n": 2,
+      "trades": 84,
+      "win_rate": 0.1548,
+      "pnl_total": -0.9015,
+      "pnl_per_trade": -0.0107,
+      "sharpe": -0.0412
+    },
+    {
+      "asym_threshold": 0.3,
+      "persistence_n": 3,
+      "trades": 76,
+      "win_rate": 0.1316,
+      "pnl_total": -4.6452,
+      "pnl_per_trade": -0.0611,
+      "sharpe": -0.2337
+    },
+    {
+      "asym_threshold": 0.3,
+      "persistence_n": 4,
+      "trades": 82,
+      "win_rate": 0.1341,
+      "pnl_total": -1.6774,
+      "pnl_per_trade": -0.0205,
+      "sharpe": -0.0886
+    },
+    {
+      "asym_threshold": 0.3,
+      "persistence_n": 5,
+      "trades": 79,
+      "win_rate": 0.1013,
+      "pnl_total": -1.6807,
+      "pnl_per_trade": -0.0213,
+      "sharpe": -0.0893
+    },
+    {
+      "asym_threshold": 0.3,
+      "persistence_n": 6,
+      "trades": 76,
+      "win_rate": 0.0658,
+      "pnl_total": -3.7671,
+      "pnl_per_trade": -0.0496,
+      "sharpe": -0.2309
+    },
+    {
+      "asym_threshold": 0.5,
+      "persistence_n": 2,
+      "trades": 78,
+      "win_rate": 0.1282,
+      "pnl_total": -1.4257,
+      "pnl_per_trade": -0.0183,
+      "sharpe": -0.071
+    },
+    {
+      "asym_threshold": 0.5,
+      "persistence_n": 3,
+      "trades": 65,
+      "win_rate": 0.1231,
+      "pnl_total": -3.7957,
+      "pnl_per_trade": -0.0584,
+      "sharpe": -0.2242
+    },
+    {
+      "asym_threshold": 0.5,
+      "persistence_n": 4,
+      "trades": 65,
+      "win_rate": 0.0769,
+      "pnl_total": -2.7437,
+      "pnl_per_trade": -0.0422,
+      "sharpe": -0.208
+    },
+    {
+      "asym_threshold": 0.5,
+      "persistence_n": 5,
+      "trades": 61,
+      "win_rate": 0.0492,
+      "pnl_total": -3.0448,
+      "pnl_per_trade": -0.0499,
+      "sharpe": -0.2449
+    },
+    {
+      "asym_threshold": 0.5,
+      "persistence_n": 6,
+      "trades": 62,
+      "win_rate": 0.0323,
+      "pnl_total": -4.2054,
+      "pnl_per_trade": -0.0678,
+      "sharpe": -0.3353
+    }
+  ],
+  "autocorrelation_stats": {
+    "mean": 0.536,
+    "median": 0.5672,
+    "std": 0.2461
+  }
+}

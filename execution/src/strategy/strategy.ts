@@ -42,6 +42,21 @@ export interface Strategy {
    * rather than waiting for the next evaluate() cycle.
    */
   onFill?(assetId: string, side: Side, size: number, price: number): void;
+
+  /**
+   * Optional: called after a SPLIT (mint) transaction is confirmed on-chain.
+   * Strategies should credit inventory here rather than optimistically.
+   */
+  onMintComplete?(conditionId: string, pairsMinted: number, success: boolean): void;
+
+  /**
+   * Optional: called at startup with on-chain token balances and open orders.
+   * Allows strategies to resume with correct inventory instead of assuming flat.
+   */
+  onInventorySync?(upBalance: number, downBalance: number, openOrders: { assetId: string; side: Side; price: number; size: number }[]): void;
+
+  /** Optional: expose internal state for monitoring dashboards. */
+  getState?(): Record<string, unknown>;
 }
 
 /**

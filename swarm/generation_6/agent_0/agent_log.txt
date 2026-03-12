@@ -1,0 +1,23 @@
+## Results Summary
+
+**Verdict: FAILED**
+
+The spread mean-reversion / asymmetric liquidity recovery strategy does not work on this dataset. Key findings:
+
+| Metric | Value |
+|---|---|
+| Trades | 168 |
+| Win Rate | 36.3% (worse than random 50.6%) |
+| Total PnL | -$257.23 |
+| Sharpe | -1.26 |
+| Max Drawdown | -$611.88 |
+
+**Why it fails:**
+
+1. **Selection bias**: The spread-widening filter selects markets where Up tokens trade at low prices (mean 0.27). These markets resolve Down 75% of the time — the signal is just picking up market consensus, not predicting it.
+
+2. **No signal edge**: The depth recovery signal shows no meaningful separation between winning and losing trades. It performs *worse* than a coin flip.
+
+3. **Wrong time window**: The sample data captures only the first 60 seconds of each market. Spread widening during market opening is structural noise (market makers initializing), not the "temporary liquidity withdrawal" the hypothesis targets. The hypothesis needs full 5-minute market lifetime data to be properly tested.
+
+All 7 parameter configurations in the sweep produced negative PnL. Inverting the signal direction made results even worse. The strategy and results are saved to `swarm/generation_6/agent_0/`.

@@ -1,0 +1,17 @@
+**Strategy verdict: FAILED**
+
+The opening auction imbalance decay hypothesis has no predictive power for 5m BTC Up/Down markets. Key findings across 1,395 markets:
+
+| Signal | Correlation | Follow WR | Fade WR |
+|--------|------------|-----------|---------|
+| 0-2s imbalance | -0.019 | 48.4% | 51.6% |
+| 0-5s imbalance | +0.020 | 50.5% | 49.5% |
+| 2-20s imbalance | +0.005 | ~50% | ~50% |
+
+**Why it fails:** The decay ratio is actually slightly *anti*-predictive (fast decay Q25 = 54.8% WR vs slow decay Q75 = 49.0%) — the opposite of the hypothesis. But the effect is tiny and doesn't survive fees. Market makers in these 5-minute markets reprice so quickly that the initial bid-ask imbalance is noise, not informed flow signal.
+
+**Backtest result:** 652 trades, 48.8% WR, -$20.55 PnL, Sharpe -1.06.
+
+Files written:
+- `swarm/generation_1/agent_0/strategy.py` — full implementation
+- `swarm/generation_1/agent_0/results.json` — standardized results

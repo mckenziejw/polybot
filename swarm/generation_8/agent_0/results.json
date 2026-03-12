@@ -1,0 +1,23 @@
+{
+  "strategy_name": "early_deep_level_ratio_tight_window",
+  "description": "Deep orderbook level ratio (levels 3-5 bid/ask share) computed from Up token snapshots in the first 1000ms of market open, with minimal spread filter (>=1c). Absolute threshold at 0.70/0.30 determines trade direction. Strong Down-side asymmetry: Down trades 59.8% WR vs Up trades 53.1% WR.",
+  "hypothesis": "Tighten the early deep-level-ratio window from 2000ms to 1000ms and raise the signal threshold from 0.3 to 0.4. The very first second captures the most informative MM positioning before reactive flow, and a higher threshold filters to only the most extreme imbalances.",
+  "metrics": {
+    "total_trades": 257,
+    "win_rate": 0.5603,
+    "pnl_total": 38.87,
+    "pnl_per_trade": 0.1512,
+    "max_drawdown": -51.61,
+    "sharpe": 1.02
+  },
+  "parameters": {
+    "window_ms": 1000,
+    "spread_min": 0.01,
+    "threshold_high": 0.7,
+    "threshold_low": 0.3,
+    "entry_price_cap": 0.85,
+    "min_order_size": 5
+  },
+  "verdict": "promising",
+  "next_steps": "Signal appears promising on 917-market sample (56% WR, $0.15/trade, Sharpe 1.02). Key finding: strong Down-side asymmetry (59.8% WR Down vs 53.1% Up). Next: (1) validate on full 7187-market dataset, (2) check for time-of-day clustering, (3) test Down-only variant, (4) estimate realistic fill rates at these entry prices."
+}

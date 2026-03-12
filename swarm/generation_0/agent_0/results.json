@@ -1,0 +1,22 @@
+{
+  "strategy_name": "orderbook_convexity",
+  "description": "Two signals tested: (1) Raw convexity \u2014 second derivative of cumulative bid vs ask depth across levels 1-5 in first 5s after market open. (2) Deep level ratio \u2014 share of deep liquidity (L3-L5) on bid vs ask side. Primary strategy trades top/bottom 20% of deep_ratio.",
+  "hypothesis": "A convex bid curve (accelerating size deeper in book) vs concave ask curve signals informed market makers layering defensively, predicting upward resolution. Deep level ratio is the simplified version: where is the deep liquidity concentrated?",
+  "metrics": {
+    "total_trades": 1150,
+    "win_rate": 0.5513,
+    "pnl_total": 264.24,
+    "pnl_per_trade": 0.2298,
+    "max_drawdown": -172.2,
+    "sharpe": 5.97
+  },
+  "parameters": {
+    "entry_price_cap": 0.85,
+    "position_size": 10,
+    "snapshot_window_sec": 5,
+    "min_levels_populated": 4,
+    "deep_ratio_quintile_filter": 0.2
+  },
+  "verdict": "marginal",
+  "next_steps": "Raw convexity (second derivative) has zero predictive power (50.3% WR, correlation 0.006). Deep level ratio shows marginal signal (55.1% WR in top+bottom quintile, +$264 total) but is temporally unstable \u2014 strong in Mar 1-3 (67% WR) but flat in other periods. Likely regime-dependent or an artifact of a few dominant MMs changing behavior. Not robust enough for live trading. Could investigate: (a) combining with mid_price level as filter, (b) interaction with time-of-day, (c) whether signal improves in high-spread markets where MMs have more room to layer."
+}

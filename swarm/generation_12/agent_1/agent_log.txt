@@ -1,0 +1,29 @@
+Both files are complete. Here's the summary:
+
+## Results: Cross-Token Spread Divergence Strategy
+
+**Verdict: `marginal`**
+
+### Key Structural Finding
+The original hypothesis is **structurally invalid** on Polymarket. Up and Down tokens share mirrored order books (`bid_Up + ask_Down = 1.0`), so `spread_Up ≡ spread_Down` at all times. The spread divergence signal is identically zero — it can never fire.
+
+### Adapted Testing (Book Imbalance Proxy)
+Tested book imbalance, size divergence, and depth ratios as proxies for "asymmetric market-maker confidence":
+
+| Signal | Accuracy | Lift vs Naive | Correlation |
+|--------|----------|---------------|-------------|
+| book_imbalance | 52.9% | -2.7% | +0.058 |
+| size_diff | 50.6% | -5.0% | +0.028 |
+| depth_ratio_3lvl | 52.4% | -3.2% | -0.017 |
+
+All signals perform **worse than the naive baseline** (always predict majority class = 55.6% accuracy).
+
+### Filtered Result (cherry-picked)
+With `|imbalance| >= 0.3` filter: 56.9% WR, Sharpe 1.26 on 109 trades — but:
+- Bootstrap 95% CI: **[47.7%, 66.1%]** — crosses 50%
+- Not statistically significant (p = 0.927, needs > 0.95)
+- Parameter sweep shows non-monotonic behavior (edge disappears at moderate thresholds)
+
+### Files Written
+- `swarm/generation_12/agent_1/strategy.py` — full implementation
+- `swarm/generation_12/agent_1/results.json` — standardized results

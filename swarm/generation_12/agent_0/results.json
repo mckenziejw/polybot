@@ -1,0 +1,33 @@
+{
+  "strategy_name": "entropy_weighted_imbalance",
+  "description": "Computes Shannon entropy of BID-SIDE size distributions across 5 orderbook levels for Up and Down tokens in the first 5 seconds. In binary markets, Up bids != Down bids (Up bids = Down asks), so bid-side entropy captures genuine asymmetry. Low bid entropy (concentrated buying) on one side relative to the other signals informed positioning. Also uses a composite z-score combining entropy ratio, book imbalance, bid concentration, and bid size ratio.",
+  "hypothesis": "Low entropy in the bid-side size distribution indicates concentrated buying at specific price levels, which may reflect informed positioning. The entropy ratio between Up and Down bid books serves as a confidence weight. Combined with directional imbalance and bid concentration, this filters out noise from diffuse liquidity.",
+  "metrics": {
+    "total_trades": 78,
+    "win_rate": 0.5385,
+    "pnl_total": 2.4266,
+    "pnl_per_trade": 0.0311,
+    "max_drawdown": -6.2295,
+    "sharpe": 1.0303
+  },
+  "parameters": {
+    "entry_window_ms": 5000,
+    "max_entry_price": 0.85,
+    "entropy_ratio_threshold": 0.85,
+    "imbalance_threshold": 0.0,
+    "concentration_threshold": 0.5,
+    "score_threshold": null
+  },
+  "diagnostics": {
+    "corr_bid_entropy_diff_vs_up_wins": 0.0239,
+    "corr_bid_entropy_ratio_vs_up_wins": -0.0372,
+    "corr_bid_concentration_diff_vs_up_wins": -0.0212,
+    "corr_bid_size_ratio_vs_up_wins": 0.0303,
+    "corr_up_imbalance_vs_up_wins": 0.0326,
+    "corr_down_imbalance_vs_up_wins": -0.0326,
+    "corr_up_bid_entropy_vs_up_wins": 0.0328,
+    "corr_down_bid_entropy_vs_up_wins": 0.0031
+  },
+  "verdict": "marginal",
+  "next_steps": "The core issue is that in binary markets with symmetric market makers, bid-side entropy differences are small. Key findings: (1) bid_entropy_ratio has near-zero correlation with outcomes, (2) book imbalance and bid size ratio also show minimal predictive power in the first 5 seconds. Possible improvements: extend window to 15-30s, use entropy CHANGE (dynamics) rather than level, incorporate trade flow data from trade_events, or look at order book changes (delta entropy) rather than static snapshots."
+}

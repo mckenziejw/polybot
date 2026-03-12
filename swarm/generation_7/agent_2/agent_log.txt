@@ -1,0 +1,19 @@
+The strategy **failed**. Here's the honest assessment:
+
+**Key findings:**
+- **Win rate: 45.2%** vs **baseline: 37.5%** — there's a +7.7pp edge in predicting Up outcomes
+- **But PnL is deeply negative: -0.067 per trade** (Sharpe: -2.31)
+- The win rate edge isn't enough to overcome entry costs — buying at ask prices ~0.48 requires >50% accuracy to profit
+
+**Quintile analysis reveals no monotonic signal:**
+| Quintile | Win Rate | Avg Deep Ratio |
+|----------|----------|----------------|
+| Q1 (low/our signal) | 44.1% | 0.27 |
+| Q2 | **52.1%** | 0.42 |
+| Q3 | 47.2% | 0.52 |
+| Q4 | 50.7% | 0.62 |
+| Q5 (high) | 46.9% | 0.76 |
+
+The bottom quintile we're trading actually has the *worst* win rate. Q2 (moderate ask-side dominance) performs best, but even that isn't actionable after fees.
+
+**Conclusion:** The spoofing/bluff hypothesis doesn't hold in these 5-minute BTC Up/Down markets. Deep ask-side liquidity concentration doesn't reliably predict price reversals. The signal is too noisy, and any directional edge is consumed by entry costs and fees.

@@ -1,0 +1,72 @@
+{
+  "strategy_name": "deep_level_ratio_time_filtered",
+  "description": "Deep level ratio (L3-L5) with filters. Best variant: no_time_q20.",
+  "hypothesis": "Combine deep_level_ratio (L3-L5 bid vs ask concentration) with time-of-day filter (first 2h UTC), mid-price band 0.25-0.75, and 15% quintile threshold to capture extreme orderbook imbalances in BTC 5m binary markets.",
+  "metrics": {
+    "total_trades": 114,
+    "win_rate": 0.5263,
+    "pnl_total": 5.5751,
+    "pnl_per_trade": 0.0489,
+    "max_drawdown": 6.7378,
+    "sharpe": 37.4553
+  },
+  "parameters": {
+    "deep_levels": "L3-L5",
+    "mid_price_range": [
+      0.25,
+      0.75
+    ],
+    "time_filter_hours": 2,
+    "quantile_threshold": 0.15,
+    "entry_price_cap": 0.85
+  },
+  "verdict": "promising",
+  "next_steps": "If promising on sample: validate on full 7,187-market dataset. If failed: deep level ratio in early book snapshots (first 60s) likely lacks predictive power \u2014 consider snapshots closer to expiry or combining with trade flow signals.",
+  "all_variants": {
+    "full_2h_q15": {
+      "n_trades": 6,
+      "win_rate": 0.16666666666666666,
+      "total_pnl": -1.3922481074744113,
+      "pnl_per_trade": -0.23204135124573522,
+      "max_drawdown": 1.6974223239887096,
+      "sharpe": -0.8407753516138505,
+      "sharpe_annual": -272.5979888601017
+    },
+    "no_time_q15": {
+      "n_trades": 86,
+      "win_rate": 0.5232558139534884,
+      "total_pnl": 4.096908200559369,
+      "pnl_per_trade": 0.04763846744836476,
+      "max_drawdown": 4.838041902488575,
+      "sharpe": 0.11453923306426197,
+      "sharpe_annual": 37.136155952911885
+    },
+    "no_time_q20": {
+      "n_trades": 114,
+      "win_rate": 0.5263157894736842,
+      "total_pnl": 5.575080080089363,
+      "pnl_per_trade": 0.048904211228854064,
+      "max_drawdown": 6.737846110195667,
+      "sharpe": 0.11552360472118449,
+      "sharpe_annual": 37.45531104404639
+    },
+    "first_4h_q15": {
+      "n_trades": 14,
+      "win_rate": 0.5,
+      "total_pnl": 0.3196915066724656,
+      "pnl_per_trade": 0.02283510761946183,
+      "max_drawdown": 1.2124945607260265,
+      "sharpe": 0.05127953644788248,
+      "sharpe_annual": 16.625961356430384
+    },
+    "first_6h_q15": {
+      "n_trades": 22,
+      "win_rate": 0.5,
+      "total_pnl": 0.5848611872160369,
+      "pnl_per_trade": 0.026584599418910768,
+      "max_drawdown": 1.9747220425484806,
+      "sharpe": 0.061986061616714556,
+      "sharpe_annual": 20.097253923584663
+    }
+  }
+}

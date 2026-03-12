@@ -1,0 +1,23 @@
+{
+  "strategy_name": "level_weighted_imbalance_acceleration",
+  "description": "Compute orderbook imbalance using inverse-level weighting (L5=5..L1=1) at two ultra-short windows post-open (0-2s, 2-5s). The acceleration (change in weighted imbalance) predicts market direction. Positive acceleration toward bid side suggests buying Up token.",
+  "hypothesis": "Deep-book activity weighted by level distance is harder to spoof than top-of-book. The second derivative (acceleration) of this weighted imbalance captures whether informed flow is building or fading.",
+  "metrics": {
+    "total_trades": 654,
+    "win_rate": 0.5168,
+    "pnl_total": 23.059,
+    "pnl_per_trade": 0.0353,
+    "max_drawdown": 14.9522,
+    "sharpe": 1.2106
+  },
+  "parameters": {
+    "threshold": 0.05,
+    "min_count": 20,
+    "signal_direction": "original",
+    "window1_ms": "0-2000",
+    "window2_ms": "2000-5000",
+    "level_weights": "L1=1,L2=2,L3=3,L4=4,L5=5"
+  },
+  "verdict": "marginal",
+  "next_steps": "Win rate of 51.7% on 654 trades is not statistically significant (binomial p=0.21 vs 50% null). The directional consistency across all thresholds (all >50%) is mildly encouraging but could be sample noise. To validate: test on the full 7187-market dataset to see if the edge persists with more statistical power. If it does, consider combining with spread or volume filters to isolate higher-conviction signals."
+}

@@ -1,0 +1,22 @@
+Results are complete. Here's the summary:
+
+## Strategy: Cross-Timeframe Liquidity Regime Transfer — **FAILED**
+
+**Core finding:** The 4h market's orderbook regime does **not** transfer meaningfully to subsequent 5m markets.
+
+**Evidence:**
+- **Default params:** 443 trades, 43.8% WR, -$149 PnL (Sharpe -1.52)
+- **Parameter sweep:** Only 23/750 combos (3.1%) were profitable — consistent with random noise
+- **Regime validity check:** Up win rate is ~50-53% regardless of whether the prior 4h market had tight or wide spreads. No statistically meaningful difference.
+- The "best" sweep params (48.9% WR, +$116) achieved this with `fade_t=0.53` — essentially trading on any opening that's even slightly skewed from 0.50, which isn't the "fade extremes" hypothesis at all. This is likely overfitting.
+- Default params produced **zero** consensus trades because the 4h median spread (0.05) exceeds the 0.04 threshold — meaning almost all 4h markets look like "discovery" by this metric.
+
+**Why it failed:**
+1. The 5m market microstructure appears independent of the 4h timeframe — the 5m outcome is driven by BTC price action in a 5-minute window, not by what the 4h orderbook looked like
+2. 4h orderbook "regime" (spread/imbalance) reflects 4h-scale trader behavior, which doesn't constrain 5m-scale dynamics
+3. This is consistent with prior findings in MEMORY — signals that look plausible on paper don't survive actual data
+
+Output files:
+- `swarm/generation_1/agent_1/strategy.py` — full implementation
+- `swarm/generation_1/agent_1/results.json` — standardized results
+- `swarm/generation_1/agent_1/trades.csv` — individual trade log

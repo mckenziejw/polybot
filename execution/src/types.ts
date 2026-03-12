@@ -282,13 +282,20 @@ export interface PolymarketConfig {
 
 export type MarketMakerMode = "mint-and-sell" | "traditional";
 
+export type PricingMode = "inventory-skew" | "whale-front";
+
 export interface MarketMakerConfig {
   mode: MarketMakerMode;
+  pricing: PricingMode;            // how to set ask prices
   initialPairs: number;          // pairs to mint at market open (mint-and-sell)
-  maxInventoryPerSide: number;   // safety cap per token side
+  maxTotalInventory: number;     // max tokens per side (total USDC capital at risk)
+  maxUnhedgedExposure: number;   // max |inventoryUp - inventoryDown| before pausing lagging side
   skewK: number;                 // A-S skew parameter (price shift per unit of imbalance)
   requoteThreshold: number;      // min price change to trigger cancel-and-replace
   replenishThreshold: number;    // mint more when inventory drops below this
+  whaleThreshold: number;        // min size to identify a whale resting order
+  whalePullCooldownMs: number;   // how long to pull our orders after whale signal (ms)
+  whaleMoveTicks: number;        // whale bid/ask move >= this many ticks triggers cooldown
   // Legacy fields kept for other strategies (smoke-test, xgb)
   orderSize: number;
   cancelWindowS: number;
@@ -308,6 +315,8 @@ export interface ExecutionConfig {
   externalFeeds: string[];
   betDollars: number;
   modelServerUrl: string;
+  dashboardPort?: number;
+  marketDuration: string;
 }
 
 export interface AppConfig {

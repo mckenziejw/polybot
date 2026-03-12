@@ -1,6 +1,10 @@
 import type { MarketInfo } from "../types.ts";
 
-const FIVE_MINUTES_S = 300;
+/** Known market durations and their slug suffixes. */
+const DURATION_MAP: Record<string, { cadenceS: number; suffix: string }> = {
+  "5m":  { cadenceS: 300,    suffix: "5m" },
+  "4h":  { cadenceS: 14400,  suffix: "4h" },
+};
 
 interface GammaMarketResponse {
   conditionId: string;
@@ -13,39 +17,55 @@ interface GammaMarketResponse {
 
 export class MarketRotation {
   private asset: string;
+  private cadenceS: number;
+  private slugSuffix: string;
 
   constructor(
     asset: string = "btc",
+    duration: string = "5m",
     private gammaApiUrl: string = "https://gamma-api.polymarket.com",
   ) {
     this.asset = asset.toLowerCase();
+    const dur = DURATION_MAP[duration];
+    if (!dur) {
+      throw new Error(
+        `Unknown market duration "${duration}". Valid: ${Object.keys(DURATION_MAP).join(", ")}`,
+      );
+    }
+    this.cadenceS = dur.cadenceS;
+    this.slugSuffix = dur.suffix;
+  }
+
+  /** Market cadence in seconds. */
+  get cadenceMs(): number {
+    return this.cadenceS * 1000;
   }
 
   /** Fetch the currently active market. Returns null if no active market. */
   async fetchCurrentMarket(): Promise<MarketInfo | null> {
     const nowS = Math.floor(Date.now() / 1_000);
-    const currentBoundary = Math.floor(nowS / FIVE_MINUTES_S) * FIVE_MINUTES_S;
+    const currentBoundary = Math.floor(nowS / this.cadenceS) * this.cadenceS;
     return this.fetchByTimestamp(currentBoundary);
   }
 
   /** Fetch the next upcoming market. Returns null if not available yet. */
   async fetchNextMarket(): Promise<MarketInfo | null> {
     const nowS = Math.floor(Date.now() / 1_000);
-    const currentBoundary = Math.floor(nowS / FIVE_MINUTES_S) * FIVE_MINUTES_S;
-    const nextBoundary = currentBoundary + FIVE_MINUTES_S;
+    const currentBoundary = Math.floor(nowS / this.cadenceS) * this.cadenceS;
+    const nextBoundary = currentBoundary + this.cadenceS;
     return this.fetchByTimestamp(nextBoundary);
   }
 
   /** Generate the slug for a market at a given unix timestamp (seconds). */
-  static generateSlug(timestampS: number, asset: string = "btc"): string {
-    const aligned = Math.floor(timestampS / FIVE_MINUTES_S) * FIVE_MINUTES_S;
-    return `${asset.toLowerCase()}-updown-5m-${aligned}`;
+  generateSlug(timestampS: number): string {
+    const aligned = Math.floor(timestampS / this.cadenceS) * this.cadenceS;
+    return `${this.asset}-updown-${this.slugSuffix}-${aligned}`;
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────
 
   private async fetchByTimestamp(timestampS: number): Promise<MarketInfo | null> {
-    const slug = MarketRotation.generateSlug(timestampS, this.asset);
+    const slug = this.generateSlug(timestampS);
     return this.fetchBySlug(slug);
   }
 

@@ -1,0 +1,470 @@
+[
+  {
+    "strategy_name": "early_deep_level_ratio_wide_spread_midprice_utc",
+    "description": "Deep level ratio signal (2s window, threshold 0.3) filtered by mid-price 0.35-0.65 and UTC hours 0-6",
+    "hypothesis": "Mid-price filter isolates uncertain markets where orderbook information content is highest. UTC hour filter targets peak market-maker activity.",
+    "metrics": {
+      "total_trades": 21,
+      "win_rate": 0.6667,
+      "pnl_total": 16.5441,
+      "pnl_per_trade": 0.7878,
+      "max_drawdown": 2.5509,
+      "sharpe": 0.3288
+    },
+    "parameters": {
+      "window_ms": 2000,
+      "signal_threshold": 0.3,
+      "mid_price_range": [
+        0.35,
+        0.65
+      ],
+      "utc_hour_max": 6,
+      "entry_price_cap": 0.85,
+      "min_order_tokens": 5
+    },
+    "comparisons": {
+      "mid_price_only": {
+        "total_trades": 95,
+        "win_rate": 0.5684,
+        "pnl_total": 30.655,
+        "sharpe": 0.1291
+      },
+      "baseline": {
+        "total_trades": 199,
+        "win_rate": 0.5779,
+        "pnl_total": 74.14,
+        "sharpe": 0.1504
+      },
+      "mid_price_wide_spread": {
+        "total_trades": 95,
+        "win_rate": 0.5684,
+        "pnl_total": 30.655,
+        "sharpe": 0.1291
+      }
+    },
+    "verdict": "promising",
+    "next_steps": "Validate on full 7,187-market dataset. Test spread-weighted position sizing. Explore combining with book_imbalance for signal confirmation.",
+    "generation": 8
+  },
+  {
+    "strategy_name": "deep_level_ratio_book_imbalance_dual_signal",
+    "description": "Dual-signal confirmation strategy combining deep_level_ratio (ratio of deep book levels 3-5 vs all levels) with L1 book_imbalance. Only enters when both signals agree on direction within the first 2 seconds. Analyzed using Up token only (Down is perfect mirror).",
+    "hypothesis": "Combine deep_level_ratio (2s window, threshold 0.3) with book_imbalance as confirmation filter. Only enter when both agree on direction. Dual-signal confirmation should reduce false positives and improve win rate at the cost of fewer trades.",
+    "metrics": {
+      "total_trades": 71,
+      "win_rate": 0.619718,
+      "pnl_total": 36.1118,
+      "pnl_per_trade": 0.508617,
+      "max_drawdown": -10.5554,
+      "sharpe": 3.5393
+    },
+    "parameters": {
+      "deep_ratio_threshold": 0.1,
+      "entry_window_ms": 2000,
+      "imbalance_threshold": 0.2,
+      "max_entry_price": 0.85,
+      "min_order_tokens": 5
+    },
+    "verdict": "promising",
+    "next_steps": "Sample results promising (62% WR, Sharpe 3.5 on 71 trades from 401 resolved markets). Key caveats: (1) sample is only 401 markets - validate on full 7,187-file dataset to confirm edge persists out-of-sample, (2) sensitivity analysis shows monotonic improvement as imbalance threshold tightens at dr=0.10, suggesting real signal not noise, (3) deep_ratio alone carries most alpha (57.5% WR at thresh=0.10) while imbalance acts as quality filter, (4) test with different entry windows (1s, 3s, 5s) to optimize timing, (5) investigate whether signal decays over market lifetime or strengthens.",
+    "generation": 13
+  },
+  {
+    "strategy_name": "early_deep_level_ratio_wide_spread",
+    "description": "Deep level ratio signal: bid-side vs ask-side deep liquidity layering (levels 3-5 / levels 1-5) in early market snapshots. Best config: window=2000ms, threshold=0.3, spread_pct>=75. 2s window (0.529) outperforms 5s (0.513) on win rate \u2014 SUPPORTED.",
+    "hypothesis": "Restrict deep_level_ratio signal to first 2s after market open and only trade markets with spread > 0.05. Earliest snapshots capture initial MM positioning before arbitrageurs flatten the book. Wide-spread markets amplify informational content of deep liquidity placement.",
+    "metrics": {
+      "total_trades": 59,
+      "win_rate": 0.7288135593220338,
+      "pnl_total": 13.904202079826405,
+      "pnl_per_trade": 0.23566444203095602,
+      "max_drawdown": 1.017067821995564,
+      "sharpe": 0.5335374616282074
+    },
+    "parameters": {
+      "window_ms": 2000,
+      "signal_threshold": 0.3,
+      "spread_percentile": 75
+    },
+    "verdict": "promising",
+    "next_steps": "Test on full dataset (7187 markets) to confirm. Explore combining deep_level_ratio with book_imbalance for stronger signal.",
+    "generation": 7
+  },
+  {
+    "strategy_name": "orderbook_convexity",
+    "description": "Two signals tested: (1) Raw convexity \u2014 second derivative of cumulative bid vs ask depth across levels 1-5 in first 5s after market open. (2) Deep level ratio \u2014 share of deep liquidity (L3-L5) on bid vs ask side. Primary strategy trades top/bottom 20% of deep_ratio.",
+    "hypothesis": "A convex bid curve (accelerating size deeper in book) vs concave ask curve signals informed market makers layering defensively, predicting upward resolution. Deep level ratio is the simplified version: where is the deep liquidity concentrated?",
+    "metrics": {
+      "total_trades": 1150,
+      "win_rate": 0.5513,
+      "pnl_total": 264.24,
+      "pnl_per_trade": 0.2298,
+      "max_drawdown": -172.2,
+      "sharpe": 5.97
+    },
+    "parameters": {
+      "entry_price_cap": 0.85,
+      "position_size": 10,
+      "snapshot_window_sec": 5,
+      "min_levels_populated": 4,
+      "deep_ratio_quintile_filter": 0.2
+    },
+    "verdict": "marginal",
+    "next_steps": "Raw convexity (second derivative) has zero predictive power (50.3% WR, correlation 0.006). Deep level ratio shows marginal signal (55.1% WR in top+bottom quintile, +$264 total) but is temporally unstable \u2014 strong in Mar 1-3 (67% WR) but flat in other periods. Likely regime-dependent or an artifact of a few dominant MMs changing behavior. Not robust enough for live trading. Could investigate: (a) combining with mid_price level as filter, (b) interaction with time-of-day, (c) whether signal improves in high-spread markets where MMs have more room to layer.",
+    "generation": 0
+  },
+  {
+    "strategy_name": "down_only_deep_imbalance_filtered",
+    "description": "Buy Down tokens when bid-side deep layering exceeds ask-side (deep_imbalance <= -0.30) in first 1s, with wide-spread (>=75th pctl) and mid-price 0.35-0.65 filters. Refined from the original ask-side deep_level_ratio hypothesis.",
+    "hypothesis": "When the Down token's bid side has proportionally more deep liquidity (levels 3-5) than the ask side in the first second of trading, it signals informed support for Down. This bid-heavy deep layering pattern predicts Down resolution with 60-73% accuracy depending on filter strictness.",
+    "metrics": {
+      "total_trades": 26,
+      "win_rate": 0.7308,
+      "pnl_total": 5.7085,
+      "pnl_per_trade": 0.2196,
+      "max_drawdown": -1.0195,
+      "sharpe": 8.3334
+    },
+    "metrics_no_spread_filter": {
+      "total_trades": 124,
+      "win_rate": 0.6048,
+      "pnl_total": 13.0732,
+      "pnl_per_trade": 0.1054,
+      "max_drawdown": -5.9912,
+      "sharpe": 3.6579
+    },
+    "parameters": {
+      "window_ms": 1000,
+      "deep_imbalance_threshold": -0.3,
+      "mid_price_range": [
+        0.35,
+        0.65
+      ],
+      "spread_percentile": 75,
+      "entry_price_cap": 0.85,
+      "signal": "(ask_deep_3_4_5/ask_total) - (bid_deep_3_4_5/bid_total)",
+      "trade_side": "Down only",
+      "trade_logic": "Buy Down when deep_imbalance <= threshold (bid-heavy)"
+    },
+    "verdict": "promising",
+    "next_steps": "Validate on full 7k+ market dataset. Test robustness across time periods. Investigate if signal strength varies with BTC volatility regime. Consider combining with book_imbalance for additional filtering.",
+    "generation": 13
+  },
+  {
+    "strategy_name": "cross_token_spread_divergence",
+    "description": "Tests whether spread divergence between Up and Down token order books in the first 1-5 seconds predicts market resolution. FINDING: spreads are mechanically identical (mirrored books). Adapted to use book imbalance and size asymmetry as proxies for the same hypothesis.",
+    "hypothesis": "Asymmetric market-maker confidence manifests as spread divergence between Up/Down tokens. STRUCTURAL ISSUE: On Polymarket, Up and Down books are mirrors (bid_Up + ask_Down = 1.0), so spread_Up \u2261 spread_Down always. Tested book imbalance and size divergence as alternative signals.",
+    "metrics": {
+      "min_signal": 0.3,
+      "total_trades": 109,
+      "win_rate": 0.5688,
+      "pnl_total": 20.1056,
+      "pnl_per_trade": 0.1845,
+      "max_drawdown": -17.3506,
+      "sharpe": 1.257
+    },
+    "parameters": {
+      "window_start_ms": 1000,
+      "window_end_ms": 5000,
+      "best_signal": "book_imbalance",
+      "entry_price_cap": 0.85,
+      "min_order_size": 5
+    },
+    "signal_analysis": {
+      "base_rate_up": 0.4439,
+      "base_accuracy": 0.5561,
+      "signals_tested": {
+        "book_imbalance": {
+          "accuracy": 0.5287,
+          "lift": -0.0274,
+          "correlation": 0.0584,
+          "n_markets": 401.0
+        },
+        "size_diff": {
+          "accuracy": 0.5062,
+          "lift": -0.0499,
+          "correlation": 0.0277,
+          "n_markets": 401.0
+        },
+        "depth_ratio_3lvl": {
+          "accuracy": 0.5237,
+          "lift": -0.0324,
+          "correlation": -0.0169,
+          "n_markets": 401.0
+        }
+      }
+    },
+    "structural_finding": "Up and Down tokens share mirrored order books. spread_Up \u2261 spread_Down for all markets at all times. The spread divergence signal is identically zero. This is a fundamental limitation of Polymarket's binary market structure.",
+    "time_window_analysis": [
+      {
+        "window": "0s-1s",
+        "n_markets": 401,
+        "accuracy": 0.4888,
+        "lift": -0.0673,
+        "correlation": -0.0345
+      },
+      {
+        "window": "0s-2s",
+        "n_markets": 401,
+        "accuracy": 0.4888,
+        "lift": -0.0673,
+        "correlation": 0.0076
+      },
+      {
+        "window": "0s-5s",
+        "n_markets": 401,
+        "accuracy": 0.5162,
+        "lift": -0.0399,
+        "correlation": 0.0471
+      },
+      {
+        "window": "1s-3s",
+        "n_markets": 401,
+        "accuracy": 0.4963,
+        "lift": -0.0599,
+        "correlation": 0.0479
+      },
+      {
+        "window": "1s-5s",
+        "n_markets": 401,
+        "accuracy": 0.5287,
+        "lift": -0.0274,
+        "correlation": 0.0584
+      },
+      {
+        "window": "2s-5s",
+        "n_markets": 401,
+        "accuracy": 0.5012,
+        "lift": -0.0549,
+        "correlation": 0.0611
+      },
+      {
+        "window": "0s-10s",
+        "n_markets": 401,
+        "accuracy": 0.5112,
+        "lift": -0.0449,
+        "correlation": 0.0609
+      },
+      {
+        "window": "5s-10s",
+        "n_markets": 401,
+        "accuracy": 0.5287,
+        "lift": -0.0274,
+        "correlation": 0.0683
+      },
+      {
+        "window": "0s-30s",
+        "n_markets": 401,
+        "accuracy": 0.4988,
+        "lift": -0.0574,
+        "correlation": 0.0013
+      }
+    ],
+    "parameter_sweep": [
+      {
+        "min_signal": 0.0,
+        "total_trades": 401,
+        "win_rate": 0.5287,
+        "pnl_total": 24.0563,
+        "pnl_per_trade": 0.06,
+        "max_drawdown": -34.1301,
+        "sharpe": 0.4093
+      },
+      {
+        "min_signal": 0.01,
+        "total_trades": 382,
+        "win_rate": 0.5262,
+        "pnl_total": 17.0023,
+        "pnl_per_trade": 0.0445,
+        "max_drawdown": -29.2044,
+        "sharpe": 0.3031
+      },
+      {
+        "min_signal": 0.02,
+        "total_trades": 366,
+        "win_rate": 0.5191,
+        "pnl_total": 2.3607,
+        "pnl_per_trade": 0.0064,
+        "max_drawdown": -32.7328,
+        "sharpe": 0.0439
+      },
+      {
+        "min_signal": 0.05,
+        "total_trades": 330,
+        "win_rate": 0.5182,
+        "pnl_total": -0.2882,
+        "pnl_per_trade": -0.0009,
+        "max_drawdown": -28.83,
+        "sharpe": -0.006
+      },
+      {
+        "min_signal": 0.1,
+        "total_trades": 272,
+        "win_rate": 0.5074,
+        "pnl_total": -21.3377,
+        "pnl_per_trade": -0.0784,
+        "max_drawdown": -32.1649,
+        "sharpe": -0.5354
+      },
+      {
+        "min_signal": 0.15,
+        "total_trades": 220,
+        "win_rate": 0.5045,
+        "pnl_total": -23.9772,
+        "pnl_per_trade": -0.109,
+        "max_drawdown": -35.1622,
+        "sharpe": -0.7434
+      },
+      {
+        "min_signal": 0.2,
+        "total_trades": 176,
+        "win_rate": 0.5227,
+        "pnl_total": -5.8209,
+        "pnl_per_trade": -0.0331,
+        "max_drawdown": -33.4652,
+        "sharpe": -0.2255
+      },
+      {
+        "min_signal": 0.3,
+        "total_trades": 109,
+        "win_rate": 0.5688,
+        "pnl_total": 20.1056,
+        "pnl_per_trade": 0.1845,
+        "max_drawdown": -17.3506,
+        "sharpe": 1.257
+      },
+      {
+        "min_signal": 0.5,
+        "total_trades": 35,
+        "win_rate": 0.5714,
+        "pnl_total": 4.6143,
+        "pnl_per_trade": 0.1318,
+        "max_drawdown": -13.1391,
+        "sharpe": 0.8839
+      }
+    ],
+    "robustness": {
+      "bootstrap_95_ci": [
+        0.4771,
+        0.6606
+      ],
+      "p_wr_above_50": 0.9276,
+      "split_half_wr": [
+        0.5741,
+        0.5636
+      ],
+      "statistically_significant": false
+    },
+    "verdict": "marginal",
+    "next_steps": "The cross-token spread divergence hypothesis is structurally invalid: Up/Down books are mirrors on Polymarket, so spreads never diverge. Book imbalance as a proxy shows a weak signal (56.9% WR, n=109) when filtered to |imbalance| >= 0.3, but the 95% bootstrap CI [47.7%, 66.1%] crosses 50%, so this is not statistically significant. To salvage: (1) validate on the full 7187-market dataset for more power, (2) combine with trade flow / aggressor data, (3) use external BTC price signals, or (4) abandon this hypothesis direction.",
+    "generation": 12
+  },
+  {
+    "strategy_name": "early_deep_level_ratio_tight_window",
+    "description": "Deep orderbook level ratio (levels 3-5 bid/ask share) computed from Up token snapshots in the first 1000ms of market open, with minimal spread filter (>=1c). Absolute threshold at 0.70/0.30 determines trade direction. Strong Down-side asymmetry: Down trades 59.8% WR vs Up trades 53.1% WR.",
+    "hypothesis": "Tighten the early deep-level-ratio window from 2000ms to 1000ms and raise the signal threshold from 0.3 to 0.4. The very first second captures the most informative MM positioning before reactive flow, and a higher threshold filters to only the most extreme imbalances.",
+    "metrics": {
+      "total_trades": 257,
+      "win_rate": 0.5603,
+      "pnl_total": 38.87,
+      "pnl_per_trade": 0.1512,
+      "max_drawdown": -51.61,
+      "sharpe": 1.02
+    },
+    "parameters": {
+      "window_ms": 1000,
+      "spread_min": 0.01,
+      "threshold_high": 0.7,
+      "threshold_low": 0.3,
+      "entry_price_cap": 0.85,
+      "min_order_size": 5
+    },
+    "verdict": "promising",
+    "next_steps": "Signal appears promising on 917-market sample (56% WR, $0.15/trade, Sharpe 1.02). Key finding: strong Down-side asymmetry (59.8% WR Down vs 53.1% Up). Next: (1) validate on full 7187-market dataset, (2) check for time-of-day clustering, (3) test Down-only variant, (4) estimate realistic fill rates at these entry prices.",
+    "generation": 8
+  },
+  {
+    "strategy_name": "concurrent_resolution_conditional_entropy",
+    "description": "Measures conditional entropy of alt coin resolution outcomes given other assets over trailing windows. Trades the alt with lowest conditional entropy using real-time BTC book imbalance sign (no look-ahead bias).",
+    "hypothesis": "Correlation regimes are non-stationary and detectable from joint outcome history. When conditional entropy drops below threshold, alts are tightly coupled to BTC, making BTC book imbalance predictive.",
+    "metrics": {
+      "total_trades": 2644,
+      "win_rate": 0.525,
+      "pnl_total": 375.9705,
+      "pnl_per_trade": 0.1422,
+      "max_drawdown": -111.5721,
+      "sharpe": 0.4524
+    },
+    "parameters": {
+      "window_size": 50,
+      "entropy_threshold": 0.5,
+      "entry_price_cap": 0.85,
+      "trade_size": 10,
+      "assets": [
+        "btc",
+        "eth",
+        "sol",
+        "xrp"
+      ]
+    },
+    "verdict": "marginal",
+    "next_steps": "Entropy regime detection is validated: oracle test shows 88% win rate when BTC outcome is known, confirming strong cross-asset coupling in low-entropy regimes. The bottleneck is BTC imbalance signal quality (only ~52.5% directional accuracy). Next: improve BTC direction signal with multi-level imbalance, momentum, or volume features. Also test with tighter entropy thresholds and larger trade sizes.",
+    "generation": 10
+  },
+  {
+    "strategy_name": "deep_level_ratio_uncertainty_filter",
+    "description": "Trade based on deep orderbook layering (levels 3-5 vs 1-2 net bid-ask ratio) filtered to uncertain markets (mid 0.40-0.60). Uses first snapshot in market window. net_deep signal: 1686 trades, 51.5% WR, $0.085/trade. All other imbalance signals (total, L1, weighted) were negative. Statistical test: z=0.59, p=0.28 \u2014 NOT significant vs baseline.",
+    "hypothesis": "In lopsided markets, orderbook shape is mechanically skewed by price level. Restricting to uncertain markets (mid 0.40-0.60) should isolate the informational component of MM layering from the mechanical component.",
+    "metrics": {
+      "total_trades": 1686,
+      "win_rate": 0.5154,
+      "pnl_total": 143.86,
+      "pnl_per_trade": 0.0853,
+      "max_drawdown": -168.57,
+      "sharpe": 0.29
+    },
+    "parameters": {
+      "mid_price_range": [
+        0.4,
+        0.6
+      ],
+      "max_spread": 0.1,
+      "deep_ratio_quantile": 0.2,
+      "entry_price_cap": 0.85,
+      "position_size": 10,
+      "max_entry_offset_s": 90
+    },
+    "verdict": "marginal",
+    "next_steps": "net_deep shows slight positive PnL ($0.085/trade) but is NOT statistically significant (p=0.28, z=0.59). The 0.7% WR edge over baseline is consistent with noise. Total/L1/weighted imbalance signals all lost money (~48.9% WR). The hypothesis that uncertainty filtering isolates informational MM layering is not supported \u2014 the signal is too weak. Most 5m BTC markets have well-populated 5-level books at open, but the layering pattern carries negligible directional information. Not worth pursuing further as a standalone signal.",
+    "generation": 2
+  },
+  {
+    "strategy_name": "deep_level_ratio_down_only",
+    "description": "Use expanding mean deep_level_ratio (ask-side deep/shallow, cumulative up to each snapshot \u2014 no look-ahead bias) to select Down-side trades. Enter when expanding mean crosses threshold after minimum observation period. Combined with spread >= 75th pctl and mid-price 0.35-0.65 filters.",
+    "hypothesis": "Deep ask-side layering (ratio of deep to shallow ask sizes) predicts Down outcomes. Markets where MMs consistently layer deep asks resolve Down more often. Using expanding mean avoids look-ahead bias \u2014 signal is computed only from data available at entry time.",
+    "metrics": {
+      "total_trades": 701,
+      "win_rate": 0.5221,
+      "pnl_total": 54.1142,
+      "pnl_per_trade": 0.0772,
+      "max_drawdown": -106.7645,
+      "sharpe": 0.5327
+    },
+    "parameters": {
+      "deep_ratio_threshold": 3.0,
+      "min_observation_ms": 5000,
+      "spread_percentile": 75,
+      "mid_price_range": [
+        0.35,
+        0.65
+      ],
+      "max_entry_price": 0.85,
+      "min_order_size": 5,
+      "signal_side": "Down only",
+      "spread_threshold_value": 0.02
+    },
+    "verdict": "marginal",
+    "next_steps": "Edge is thin. Try: 1) Different observation windows, 2) Add book imbalance as secondary filter, 3) Test on full dataset for significance.",
+    "generation": 11
+  }
+]

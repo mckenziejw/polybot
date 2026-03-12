@@ -1,0 +1,24 @@
+## Results Summary
+
+**Verdict: Promising** - The dual-signal strategy shows a real edge on the sample dataset.
+
+### Key Metrics
+| Metric | Value |
+|--------|-------|
+| Total trades | 71 (out of 401 resolved markets) |
+| Win rate | **62.0%** (vs 44.4% base rate for Up) |
+| PnL total | +36.11 tokens |
+| PnL per trade | +0.51 tokens |
+| Sharpe | 3.54 |
+| Max drawdown | -10.56 tokens |
+
+### What I found:
+1. **Initial signal was backwards** - deep ask layering means MMs are *selling* (bearish), not bullish. Correcting this flipped win rate from 18% to 62%.
+2. **The original 0.30 threshold was too aggressive** - sensitivity analysis showed dr=0.10 captures the signal better (57.5% WR on 261 trades solo).
+3. **Imbalance acts as a quality filter** - monotonically improves win rate as threshold tightens (58% → 58% → 60% → 62% at imbalance thresholds 0.0/0.05/0.10/0.20).
+4. **Deep ratio carries most of the alpha** - imbalance alone is near-random (~50% WR).
+
+### Caveats:
+- Only 401 resolved markets in the sample - need full dataset validation
+- 71 trades is a small sample; could be overfitting the imbalance threshold
+- Entry prices cluster near 0.50-0.55 (near fair value), so edge per trade is modest

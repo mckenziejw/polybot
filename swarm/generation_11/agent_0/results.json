@@ -1,0 +1,28 @@
+{
+  "strategy_name": "deep_level_ratio_down_only",
+  "description": "Use expanding mean deep_level_ratio (ask-side deep/shallow, cumulative up to each snapshot \u2014 no look-ahead bias) to select Down-side trades. Enter when expanding mean crosses threshold after minimum observation period. Combined with spread >= 75th pctl and mid-price 0.35-0.65 filters.",
+  "hypothesis": "Deep ask-side layering (ratio of deep to shallow ask sizes) predicts Down outcomes. Markets where MMs consistently layer deep asks resolve Down more often. Using expanding mean avoids look-ahead bias \u2014 signal is computed only from data available at entry time.",
+  "metrics": {
+    "total_trades": 701,
+    "win_rate": 0.5221,
+    "pnl_total": 54.1142,
+    "pnl_per_trade": 0.0772,
+    "max_drawdown": -106.7645,
+    "sharpe": 0.5327
+  },
+  "parameters": {
+    "deep_ratio_threshold": 3.0,
+    "min_observation_ms": 5000,
+    "spread_percentile": 75,
+    "mid_price_range": [
+      0.35,
+      0.65
+    ],
+    "max_entry_price": 0.85,
+    "min_order_size": 5,
+    "signal_side": "Down only",
+    "spread_threshold_value": 0.02
+  },
+  "verdict": "marginal",
+  "next_steps": "Edge is thin. Try: 1) Different observation windows, 2) Add book imbalance as secondary filter, 3) Test on full dataset for significance."
+}

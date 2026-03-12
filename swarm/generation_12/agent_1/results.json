@@ -1,0 +1,208 @@
+{
+  "strategy_name": "cross_token_spread_divergence",
+  "description": "Tests whether spread divergence between Up and Down token order books in the first 1-5 seconds predicts market resolution. FINDING: spreads are mechanically identical (mirrored books). Adapted to use book imbalance and size asymmetry as proxies for the same hypothesis.",
+  "hypothesis": "Asymmetric market-maker confidence manifests as spread divergence between Up/Down tokens. STRUCTURAL ISSUE: On Polymarket, Up and Down books are mirrors (bid_Up + ask_Down = 1.0), so spread_Up \u2261 spread_Down always. Tested book imbalance and size divergence as alternative signals.",
+  "metrics": {
+    "min_signal": 0.3,
+    "total_trades": 109,
+    "win_rate": 0.5688,
+    "pnl_total": 20.1056,
+    "pnl_per_trade": 0.1845,
+    "max_drawdown": -17.3506,
+    "sharpe": 1.257
+  },
+  "parameters": {
+    "window_start_ms": 1000,
+    "window_end_ms": 5000,
+    "best_signal": "book_imbalance",
+    "entry_price_cap": 0.85,
+    "min_order_size": 5
+  },
+  "signal_analysis": {
+    "base_rate_up": 0.4439,
+    "base_accuracy": 0.5561,
+    "signals_tested": {
+      "book_imbalance": {
+        "accuracy": 0.5287,
+        "lift": -0.0274,
+        "correlation": 0.0584,
+        "n_markets": 401.0
+      },
+      "size_diff": {
+        "accuracy": 0.5062,
+        "lift": -0.0499,
+        "correlation": 0.0277,
+        "n_markets": 401.0
+      },
+      "depth_ratio_3lvl": {
+        "accuracy": 0.5237,
+        "lift": -0.0324,
+        "correlation": -0.0169,
+        "n_markets": 401.0
+      }
+    }
+  },
+  "structural_finding": "Up and Down tokens share mirrored order books. spread_Up \u2261 spread_Down for all markets at all times. The spread divergence signal is identically zero. This is a fundamental limitation of Polymarket's binary market structure.",
+  "time_window_analysis": [
+    {
+      "window": "0s-1s",
+      "n_markets": 401,
+      "accuracy": 0.4888,
+      "lift": -0.0673,
+      "correlation": -0.0345
+    },
+    {
+      "window": "0s-2s",
+      "n_markets": 401,
+      "accuracy": 0.4888,
+      "lift": -0.0673,
+      "correlation": 0.0076
+    },
+    {
+      "window": "0s-5s",
+      "n_markets": 401,
+      "accuracy": 0.5162,
+      "lift": -0.0399,
+      "correlation": 0.0471
+    },
+    {
+      "window": "1s-3s",
+      "n_markets": 401,
+      "accuracy": 0.4963,
+      "lift": -0.0599,
+      "correlation": 0.0479
+    },
+    {
+      "window": "1s-5s",
+      "n_markets": 401,
+      "accuracy": 0.5287,
+      "lift": -0.0274,
+      "correlation": 0.0584
+    },
+    {
+      "window": "2s-5s",
+      "n_markets": 401,
+      "accuracy": 0.5012,
+      "lift": -0.0549,
+      "correlation": 0.0611
+    },
+    {
+      "window": "0s-10s",
+      "n_markets": 401,
+      "accuracy": 0.5112,
+      "lift": -0.0449,
+      "correlation": 0.0609
+    },
+    {
+      "window": "5s-10s",
+      "n_markets": 401,
+      "accuracy": 0.5287,
+      "lift": -0.0274,
+      "correlation": 0.0683
+    },
+    {
+      "window": "0s-30s",
+      "n_markets": 401,
+      "accuracy": 0.4988,
+      "lift": -0.0574,
+      "correlation": 0.0013
+    }
+  ],
+  "parameter_sweep": [
+    {
+      "min_signal": 0.0,
+      "total_trades": 401,
+      "win_rate": 0.5287,
+      "pnl_total": 24.0563,
+      "pnl_per_trade": 0.06,
+      "max_drawdown": -34.1301,
+      "sharpe": 0.4093
+    },
+    {
+      "min_signal": 0.01,
+      "total_trades": 382,
+      "win_rate": 0.5262,
+      "pnl_total": 17.0023,
+      "pnl_per_trade": 0.0445,
+      "max_drawdown": -29.2044,
+      "sharpe": 0.3031
+    },
+    {
+      "min_signal": 0.02,
+      "total_trades": 366,
+      "win_rate": 0.5191,
+      "pnl_total": 2.3607,
+      "pnl_per_trade": 0.0064,
+      "max_drawdown": -32.7328,
+      "sharpe": 0.0439
+    },
+    {
+      "min_signal": 0.05,
+      "total_trades": 330,
+      "win_rate": 0.5182,
+      "pnl_total": -0.2882,
+      "pnl_per_trade": -0.0009,
+      "max_drawdown": -28.83,
+      "sharpe": -0.006
+    },
+    {
+      "min_signal": 0.1,
+      "total_trades": 272,
+      "win_rate": 0.5074,
+      "pnl_total": -21.3377,
+      "pnl_per_trade": -0.0784,
+      "max_drawdown": -32.1649,
+      "sharpe": -0.5354
+    },
+    {
+      "min_signal": 0.15,
+      "total_trades": 220,
+      "win_rate": 0.5045,
+      "pnl_total": -23.9772,
+      "pnl_per_trade": -0.109,
+      "max_drawdown": -35.1622,
+      "sharpe": -0.7434
+    },
+    {
+      "min_signal": 0.2,
+      "total_trades": 176,
+      "win_rate": 0.5227,
+      "pnl_total": -5.8209,
+      "pnl_per_trade": -0.0331,
+      "max_drawdown": -33.4652,
+      "sharpe": -0.2255
+    },
+    {
+      "min_signal": 0.3,
+      "total_trades": 109,
+      "win_rate": 0.5688,
+      "pnl_total": 20.1056,
+      "pnl_per_trade": 0.1845,
+      "max_drawdown": -17.3506,
+      "sharpe": 1.257
+    },
+    {
+      "min_signal": 0.5,
+      "total_trades": 35,
+      "win_rate": 0.5714,
+      "pnl_total": 4.6143,
+      "pnl_per_trade": 0.1318,
+      "max_drawdown": -13.1391,
+      "sharpe": 0.8839
+    }
+  ],
+  "robustness": {
+    "bootstrap_95_ci": [
+      0.4771,
+      0.6606
+    ],
+    "p_wr_above_50": 0.9276,
+    "split_half_wr": [
+      0.5741,
+      0.5636
+    ],
+    "statistically_significant": false
+  },
+  "verdict": "marginal",
+  "next_steps": "The cross-token spread divergence hypothesis is structurally invalid: Up/Down books are mirrors on Polymarket, so spreads never diverge. Book imbalance as a proxy shows a weak signal (56.9% WR, n=109) when filtered to |imbalance| >= 0.3, but the 95% bootstrap CI [47.7%, 66.1%] crosses 50%, so this is not statistically significant. To salvage: (1) validate on the full 7187-market dataset for more power, (2) combine with trade flow / aggressor data, (3) use external BTC price signals, or (4) abandon this hypothesis direction."
+}

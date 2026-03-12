@@ -1,0 +1,23 @@
+## Results Summary
+
+**Verdict: FAILED**
+
+The deep_level_ratio Down-only strategy does not work as hypothesized on the sample data:
+
+| Metric | Primary Config (ratio<0.3, spread p75, 2s) |
+|---|---|
+| Trades | 42 |
+| Win Rate | 42.9% |
+| PnL/trade | -0.035 |
+| Total PnL | -1.48 |
+| Sharpe | -1.18 |
+
+**Key findings:**
+
+1. **Asymmetry is reversed** — The Up-side signal (deep ratio > 0.7) actually shows 57.3% WR, while the Down-side (ratio < 0.3) shows only 42.7% WR. This directly contradicts the hypothesis.
+
+2. **No spread filter helps slightly** — Without spread filtering, ratio<0.2 gives 52 trades at 48.1% WR with marginal positive PnL (+0.01/trade), suggesting a very weak signal at extremes but not Down-specific.
+
+3. **Parameter sweep overfits** — The best swept config (7 trades, 71% WR) is statistically meaningless.
+
+4. **The original asymmetry claim (59.8% Down vs 53.1% Up) does not hold** in this sample when accounting for fees and proper entry simulation.

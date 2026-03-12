@@ -1,0 +1,20 @@
+{
+  "strategy_name": "cross_timeframe_imbalance_divergence",
+  "description": "Fade 5m book imbalance divergence from enclosing 4h market. Compares level-weighted bid/ask imbalance ratio in the 5m market's opening snapshot vs the 4h market's concurrent snapshot. When divergence exceeds threshold, buy the opposite side.",
+  "hypothesis": "When the 5m market opens with imbalance sharply divergent from the 4h book, this indicates short-term mispricing before the 5m book converges to the 4h consensus \u2014 fade the 5m divergence.",
+  "metrics": {
+    "total_trades": 5327,
+    "win_rate": 0.4907,
+    "pnl_total": -44.66,
+    "pnl_per_trade": -0.0084,
+    "max_drawdown": -58.44,
+    "sharpe": -5.47
+  },
+  "parameters": {
+    "divergence_threshold": 0.15,
+    "opening_window_ms": 5000,
+    "max_entry_price": 0.85
+  },
+  "verdict": "failed",
+  "next_steps": "Strategy does not show edge. The 5m/4h imbalance divergence does not predict 5m resolution outcomes. Consider: (1) the 5m book forms too quickly for the 4h divergence to be informative, or (2) the divergence reflects legitimate new information, not mispricing."
+}

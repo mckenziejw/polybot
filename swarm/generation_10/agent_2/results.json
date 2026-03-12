@@ -1,0 +1,27 @@
+{
+  "strategy_name": "concurrent_resolution_conditional_entropy",
+  "description": "Measures conditional entropy of alt coin resolution outcomes given other assets over trailing windows. Trades the alt with lowest conditional entropy using real-time BTC book imbalance sign (no look-ahead bias).",
+  "hypothesis": "Correlation regimes are non-stationary and detectable from joint outcome history. When conditional entropy drops below threshold, alts are tightly coupled to BTC, making BTC book imbalance predictive.",
+  "metrics": {
+    "total_trades": 2644,
+    "win_rate": 0.525,
+    "pnl_total": 375.9705,
+    "pnl_per_trade": 0.1422,
+    "max_drawdown": -111.5721,
+    "sharpe": 0.4524
+  },
+  "parameters": {
+    "window_size": 50,
+    "entropy_threshold": 0.5,
+    "entry_price_cap": 0.85,
+    "trade_size": 10,
+    "assets": [
+      "btc",
+      "eth",
+      "sol",
+      "xrp"
+    ]
+  },
+  "verdict": "marginal",
+  "next_steps": "Entropy regime detection is validated: oracle test shows 88% win rate when BTC outcome is known, confirming strong cross-asset coupling in low-entropy regimes. The bottleneck is BTC imbalance signal quality (only ~52.5% directional accuracy). Next: improve BTC direction signal with multi-level imbalance, momentum, or volume features. Also test with tighter entropy thresholds and larger trade sizes."
+}

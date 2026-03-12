@@ -1,0 +1,36 @@
+{
+  "strategy_name": "down_only_deep_imbalance_filtered",
+  "description": "Buy Down tokens when bid-side deep layering exceeds ask-side (deep_imbalance <= -0.30) in first 1s, with wide-spread (>=75th pctl) and mid-price 0.35-0.65 filters. Refined from the original ask-side deep_level_ratio hypothesis.",
+  "hypothesis": "When the Down token's bid side has proportionally more deep liquidity (levels 3-5) than the ask side in the first second of trading, it signals informed support for Down. This bid-heavy deep layering pattern predicts Down resolution with 60-73% accuracy depending on filter strictness.",
+  "metrics": {
+    "total_trades": 26,
+    "win_rate": 0.7308,
+    "pnl_total": 5.7085,
+    "pnl_per_trade": 0.2196,
+    "max_drawdown": -1.0195,
+    "sharpe": 8.3334
+  },
+  "metrics_no_spread_filter": {
+    "total_trades": 124,
+    "win_rate": 0.6048,
+    "pnl_total": 13.0732,
+    "pnl_per_trade": 0.1054,
+    "max_drawdown": -5.9912,
+    "sharpe": 3.6579
+  },
+  "parameters": {
+    "window_ms": 1000,
+    "deep_imbalance_threshold": -0.3,
+    "mid_price_range": [
+      0.35,
+      0.65
+    ],
+    "spread_percentile": 75,
+    "entry_price_cap": 0.85,
+    "signal": "(ask_deep_3_4_5/ask_total) - (bid_deep_3_4_5/bid_total)",
+    "trade_side": "Down only",
+    "trade_logic": "Buy Down when deep_imbalance <= threshold (bid-heavy)"
+  },
+  "verdict": "promising",
+  "next_steps": "Validate on full 7k+ market dataset. Test robustness across time periods. Investigate if signal strength varies with BTC volatility regime. Consider combining with book_imbalance for additional filtering."
+}

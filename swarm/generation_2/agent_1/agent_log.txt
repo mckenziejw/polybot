@@ -1,0 +1,14 @@
+## Results
+
+**Hypothesis REFUTED.** The delayed 15-30s window produces a *weaker* signal than the early 0-5s window:
+
+| Metric | Delayed (15-30s) | Early (0-5s) |
+|---|---|---|
+| Win Rate | 51.5% | 55.7% |
+| PnL/trade | $0.28 | $0.52 |
+| Sharpe | 0.50 | 0.90 |
+| Total PnL | $326 | $603 |
+
+**Why it failed:** Deep ratio variance compresses from 0.14 → 0.085 as MMs converge toward fair value in the 15-30s window, diluting the extreme quintile signals. The "stale" 0-5s orders actually carry more information — they reflect pre-positioned informed views, not noise. Q4 Up WR drops from 57.6% (early) to 52.2% (delayed); Q0 Down signal nearly vanishes.
+
+The early deep level ratio itself looks interesting (Sharpe ~0.9) but that's the baseline, not this strategy's contribution.

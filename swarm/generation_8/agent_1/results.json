@@ -1,0 +1,27 @@
+{
+  "strategy_name": "deep_ratio_l1_agreement",
+  "description": "Combines deep level ratio (L3-5 vs L1-5) with L1 book imbalance. Original hypothesis (agreement confirms MM positioning) FAILED. Discovered CONTRARIAN variant: when deep liquidity and L1 imbalance agree bullish, bet Down (and vice versa). Deep liquidity layering appears to be deceptive — MMs layer visible depth opposite to intended direction. Spread>=75pct filter HURTS the contrarian signal (edge exists in tighter-spread markets).",
+  "hypothesis": "Original hypothesis (agreement = confirmation) FAILED — deep_ratio_diff is negatively correlated with outcomes (r=-0.08). Contrarian variant at threshold 0.10 shows 58.65% WR on 104 trades (z=1.76, p=0.039 unadjusted). However, after Bonferroni correction for ~14 parameter combinations tested, p=0.55 — NOT statistically significant. The sensitivity analysis is non-monotonic (threshold 0.12 drops to 53.7% WR), suggesting the 0.10 sweet spot may be overfitting. The buy_down side (62.3% WR) carries most of the edge; buy_up (54.9% WR) is weak.",
+  "metrics": {
+    "total_trades": 104,
+    "win_rate": 0.5865,
+    "pnl_total": 1.8329,
+    "pnl_per_trade": 0.0176,
+    "max_drawdown": -3.5317,
+    "sharpe": 0.6212
+  },
+  "parameters": {
+    "deep_ratio_threshold": 0.2,
+    "contrarian_threshold": 0.1,
+    "spread_pct_threshold": 75,
+    "entry_price_cap": 0.85,
+    "entry_window_ms": 60000,
+    "agg_window_start_ms": 50000,
+    "imbalance_threshold": 0.0,
+    "best_variant": "contrarian",
+    "spread_filter_used": false,
+    "signal_aggregation": "mean_last_10s"
+  },
+  "verdict": "marginal",
+  "next_steps": "Edge is suggestive but not statistically robust after multiple testing correction. Critical next step: validate on full 7187-market dataset (out-of-sample test). If contrarian edge persists at WR>55% with n>300, it becomes credible. Also investigate: (1) why buy_down is stronger than buy_up (base rate asymmetry or genuine signal?), (2) rate-of-change of deep ratio rather than level, (3) temporal stability across different market regimes."
+}

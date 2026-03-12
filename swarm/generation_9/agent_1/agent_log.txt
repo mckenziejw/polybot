@@ -1,0 +1,20 @@
+## Summary
+
+**Strategy**: Deep Ratio + L1 Imbalance Contrarian — bet against the direction when deep (L3-5) and shallow (L1) book signals agree.
+
+**Verdict: FAILED**
+
+| Metric | Value |
+|--------|-------|
+| Total trades | 580 |
+| Win rate | 49.7% |
+| Total PnL | +5.07 (essentially zero) |
+| PnL/trade | +0.009 |
+| Max drawdown | -80.21 |
+| Sharpe | 0.06 |
+
+**Key findings**:
+- The contrarian hypothesis doesn't hold — agreement between deep and shallow book is not reliably deceptive
+- Stronger agreement signals actually perform *worse* (Q0=58.6% vs Q4=45.7%), but this is likely noise not a monotonic relationship
+- The slight Down-bias (51.9% vs 46.9% for Up) mirrors the base rate of Down winning more often in the sample, not an exploitable signal
+- No parameter threshold rescues the strategy — all sensitivity tests show near-50% win rates

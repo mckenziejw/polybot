@@ -1,0 +1,14 @@
+Done. Here's the summary:
+
+**Strategy: Level-Weighted Imbalance Acceleration**
+
+**Results (sample 917 markets):**
+- Best params: acceleration threshold = 0.05, min_count = 20
+- 654 trades, 51.7% win rate, +23.06 PnL total, +0.035 PnL/trade
+- Sharpe: 1.21, Max drawdown: 14.95
+
+**Verdict: Marginal**
+
+The signal direction is consistent — positive acceleration → Up works better than reversed across all parameter combos, and all thresholds yield >50% win rates. However, **none achieve statistical significance** (best binomial p=0.21 vs 50% null). With only 654 trades and 51.7% win rate, this could easily be noise.
+
+The directional consistency is mildly encouraging and warrants testing on the full 7,187-market dataset where more statistical power could confirm or reject the edge.

@@ -1,0 +1,20 @@
+Strategy implementation and backtest are complete. Here's the summary:
+
+## Results: Orderbook Asymmetry Decay Rate Strategy → **FAILED**
+
+**Hypothesis**: Persistent orderbook asymmetry (bid/ask depth imbalance lasting 2-6 snapshots) should mean-revert. Fading the slow-decay side captures the snap-back.
+
+**Findings**:
+- **Win rate: 10-17%** across all 30 parameter combinations (vs ~50% baseline) — the strategy is a strong **anti-signal**
+- **Best config** (thresh=0.05, persist=2): 93 trades, 17.2% win rate, -0.48 PnL, Sharpe -0.02
+- **Every single parameter combination loses money** — this is not a parameterization issue
+
+**Key Insight**: The fade hypothesis is inverted. Persistent orderbook asymmetry signals **informed flow that continues**, not mean-reversion. The autocorrelation analysis confirms this:
+- High-autocorrelation Up tokens resolve Up only **28.8%** of the time
+- Low-autocorrelation Up tokens resolve Up **71.4%** of the time
+
+This suggests a **follow** strategy (buying the side with persistent depth) could flip the edge positive, but that's a different hypothesis.
+
+**Output files**:
+- `strategy.py` — full implementation with vectorized processing
+- `results.json` — standardized metrics, parameter sweep, and analysis

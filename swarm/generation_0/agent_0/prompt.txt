@@ -1,0 +1,37 @@
+You are a quantitative trading strategy researcher. Your task:
+
+1. Implement and backtest a specific strategy against Polymarket 5-minute BTC Up/Down binary prediction markets.
+
+2. STRATEGY HYPOTHESIS: Orderbook shape convexity at market open: measure the curvature of the bid/ask depth curve (second derivative of cumulative size across levels 1-5) in the first snapshot after market opens. A convex bid curve (accelerating size deeper in book) vs concave ask curve may signal informed market makers layering defensively, predicting upward resolution. Trade the side with greater convexity.
+
+3. DATA AVAILABLE (all paths relative to /home/josh/Documents/projects/wss_test):
+   - 5m orderbook snapshots: data/telonex_book_snapshots/ (7,187 parquet files)
+     Columns: exchange_timestamp, received_timestamp, slug, market, asset_id, token_label (Up/Down), mid_price, spread, book_imbalance, bid/ask_price/size_1-5
+   - 5m trade events: data/trade_events/ (5,339 parquet files)
+   - 4h orderbook: data/telonex_btc_4h_book_snapshots/ (798 files)
+   - Resolution cache: data/resolution_cache.json (maps slug -> winner Up/Down)
+   - Raw book snapshots (includes pre/post market): datasets/telonex_5m_raw/
+
+4. RULES:
+   - Use /home/josh/Documents/projects/wss_test/.venv/bin/python3 for all Python execution
+   - Use ONLY vectorized pandas/numpy operations — NO iterrows(), NO row-by-row loops
+   - Account for Polymarket fees: fee = 0.0222 * p * 0.25 * (p*(1-p))^2
+   - Minimum order size: 5 tokens
+   - slug format: btc-updown-5m-{unix_epoch_seconds}
+   - token_label Up = BTC goes up in the 5m window
+   - Markets resolve to 1.00 (winner) or 0.00 (loser)
+   - Entry price cap: never buy above 0.85 (payoff asymmetry)
+
+5. OUTPUT:
+   - Write your strategy implementation to: /home/josh/Documents/projects/wss_test/swarm/generation_0/agent_0/strategy.py
+   - Write standardized results JSON to: /home/josh/Documents/projects/wss_test/swarm/generation_0/agent_0/results.json
+   - results.json schema: {"strategy_name": "", "description": "", "hypothesis": "", "metrics": {"total_trades": 0, "win_rate": 0.0, "pnl_total": 0.0, "pnl_per_trade": 0.0, "max_drawdown": 0.0, "sharpe": 0.0}, "parameters": {}, "verdict": "promising|marginal|failed", "next_steps": ""}
+
+6. Be rigorous. If the strategy doesn't work, say so honestly. Don't cherry-pick parameters. Write results.json even if the strategy fails.
+
+7. CRITICAL SAFETY RULES:
+   - NEVER execute live trades, place orders, or submit any transaction
+   - NEVER send transactions on-chain or call any smart contract
+   - NEVER use the execution/ TypeScript code or any CLOB/exchange client
+   - Read-only API queries (e.g. Gamma API, public market data) are ALLOWED
+   - Backtesting must use historical parquet data, not live prices

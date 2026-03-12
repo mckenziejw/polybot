@@ -1,0 +1,21 @@
+{
+  "strategy_name": "deep_level_ratio_high_spread",
+  "description": "Deep orderbook level ratio (levels 3-5 bid/ask) filtered to high-spread markets (>=4c). Top/bottom 20% quintiles predict resolution direction.",
+  "hypothesis": "In wide-spread markets, MMs have more room to express directional views via deep level layering. Deep bid-heavy \u2192 buy Up, deep ask-heavy \u2192 buy Down.",
+  "metrics": {
+    "total_trades": 57,
+    "win_rate": 0.193,
+    "pnl_total": -34.57,
+    "pnl_per_trade": -0.6065,
+    "max_drawdown": -33.32,
+    "sharpe": -4.99
+  },
+  "parameters": {
+    "spread_min": 0.04,
+    "quintile_pct": 0.2,
+    "entry_price_cap": 0.85,
+    "min_order_size": 5
+  },
+  "verdict": "failed",
+  "next_steps": "Deep level ratio does not predict direction even in high-spread markets. The signal may be too noisy or MMs don't differentiate layering by spread regime. Could try: time-weighted deep ratio, level-size momentum, or cross-token ratio."
+}

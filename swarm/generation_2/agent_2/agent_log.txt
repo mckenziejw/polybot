@@ -1,0 +1,21 @@
+## Results Summary
+
+**Strategy**: Deep level ratio + mid-price uncertainty filter on 5m BTC Up/Down markets
+
+**Verdict: Marginal (not viable)**
+
+Key findings from 4,215 uncertain markets (mid 0.40-0.60):
+
+| Signal | Trades | WR | PnL/trade | Sharpe |
+|--------|--------|-----|-----------|--------|
+| **net_deep** (hypothesis) | 1,686 | 51.5% | +$0.085 | 0.29 |
+| total_imb | 1,686 | 48.9% | -$0.371 | -1.26 |
+| weighted_imb | 1,686 | 48.8% | -$0.366 | -1.24 |
+| l1_imb | 1,686 | 47.6% | -$0.351 | -1.19 |
+| Baseline (buy Up) | 4,215 | 50.8% | -$0.051 | — |
+
+The net_deep signal (the core hypothesis) shows a small positive edge but **fails statistical significance** (z=0.59, p=0.28). The 0.7% WR improvement over baseline is consistent with random variation on 1,686 trades.
+
+All other orderbook imbalance signals performed worse than the baseline — spread + fees dominate any signal that might exist. The quintile analysis shows no monotonic relationship between any signal and outcome.
+
+**Conclusion**: The hypothesis that restricting to uncertain markets isolates informational MM layering is not supported. The 5m BTC orderbooks, while well-populated at market open, don't carry meaningful directional information in their depth structure.

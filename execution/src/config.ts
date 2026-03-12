@@ -62,13 +62,20 @@ export function loadConfig(configPath?: string): AppConfig {
   const marketMakerRaw = rawConfig.market_maker || {};
   const modeRaw = String(marketMakerRaw.mode || "mint-and-sell");
   const mode = (modeRaw === "traditional" ? "traditional" : "mint-and-sell") as MarketMakerMode;
+  const pricingRaw = String(marketMakerRaw.pricing || "inventory-skew");
+  const pricing = (pricingRaw === "whale-front" ? "whale-front" : "inventory-skew") as import("./types.ts").PricingMode;
   const marketMaker: MarketMakerConfig = {
     mode,
+    pricing,
     initialPairs: Number(marketMakerRaw.initial_pairs ?? 50),
-    maxInventoryPerSide: Number(marketMakerRaw.max_inventory_per_side ?? 200),
+    maxTotalInventory: Number(marketMakerRaw.max_total_inventory ?? marketMakerRaw.max_inventory_per_side ?? 200),
+    maxUnhedgedExposure: Number(marketMakerRaw.max_unhedged_exposure ?? 50),
     skewK: Number(marketMakerRaw.skew_k ?? 0.005),
     requoteThreshold: Number(marketMakerRaw.requote_threshold ?? 0.005),
     replenishThreshold: Number(marketMakerRaw.replenish_threshold ?? 10),
+    whaleThreshold: Number(marketMakerRaw.whale_threshold ?? 1000),
+    whalePullCooldownMs: Number(marketMakerRaw.whale_pull_cooldown_ms ?? 3000),
+    whaleMoveTicks: Number(marketMakerRaw.whale_move_ticks ?? 3),
     // Legacy fields for other strategies
     orderSize: Number(marketMakerRaw.order_size) || 5.0,
     cancelWindowS: Number(marketMakerRaw.cancel_window_s) || 6.0,
@@ -92,6 +99,8 @@ export function loadConfig(configPath?: string): AppConfig {
       : []) as string[],
     betDollars: Number(executionRaw.betDollars ?? executionRaw.bet_dollars ?? 5),
     modelServerUrl: String(executionRaw.modelServerUrl ?? executionRaw.model_server_url ?? "http://127.0.0.1:8000"),
+    dashboardPort: executionRaw.dashboard_port ? Number(executionRaw.dashboard_port) : undefined,
+    marketDuration: String(executionRaw.market_duration ?? "5m"),
   };
 
   return {

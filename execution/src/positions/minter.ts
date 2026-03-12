@@ -28,6 +28,7 @@ const BINARY_PARTITION = [1n, 2n] as const;
 const CTF_CORE_ABI = parseAbi([
   "function splitPosition(address collateralToken, bytes32 parentCollectionId, bytes32 conditionId, uint256[] partition, uint256 amount) external",
   "function mergePositions(address collateralToken, bytes32 parentCollectionId, bytes32 conditionId, uint256[] partition, uint256 amount) external",
+  "function balanceOf(address owner, uint256 id) external view returns (uint256)",
 ]);
 
 const ERC20_ABI = parseAbi([
@@ -66,6 +67,8 @@ export interface MergeResult {
 export class Minter {
   private config: AppConfig;
   private approvalChecked = false;
+  // Mutex to prevent concurrent Safe transactions (nonce collision)
+  private txInFlight = false;
 
   constructor(config: AppConfig) {
     this.config = config;
@@ -78,6 +81,11 @@ export class Minter {
    * @param amount - Amount in USDC.e smallest units (6 decimals, so 1 USDC = 1_000_000)
    */
   async split(conditionId: string, amount: bigint): Promise<SplitResult> {
+    if (this.txInFlight) {
+      console.warn(`[Minter] Split skipped — tx already in flight`);
+      return { success: false, amount, error: "tx already in flight" };
+    }
+    this.txInFlight = true;
     try {
       // Ensure CTF Core has approval to spend USDC.e from the holder
       await this.ensureApproval();
@@ -113,6 +121,8 @@ export class Minter {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[Minter] Split failed: ${msg}`);
       return { success: false, amount, error: msg };
+    } finally {
+      this.txInFlight = false;
     }
   }
 
@@ -123,6 +133,11 @@ export class Minter {
    * @param amount - Amount in USDC.e smallest units (6 decimals, so 1 pair = 1_000_000)
    */
   async merge(conditionId: string, amount: bigint): Promise<MergeResult> {
+    if (this.txInFlight) {
+      console.warn(`[Minter] Merge skipped — tx already in flight`);
+      return { success: false, amount, error: "tx already in flight" };
+    }
+    this.txInFlight = true;
     try {
       const innerData = encodeFunctionData({
         abi: CTF_CORE_ABI,
@@ -155,6 +170,8 @@ export class Minter {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[Minter] Merge failed: ${msg}`);
       return { success: false, amount, error: msg };
+    } finally {
+      this.txInFlight = false;
     }
   }
 
@@ -229,7 +246,7 @@ export class Minter {
       args: [to, 0n, data, 0, 0n, 0n, 0n, zeroAddr, zeroAddr, signature],
     });
 
-    return publicClient.waitForTransactionReceipt({ hash });
+    return publicClient.waitForTransactionReceipt({ hash, timeout: 90_000 });
   }
 
   private getHolder(): Hex {
@@ -237,6 +254,21 @@ export class Minter {
     if (proxy && proxy.length > 0) return proxy as Hex;
     const account = privateKeyToAccount(this.config.polymarket.privateKey as Hex);
     return account.address;
+  }
+
+  /**
+   * Query on-chain ERC1155 balance for a specific token ID.
+   * The assetId (Polymarket token ID) is the ERC1155 token ID on CTF Core.
+   */
+  async getTokenBalance(assetId: string): Promise<bigint> {
+    const publicClient = this.createPublicClient();
+    const holder = this.getHolder();
+    return publicClient.readContract({
+      address: CTF_CORE_ADDRESS,
+      abi: CTF_CORE_ABI,
+      functionName: "balanceOf",
+      args: [holder, BigInt(assetId)],
+    });
   }
 
   private createPublicClient() {

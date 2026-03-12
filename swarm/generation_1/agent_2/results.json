@@ -1,0 +1,45 @@
+{
+  "strategy_name": "spread_vol_divergence",
+  "description": "Computes ratio of orderbook spread to 30s realized volatility of Up token mid-price. Tested going WITH book imbalance when spread/RV is low (tight/confident MMs) and FADING imbalance when spread/RV is high (wide/uncertain MMs). Also tested inverted directions. Both fail.",
+  "hypothesis": "The ratio of orderbook spread to realized volatility reveals MM information asymmetry. Wide spreads relative to vol should signal informed pricing; tight spreads should signal stale books that can be faded.",
+  "metrics": {
+    "total_trades": 2525,
+    "win_rate": 0.385,
+    "pnl_total": -3062.53,
+    "pnl_per_trade": -1.2129,
+    "max_drawdown": -3153.38,
+    "sharpe": -1.164
+  },
+  "parameters": {
+    "rv_window_ms": 30000,
+    "z_lookback_markets": 50,
+    "z_threshold": 0.75,
+    "entry_price_cap": 0.85,
+    "position_size_usd": 10.0,
+    "entry_window_frac": 0.5,
+    "fee_constant": 0.0222
+  },
+  "regime_breakdown": {
+    "tight_with_imbalance": {
+      "trades": 1486,
+      "win_rate": 0.306,
+      "pnl": -2602.27,
+      "pnl_per_trade": -1.7512
+    },
+    "wide_fade_imbalance": {
+      "trades": 1039,
+      "win_rate": 0.499,
+      "pnl": -460.26,
+      "pnl_per_trade": -0.443
+    },
+    "mid_price_filter_0.40_0.70_only": {
+      "trades": 761,
+      "win_rate": 0.558,
+      "pnl": 181.79,
+      "pnl_per_trade": 0.2389,
+      "note": "Both regimes show identical 55.8% WR — spread/RV ratio adds zero value; edge from price range filter only"
+    }
+  },
+  "verdict": "failed",
+  "next_steps": "Strategy conclusively failed. Key findings: (1) Spread/RV ratio does NOT differentiate informed vs uninformed MM regimes — both signal directions produce identical WRs when controlling for entry price. (2) Book imbalance is NOT directionally predictive in 5m BTC binary markets regardless of volatility regime. (3) Only 'edge' found (~55.8% WR, $0.24/trade) in 0.40-0.70 price range is attributable to the price filter itself, not the spread-vol signal, and is too thin to survive execution costs. (4) Buying low-probability tokens (<0.40) is catastrophic regardless of signal. The hypothesis that spread-to-vol ratio reveals MM information asymmetry does not hold in this market structure."
+}

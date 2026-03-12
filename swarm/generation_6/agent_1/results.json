@@ -1,0 +1,114 @@
+{
+  "strategy_name": "cross_token_implied_probability_divergence",
+  "description": "Compare sum of best-bid on Up and Down tokens. When sum drops below threshold, buy the token with higher Level 2-5 depth ratio.",
+  "hypothesis": "When both sides are cheap (bid_sum < threshold), the token with deeper relative book support is more likely to win, as informed participants stack bids at deeper levels before mid-price adjusts.",
+  "metrics": {
+    "total_trades": 728,
+    "win_rate": 0.4354,
+    "pnl_total": -292.02,
+    "pnl_per_trade": -0.4011,
+    "max_drawdown": -333.87,
+    "sharpe": -2.89
+  },
+  "parameters": {
+    "sum_threshold": 0.92,
+    "max_entry_price": 0.85,
+    "min_order_size": 5,
+    "depth_ratio_min": 1.2,
+    "fee_formula": "0.0222 * p * 0.25 * (p*(1-p))^2"
+  },
+  "sample_trades": [
+    {
+      "slug": "btc-updown-5m-1770861000",
+      "side": "Down",
+      "entry_price": 0.5,
+      "bid_sum": 0.5700000000000001,
+      "depth_ratio": 1.0406085082133743,
+      "won": true,
+      "pnl_per_token": 0.4998265625
+    },
+    {
+      "slug": "btc-updown-5m-1770862200",
+      "side": "Down",
+      "entry_price": 0.6,
+      "bid_sum": 0.89,
+      "depth_ratio": 6.564645207184777,
+      "won": true,
+      "pnl_per_token": 0.399808192
+    },
+    {
+      "slug": "btc-updown-5m-1770864900",
+      "side": "Up",
+      "entry_price": 0.41,
+      "bid_sum": 0.8899999999999999,
+      "depth_ratio": 26.7,
+      "won": false,
+      "pnl_per_token": -0.41013315227055497
+    },
+    {
+      "slug": "btc-updown-5m-1770865800",
+      "side": "Up",
+      "entry_price": 0.8,
+      "bid_sum": 0.71,
+      "depth_ratio": 41.059,
+      "won": false,
+      "pnl_per_token": -0.8001136640000001
+    },
+    {
+      "slug": "btc-updown-5m-1770870600",
+      "side": "Up",
+      "entry_price": 0.55,
+      "bid_sum": 0.91,
+      "depth_ratio": 9.890531976185903,
+      "won": false,
+      "pnl_per_token": -0.550186984703125
+    },
+    {
+      "slug": "btc-updown-5m-1770871500",
+      "side": "Down",
+      "entry_price": 0.63,
+      "bid_sum": 0.91,
+      "depth_ratio": 12.350000000000001,
+      "won": true,
+      "pnl_per_token": 0.369810015539635
+    },
+    {
+      "slug": "btc-updown-5m-1770873000",
+      "side": "Up",
+      "entry_price": 0.6,
+      "bid_sum": 0.91,
+      "depth_ratio": 73.37666666666668,
+      "won": false,
+      "pnl_per_token": -0.6001918079999999
+    },
+    {
+      "slug": "btc-updown-5m-1770874500",
+      "side": "Down",
+      "entry_price": 0.6,
+      "bid_sum": 0.89,
+      "depth_ratio": 3.978066167062694,
+      "won": true,
+      "pnl_per_token": 0.399808192
+    },
+    {
+      "slug": "btc-updown-5m-1770876300",
+      "side": "Up",
+      "entry_price": 0.64,
+      "bid_sum": 0.87,
+      "depth_ratio": 1.9913490573737045,
+      "won": true,
+      "pnl_per_token": 0.35981144506368
+    },
+    {
+      "slug": "btc-updown-5m-1770879900",
+      "side": "Up",
+      "entry_price": 0.47,
+      "bid_sum": 0.91,
+      "depth_ratio": 14.3,
+      "won": false,
+      "pnl_per_token": -0.470161859537885
+    }
+  ],
+  "verdict": "failed",
+  "next_steps": "Strategy failed comprehensively: 43.5% WR, negative PnL across ALL 28 parameter combos tested. Key findings: (1) Depth ratio provides no predictive edge — the 'always buy Up' baseline performs similarly (~47-49% WR), (2) Low bid_sum (wide mispricing) correlates with WORSE outcomes, not better — likely reflects illiquid/early markets, not exploitable dislocations, (3) Best combo (thresh=0.98, dr_min=1.0) achieves 52% WR but still loses $6 after fees. The hypothesis that deep-level bid stacking signals informed accumulation is rejected for this market structure. 5-minute BTC binary options appear efficient at the orderbook level within the first 60s."
+}

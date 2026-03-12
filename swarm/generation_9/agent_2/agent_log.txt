@@ -1,0 +1,22 @@
+## Results Summary
+
+**Verdict: FAILED**
+
+The strategy produced 236 trades with a **46.6% win rate** and **-$169.79 total PnL** (-$0.72/trade). Sharpe ratio: -35.5.
+
+### Root Cause Analysis
+
+The hypothesis was that combining a tight 1000ms window + wide-spread filter + high imbalance threshold (0.4) would isolate high-quality signals. However, deeper analysis reveals the **fundamental problem**: book imbalance in the first 1000ms has essentially **zero predictive power** for 5-minute BTC direction:
+
+| Imbalance Bin | Up Win Rate | Count |
+|---|---|---|
+| (-1.0, -0.6] | 57.7% | 52 |
+| (-0.6, -0.4] | 45.9% | 85 |
+| (-0.4, -0.2] | 47.7% | 132 |
+| (-0.2, 0.0] | 51.3% | 150 |
+| (0.0, 0.2] | 45.5% | 178 |
+| (0.2, 0.4] | 51.8% | 141 |
+| (0.4, 0.6] | 47.7% | 107 |
+| (0.6, 1.0] | 47.2% | 72 |
+
+Correlation between imbalance and outcome: **-0.023** (effectively random). The wide-spread filter makes it slightly worse (-0.096 correlation). No amount of threshold tuning can rescue a signal that isn't there.

@@ -1,0 +1,20 @@
+Here's a summary of the backtest results:
+
+## Strategy: Deep Level Ratio + L1 Book Imbalance Agreement
+
+### Original Hypothesis — FAILED
+The hypothesis that agreement between L1 imbalance and deep (L3-L5) ratio confirms genuine MM positioning **does not hold**. The signal is **negatively correlated** with outcomes (r = -0.08). Quintile analysis shows Q4 (most bullish deep ratio) has only 35% Up WR vs 52% for Q0.
+
+### Contrarian Discovery — MARGINAL
+Flipping the signal (bet *against* deep+L1 agreement) yields:
+- **104 trades, 58.65% WR, +1.83 PnL, Sharpe 0.62**
+- buy_down side stronger (62.3% WR) than buy_up (54.9%)
+- The spread>=75pct filter **hurts** the contrarian signal (edge is in tighter-spread markets)
+
+### Statistical Rigor
+- Raw: z=1.76, p=0.039 (marginally significant)
+- After Bonferroni correction for ~14 param combos tested: **p=0.55 (NOT significant)**
+- Sensitivity is non-monotonic: threshold 0.10 works, 0.12 collapses to 53.7%
+
+### Verdict: **marginal**
+The contrarian insight is interesting but not statistically robust on this 714-market sample. The critical next step is out-of-sample validation on the full 7,187-market dataset.

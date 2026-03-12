@@ -1,0 +1,13 @@
+Strategy implementation and backtest complete. Key findings:
+
+**Results: Ultra-Early Imbalance (500ms / threshold 0.25)**
+- **129 trades**, **53.5% win rate**, **+$5.06 total PnL** ($0.039/trade)
+- **Verdict: Promising** (barely) — meets the thresholds but with caveats
+
+**Concerns:**
+- **Max drawdown: -$36.76** — that's a 7:1 drawdown-to-PnL ratio, very poor risk-adjusted
+- Edge is asymmetric: **Down trades** (+$7.86, 55.1% WR) carry the entire PnL, while **Up trades** are slightly negative (-$2.81)
+- The **[0.25, 0.35) imbalance bucket** is the sweet spot (57.9% WR, +$10.11), but the **[0.35, 0.50)** bucket actually loses money — stronger imbalance signals don't help
+- Sharpe of 0.26 is very low
+
+The hypothesis that 500ms isolates MM positioning has some support, but the signal quality is uneven and the drawdown profile is concerning. The strategy would need significant refinement (filtering out the mid-range imbalance bucket, focusing on Down side only) before it could be considered viable.
