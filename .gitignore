@@ -1,17 +1,17 @@
 # Secrets & config
 config.json
-config.*.json
-bot_config.json
 .env
 
 # Virtual environment
 .venv/
+**/node_modules/
 
 # Data files (large)
 /data/
-datasets/
-runs/
-models/
+/datasets/
+/runs/
+/models/
+
 # Python cache
 **/__pycache__/
 *.pyc
@@ -22,9 +22,13 @@ models/
 
 # Logs
 *.log
+/logs/
 
 # Claude Code
 .claude/
 
-# Scratch notebooks
+# Scratch
 Untitled*.ipynb
+
+# Execution build artifacts
+execution/nohup.out

@@ -12,11 +12,14 @@
   "mounts": [
     "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind",
     "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind",
-    "source=${localEnv:HOME}/.anthropic,target=/home/dev/.anthropic,type=bind"
+    "source=${localEnv:HOME}/.anthropic,target=/home/dev/.anthropic,type=bind",
+    "source=${localEnv:HOME}/.aws,target=/home/dev/.aws,type=bind",
+    "source=${localEnv:HOME}/.ssh,target=/home/dev/.ssh,type=bind"
   ],
   "containerEnv": {
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}"
   },
+  "forwardPorts": [3456],
   "remoteUser": "dev",
   "postCreateCommand": "cd /workspace && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt 2>/dev/null; cd /workspace/execution && bun install 2>/dev/null; echo 'Ready.'"
 }
