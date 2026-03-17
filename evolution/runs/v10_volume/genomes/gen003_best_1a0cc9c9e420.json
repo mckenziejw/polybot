@@ -1,0 +1,83 @@
+{
+  "genome_id": "1a0cc9c9e420",
+  "generation": 3,
+  "parent_ids": [
+    "be13cb9afc22"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 15,
+  "indicators": [
+    {
+      "type": "DC",
+      "params": {
+        "period": 9
+      },
+      "id": "DC_9_f5f0",
+      "band": "upper"
+    },
+    {
+      "type": "DC",
+      "params": {
+        "period": 30
+      },
+      "id": "DC_30_570b",
+      "band": "lower"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 121
+      },
+      "id": "EMA_121_6209"
+    },
+    {
+      "type": "BB",
+      "params": {
+        "period": 67,
+        "k": 2.55
+      },
+      "id": "BB_67_a6d4",
+      "band": "lower"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 176
+      },
+      "id": "EMA_176_0686"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "EMA_121_6209",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "DC_9_f5f0"
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "time_limit",
+      "value": 3600
+    },
+    {
+      "type": "take_profit",
+      "value": 3.67
+    },
+    {
+      "type": "stop_loss",
+      "value": 1.86
+    },
+    {
+      "type": "time_limit",
+      "value": 120
+    }
+  ],
+  "position_size_usd": 182.0,
+  "max_open_positions": 2,
+  "max_drawdown_pct": 11.6
+}

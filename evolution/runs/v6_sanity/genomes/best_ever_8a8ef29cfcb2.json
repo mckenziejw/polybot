@@ -1,0 +1,97 @@
+{
+  "genome_id": "8a8ef29cfcb2",
+  "generation": 4,
+  "parent_ids": [
+    "eeb59c548bff"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 1,
+  "indicators": [
+    {
+      "type": "DC",
+      "params": {
+        "period": 52
+      },
+      "id": "DC_52_d32d",
+      "band": "lower"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 24
+      },
+      "id": "EMA_24_8ebe"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 38,
+        "period_d": 10
+      },
+      "id": "STOCH_38_8f43"
+    },
+    {
+      "type": "WMA",
+      "params": {
+        "period": 200
+      },
+      "id": "WMA_200_ad80"
+    },
+    {
+      "type": "WMA",
+      "params": {
+        "period": 132
+      },
+      "id": "WMA_138_9b61"
+    },
+    {
+      "type": "ATR",
+      "params": {
+        "period": 53
+      },
+      "id": "ATR_53_91be"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "DC_52_d32d",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "STOCH_38_8f43"
+    },
+    {
+      "indicator_id": "WMA_138_9b61",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "EMA_24_8ebe"
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 3.18
+    },
+    {
+      "type": "time_limit",
+      "value": 300
+    },
+    {
+      "type": "indicator",
+      "value": 84.923,
+      "indicator_id": "STOCH_38_8f43",
+      "condition": "crosses_above"
+    },
+    {
+      "type": "stop_loss",
+      "value": 4.86
+    }
+  ],
+  "position_size_usd": 299.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 7.9
+}

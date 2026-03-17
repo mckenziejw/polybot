@@ -1,0 +1,78 @@
+{
+  "genome_id": "f7042e9be763",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 240,
+  "indicators": [
+    {
+      "type": "EMA",
+      "params": {
+        "period": 30
+      },
+      "id": "EMA_30_c077"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 155
+      },
+      "id": "EMA_155_86ed"
+    },
+    {
+      "type": "RSI",
+      "params": {
+        "period": 44
+      },
+      "id": "RSI_44_0da1"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 126
+      },
+      "id": "EMA_126_2d14"
+    },
+    {
+      "type": "AROON",
+      "params": {
+        "period": 27
+      },
+      "id": "AROON_27_df61"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "RSI_44_0da1",
+      "condition": "greater_than",
+      "value": 0.633,
+      "side": "buy",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "indicator",
+      "value": 0.643,
+      "indicator_id": "RSI_44_0da1",
+      "condition": "greater_than"
+    },
+    {
+      "type": "stop_loss",
+      "value": 3.44
+    },
+    {
+      "type": "time_limit",
+      "value": 3600
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 292.0,
+  "max_open_positions": 2,
+  "max_drawdown_pct": 8.3,
+  "cooldown_bars": 0,
+  "direction_bias": "both"
+}

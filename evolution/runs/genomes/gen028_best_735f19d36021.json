@@ -1,0 +1,95 @@
+{
+  "genome_id": "735f19d36021",
+  "generation": 28,
+  "parent_ids": [
+    "03ecf6290158"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 60,
+  "indicators": [
+    {
+      "type": "MACD",
+      "params": {
+        "fast_period": 27.68,
+        "slow_period": 40.66,
+        "signal_period": 6.42
+      },
+      "id": "MACD_27_9ae5"
+    },
+    {
+      "type": "ADX",
+      "params": {
+        "period": 54
+      },
+      "id": "ADX_72_2dc8"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 38,
+        "period_d": 7
+      },
+      "id": "STOCH_46_d8c5"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 19,
+        "period_d": 6
+      },
+      "id": "STOCH_19_6d04"
+    },
+    {
+      "type": "MACD",
+      "params": {
+        "fast_period": 27.68,
+        "slow_period": 47.12,
+        "signal_period": 6.42
+      },
+      "id": "MACD_0_a83b"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "STOCH_19_6d04",
+      "condition": "less_than",
+      "value": 21.465,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "MACD_27_9ae5",
+      "condition": "crosses_below",
+      "value": 50.522,
+      "side": "buy",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 5.39
+    },
+    {
+      "type": "take_profit",
+      "value": 2.6
+    },
+    {
+      "type": "stop_loss",
+      "value": 1.56
+    },
+    {
+      "type": "stop_loss",
+      "value": 1.83
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 414.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 11.9,
+  "cooldown_bars": 5,
+  "direction_bias": "both"
+}

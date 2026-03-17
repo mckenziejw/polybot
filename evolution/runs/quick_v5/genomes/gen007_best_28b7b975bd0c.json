@@ -1,0 +1,95 @@
+{
+  "genome_id": "28b7b975bd0c",
+  "generation": 7,
+  "parent_ids": [
+    "fdc67cce4d77"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 15,
+  "indicators": [
+    {
+      "type": "ROC",
+      "params": {
+        "period": 17
+      },
+      "id": "ROC_17_23a5"
+    },
+    {
+      "type": "BB",
+      "params": {
+        "period": 71,
+        "k": 2.29
+      },
+      "id": "BB_71_b9ce",
+      "band": "lower"
+    },
+    {
+      "type": "DEMA",
+      "params": {
+        "period": 198
+      },
+      "id": "DEMA_198_c27a"
+    },
+    {
+      "type": "RSI",
+      "params": {
+        "period": 52
+      },
+      "id": "RSI_52_0ec3"
+    },
+    {
+      "type": "CMO",
+      "params": {
+        "period": 2
+      },
+      "id": "CMO_6_9716"
+    },
+    {
+      "type": "RSI",
+      "params": {
+        "period": 11
+      },
+      "id": "RSI_11_5c19"
+    },
+    {
+      "type": "DC",
+      "params": {
+        "period": 69
+      },
+      "id": "DC_69_71e7",
+      "band": "middle"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "DC_69_71e7",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "ROC_17_23a5"
+    },
+    {
+      "indicator_id": "RSI_11_5c19",
+      "condition": "greater_than",
+      "value": 0.174,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 2.9
+    },
+    {
+      "type": "stop_loss",
+      "value": 1.16
+    }
+  ],
+  "position_size_usd": 394.0,
+  "max_open_positions": 2,
+  "max_drawdown_pct": 12.3
+}

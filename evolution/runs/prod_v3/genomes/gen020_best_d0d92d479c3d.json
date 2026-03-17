@@ -1,0 +1,106 @@
+{
+  "genome_id": "d0d92d479c3d",
+  "generation": 20,
+  "parent_ids": [
+    "1d2bfa40876c",
+    "4a6819f9f660"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 15,
+  "indicators": [
+    {
+      "type": "KC",
+      "params": {
+        "period": 15,
+        "k": 2.26
+      },
+      "id": "KC_15_8855",
+      "band": "upper"
+    },
+    {
+      "type": "SMA",
+      "params": {
+        "period": 99
+      },
+      "id": "SMA_114_88fd"
+    },
+    {
+      "type": "SMA",
+      "params": {
+        "period": 113
+      },
+      "id": "SMA_113_3bfc"
+    },
+    {
+      "type": "KC",
+      "params": {
+        "period": 15,
+        "k": 2.26
+      },
+      "id": "KC_15_40eb",
+      "band": "upper"
+    },
+    {
+      "type": "KC",
+      "params": {
+        "period": 15,
+        "k": 2.26
+      },
+      "id": "KC_15_6d53",
+      "band": "upper"
+    },
+    {
+      "type": "KC",
+      "params": {
+        "period": 15,
+        "k": 2.26
+      },
+      "id": "KC_15_8003",
+      "band": "upper"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "SMA_114_88fd",
+      "condition": "crossover_above",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "KC_15_6d53"
+    },
+    {
+      "indicator_id": "SMA_114_88fd",
+      "condition": "crossover_above",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "KC_15_6d53"
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 3.68
+    },
+    {
+      "type": "take_profit",
+      "value": 2.07
+    },
+    {
+      "type": "take_profit",
+      "value": 3.68
+    },
+    {
+      "type": "take_profit",
+      "value": 2.08
+    },
+    {
+      "type": "stop_loss",
+      "value": 4.0
+    }
+  ],
+  "position_size_usd": 208.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 13.6
+}

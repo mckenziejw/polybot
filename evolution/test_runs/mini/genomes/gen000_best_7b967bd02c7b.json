@@ -1,0 +1,85 @@
+{
+  "genome_id": "7b967bd02c7b",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 1,
+  "indicators": [
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 14,
+        "period_d": 6
+      },
+      "id": "STOCH_0"
+    },
+    {
+      "type": "DC",
+      "params": {
+        "period": 98
+      },
+      "id": "DC_98"
+    },
+    {
+      "type": "DEMA",
+      "params": {
+        "period": 59
+      },
+      "id": "DEMA_59"
+    },
+    {
+      "type": "KC",
+      "params": {
+        "period": 7,
+        "k": 3.9
+      },
+      "id": "KC_7"
+    },
+    {
+      "type": "WMA",
+      "params": {
+        "period": 17
+      },
+      "id": "WMA_17"
+    },
+    {
+      "type": "KC",
+      "params": {
+        "period": 29,
+        "k": 1.89
+      },
+      "id": "KC_29"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "KC_7",
+      "condition": "greater_than",
+      "value": 0.537,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "DEMA_59",
+      "condition": "greater_than",
+      "value": 0.357,
+      "side": "buy",
+      "compare_indicator_id": ""
+    }
+  ],
+  "exit_rules": [
+    {
+      "type": "time_limit",
+      "value": 60
+    },
+    {
+      "type": "stop_loss",
+      "value": 3.33
+    }
+  ],
+  "position_size_usd": 229.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 10.5
+}

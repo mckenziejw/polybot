@@ -1,0 +1,67 @@
+{
+  "genome_id": "445e9fc21617",
+  "generation": 11,
+  "parent_ids": [
+    "3b3056fd8990"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 60,
+  "indicators": [
+    {
+      "type": "HMA",
+      "params": {
+        "period": 101
+      },
+      "id": "HMA_101_624d"
+    },
+    {
+      "type": "AROON",
+      "params": {
+        "period": 91
+      },
+      "id": "AROON_91_cb3b"
+    },
+    {
+      "type": "HMA",
+      "params": {
+        "period": 75
+      },
+      "id": "HMA_75_0ba1"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "HMA_101_624d",
+      "condition": "crossover_above",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "HMA_75_0ba1"
+    },
+    {
+      "indicator_id": "AROON_91_cb3b",
+      "condition": "greater_than",
+      "value": 3.981,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 9.71
+    },
+    {
+      "type": "stop_loss",
+      "value": 1.01
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 451.0,
+  "max_open_positions": 3,
+  "max_drawdown_pct": 10.7,
+  "cooldown_bars": 2,
+  "direction_bias": "short_only"
+}

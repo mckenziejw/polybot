@@ -1,0 +1,843 @@
+{
+  "run_id": "7a24b0a1",
+  "current_generation": 2,
+  "best_fitness_ever": 8.634179255866922,
+  "best_genome_ever": {
+    "genome_id": "52a952a23f18",
+    "generation": 0,
+    "parent_ids": [],
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "bar_period_minutes": 1,
+    "indicators": [
+      {
+        "type": "WMA",
+        "params": {
+          "period": 162
+        },
+        "id": "WMA_162"
+      },
+      {
+        "type": "VHF",
+        "params": {
+          "period": 100
+        },
+        "id": "VHF_100"
+      },
+      {
+        "type": "WMA",
+        "params": {
+          "period": 124
+        },
+        "id": "WMA_124"
+      },
+      {
+        "type": "VHF",
+        "params": {
+          "period": 54
+        },
+        "id": "VHF_54"
+      },
+      {
+        "type": "EMA",
+        "params": {
+          "period": 134
+        },
+        "id": "EMA_134"
+      },
+      {
+        "type": "RSI",
+        "params": {
+          "period": 88
+        },
+        "id": "RSI_88"
+      }
+    ],
+    "entry_rules": [
+      {
+        "indicator_id": "RSI_88",
+        "condition": "less_than",
+        "value": 0.226,
+        "side": "sell",
+        "compare_indicator_id": ""
+      },
+      {
+        "indicator_id": "WMA_124",
+        "condition": "crossover_above",
+        "value": 0.0,
+        "side": "sell",
+        "compare_indicator_id": "VHF_54"
+      },
+      {
+        "indicator_id": "VHF_100",
+        "condition": "less_than",
+        "value": 0.505,
+        "side": "buy",
+        "compare_indicator_id": ""
+      }
+    ],
+    "exit_rules": [
+      {
+        "type": "take_profit",
+        "value": 1.77
+      },
+      {
+        "type": "stop_loss",
+        "value": 2.73
+      },
+      {
+        "type": "time_limit",
+        "value": 3600
+      }
+    ],
+    "position_size_usd": 373.0,
+    "max_open_positions": 3,
+    "max_drawdown_pct": 6.7
+  },
+  "generation_history": [
+    {
+      "generation": 0,
+      "best_fitness": 8.634179255866922,
+      "avg_fitness": -748.1707275930166,
+      "best_genome_id": "52a952a23f18",
+      "n_trades_best": 4,
+      "total_pnl_best": 8.262708100000001,
+      "elapsed_s": 1.9354374408721924
+    },
+    {
+      "generation": 1,
+      "best_fitness": 8.634179255866922,
+      "avg_fitness": -121.6104372112679,
+      "best_genome_id": "52a952a23f18",
+      "n_trades_best": 4,
+      "total_pnl_best": 8.262708100000001,
+      "elapsed_s": 1.9995460510253906
+    },
+    {
+      "generation": 2,
+      "best_fitness": 8.634179255866922,
+      "avg_fitness": -244.90940996682215,
+      "best_genome_id": "52a952a23f18",
+      "n_trades_best": 4,
+      "total_pnl_best": 8.262708100000001,
+      "elapsed_s": 1.9895901679992676
+    }
+  ],
+  "population": [
+    {
+      "genome_id": "52a952a23f18",
+      "generation": 2,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 100
+          },
+          "id": "VHF_100"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 124
+          },
+          "id": "WMA_124"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 54
+          },
+          "id": "VHF_54"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 134
+          },
+          "id": "EMA_134"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_88",
+          "condition": "less_than",
+          "value": 0.226,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        },
+        {
+          "indicator_id": "VHF_100",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 1.77
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.73
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        }
+      ],
+      "position_size_usd": 373.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 6.7
+    },
+    {
+      "genome_id": "d095d9ffb2dd",
+      "generation": 2,
+      "parent_ids": [
+        "ad992ac29b87",
+        "ad992ac29b87"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "EMA",
+          "params": {
+            "period": 134
+          },
+          "id": "EMA_134"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 124
+          },
+          "id": "WMA_124"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 54
+          },
+          "id": "VHF_54"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        },
+        {
+          "indicator_id": "RSI_88",
+          "condition": "less_than",
+          "value": 0.226,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_88",
+          "condition": "less_than",
+          "value": 0.226,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "time_limit",
+          "value": 3600
+        },
+        {
+          "type": "take_profit",
+          "value": 1.77
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.13
+        }
+      ],
+      "position_size_usd": 373.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 6.7
+    },
+    {
+      "genome_id": "550c7e209fd4",
+      "generation": 2,
+      "parent_ids": [
+        "22b75beb096b",
+        "22b75beb096b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 134
+          },
+          "id": "EMA_134"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 124
+          },
+          "id": "WMA_124"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 100
+          },
+          "id": "VHF_100"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.024,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        },
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.024,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "time_limit",
+          "value": 3600
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.73
+        },
+        {
+          "type": "take_profit",
+          "value": 1.77
+        }
+      ],
+      "position_size_usd": 373.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 6.7
+    },
+    {
+      "genome_id": "bc616ba23a1d",
+      "generation": 2,
+      "parent_ids": [
+        "ad992ac29b87",
+        "22b75beb096b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "VHF",
+          "params": {
+            "period": 100
+          },
+          "id": "VHF_100"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 124
+          },
+          "id": "WMA_124"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 54
+          },
+          "id": "VHF_54"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.024,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        },
+        {
+          "indicator_id": "VHF_100",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "VHF_100",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 1.77
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        },
+        {
+          "type": "take_profit",
+          "value": 1.77
+        },
+        {
+          "type": "stop_loss",
+          "value": 3.26
+        }
+      ],
+      "position_size_usd": 373.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 6.7
+    },
+    {
+      "genome_id": "46aab1c014cb",
+      "generation": 2,
+      "parent_ids": [
+        "a660f9839551"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "EMA",
+          "params": {
+            "period": 134
+          },
+          "id": "EMA_134"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 124
+          },
+          "id": "WMA_124"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 134
+          },
+          "id": "EMA_134"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 100
+          },
+          "id": "VHF_100"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "VHF_100",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 1.77
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.73
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        }
+      ],
+      "position_size_usd": 373.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 6.7
+    },
+    {
+      "genome_id": "c8a4cc2793f4",
+      "generation": 2,
+      "parent_ids": [
+        "244e23559c8b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "ROC",
+          "params": {
+            "period": 83
+          },
+          "id": "ROC_83"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 40,
+            "period_d": 7
+          },
+          "id": "STOCH_0"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "STOCH_0",
+          "condition": "crosses_above",
+          "value": 0.423,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.97
+        },
+        {
+          "type": "time_limit",
+          "value": 300
+        },
+        {
+          "type": "stop_loss",
+          "value": 3.49
+        }
+      ],
+      "position_size_usd": 435.0,
+      "max_open_positions": 2,
+      "max_drawdown_pct": 6.9
+    },
+    {
+      "genome_id": "a1cbeaa07335",
+      "generation": 2,
+      "parent_ids": [
+        "22b75beb096b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 100
+          },
+          "id": "VHF_100"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 124
+          },
+          "id": "WMA_124"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 54
+          },
+          "id": "VHF_54"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 134
+          },
+          "id": "EMA_134"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_88",
+          "condition": "less_than",
+          "value": 0.226,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.024,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        },
+        {
+          "indicator_id": "VHF_100",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 1.77
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.73
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        }
+      ],
+      "position_size_usd": 332.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 6.7
+    },
+    {
+      "genome_id": "dfa13db6c64c",
+      "generation": 2,
+      "parent_ids": [
+        "ad992ac29b87"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "WMA",
+          "params": {
+            "period": 162
+          },
+          "id": "WMA_162"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 100
+          },
+          "id": "VHF_100"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 124
+          },
+          "id": "WMA_124"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 54
+          },
+          "id": "VHF_54"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 134
+          },
+          "id": "EMA_134"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 88
+          },
+          "id": "RSI_88"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_88",
+          "condition": "less_than",
+          "value": 0.226,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "WMA_124",
+          "condition": "crossover_above",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "VHF_54"
+        },
+        {
+          "indicator_id": "VHF_100",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 1.77
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.01
+        },
+        {
+          "type": "time_limit",
+          "value": 600
+        }
+      ],
+      "position_size_usd": 373.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 6.7
+    }
+  ]
+}

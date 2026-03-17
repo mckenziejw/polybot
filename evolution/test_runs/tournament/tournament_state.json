@@ -1,0 +1,1111 @@
+{
+  "cycle_count": 32,
+  "strategies": {
+    "EVO-133cd2dcd270": {
+      "genome": {
+        "genome_id": "133cd2dcd270",
+        "generation": 0,
+        "parent_ids": [
+          "b06337ef9aa2"
+        ],
+        "symbols": [
+          "BTCUSDT"
+        ],
+        "bar_period_minutes": 15,
+        "indicators": [
+          {
+            "type": "WMA",
+            "params": {
+              "period": 70
+            },
+            "id": "WMA_70"
+          },
+          {
+            "type": "HMA",
+            "params": {
+              "period": 155
+            },
+            "id": "HMA_155"
+          },
+          {
+            "type": "STOCH",
+            "params": {
+              "period_k": 47,
+              "period_d": 8
+            },
+            "id": "STOCH_0"
+          },
+          {
+            "type": "CMO",
+            "params": {
+              "period": 100
+            },
+            "id": "CMO_100"
+          }
+        ],
+        "entry_rules": [
+          {
+            "indicator_id": "STOCH_0",
+            "condition": "greater_than",
+            "value": 0.9,
+            "side": "buy",
+            "compare_indicator_id": ""
+          },
+          {
+            "indicator_id": "CMO_100",
+            "condition": "less_than",
+            "value": 29.3,
+            "side": "buy",
+            "compare_indicator_id": ""
+          }
+        ],
+        "min_entry_matches": 1,
+        "exit_rules": [
+          {
+            "type": "take_profit",
+            "value": 1.83
+          },
+          {
+            "type": "indicator",
+            "value": 0.9,
+            "indicator_id": "STOCH_0",
+            "condition": "crosses_below"
+          },
+          {
+            "type": "stop_loss",
+            "value": 4.86
+          },
+          {
+            "type": "time_limit",
+            "value": 300
+          }
+        ],
+        "position_size_usd": 70.0,
+        "max_open_positions": 3,
+        "max_drawdown_pct": 7.3
+      },
+      "strategy_id": "EVO-133cd2dcd270",
+      "entered_at": 1773049858.3686173,
+      "generation": 0,
+      "n_trades": 16,
+      "total_pnl": 191.25130167175297,
+      "win_rate": 0.5116932588786498,
+      "sharpe": 1.0140776861182696,
+      "max_drawdown_pct": 12.408024783971541,
+      "last_evaluated": 1773416738.1045172,
+      "parent_ids": [
+        "b06337ef9aa2"
+      ],
+      "origin": "mutation"
+    },
+    "EVO-97ca933570e5": {
+      "genome": {
+        "genome_id": "97ca933570e5",
+        "generation": 0,
+        "parent_ids": [
+          "a14eb0456e0e"
+        ],
+        "symbols": [
+          "BTCUSDT"
+        ],
+        "bar_period_minutes": 15,
+        "indicators": [
+          {
+            "type": "WMA",
+            "params": {
+              "period": 70
+            },
+            "id": "WMA_70"
+          },
+          {
+            "type": "HMA",
+            "params": {
+              "period": 155
+            },
+            "id": "HMA_155"
+          },
+          {
+            "type": "STOCH",
+            "params": {
+              "period_k": 46,
+              "period_d": 8
+            },
+            "id": "STOCH_0"
+          },
+          {
+            "type": "CMO",
+            "params": {
+              "period": 100
+            },
+            "id": "CMO_100"
+          }
+        ],
+        "entry_rules": [
+          {
+            "indicator_id": "STOCH_0",
+            "condition": "greater_than",
+            "value": 12.321,
+            "side": "buy",
+            "compare_indicator_id": ""
+          },
+          {
+            "indicator_id": "CMO_100",
+            "condition": "less_than",
+            "value": 29.266,
+            "side": "buy",
+            "compare_indicator_id": ""
+          }
+        ],
+        "min_entry_matches": 1,
+        "exit_rules": [
+          {
+            "type": "take_profit",
+            "value": 1.83
+          },
+          {
+            "type": "indicator",
+            "value": 0.9,
+            "indicator_id": "STOCH_0",
+            "condition": "crosses_below"
+          },
+          {
+            "type": "stop_loss",
+            "value": 4.86
+          },
+          {
+            "type": "time_limit",
+            "value": 300
+          }
+        ],
+        "position_size_usd": 109.0,
+        "max_open_positions": 3,
+        "max_drawdown_pct": 7.3
+      },
+      "strategy_id": "EVO-97ca933570e5",
+      "entered_at": 1773234230.088601,
+      "generation": 0,
+      "n_trades": 5,
+      "total_pnl": 128.95353501630973,
+      "win_rate": 0.4503519059615157,
+      "sharpe": 0.841366063185812,
+      "max_drawdown_pct": 1.5932131660105004,
+      "last_evaluated": 1773416738.1045249,
+      "parent_ids": [
+        "a14eb0456e0e"
+      ],
+      "origin": "mutation"
+    },
+    "EVO-996b958846a2": {
+      "genome": {
+        "genome_id": "996b958846a2",
+        "generation": 0,
+        "parent_ids": [
+          "97ca933570e5"
+        ],
+        "symbols": [
+          "BTCUSDT"
+        ],
+        "bar_period_minutes": 15,
+        "indicators": [
+          {
+            "type": "WMA",
+            "params": {
+              "period": 70
+            },
+            "id": "WMA_70"
+          },
+          {
+            "type": "HMA",
+            "params": {
+              "period": 155
+            },
+            "id": "HMA_155"
+          },
+          {
+            "type": "STOCH",
+            "params": {
+              "period_k": 46,
+              "period_d": 10
+            },
+            "id": "STOCH_0"
+          },
+          {
+            "type": "CMO",
+            "params": {
+              "period": 100
+            },
+            "id": "CMO_100"
+          }
+        ],
+        "entry_rules": [
+          {
+            "indicator_id": "STOCH_0",
+            "condition": "greater_than",
+            "value": 12.321,
+            "side": "buy",
+            "compare_indicator_id": ""
+          },
+          {
+            "indicator_id": "CMO_100",
+            "condition": "less_than",
+            "value": 29.266,
+            "side": "buy",
+            "compare_indicator_id": ""
+          }
+        ],
+        "min_entry_matches": 1,
+        "exit_rules": [
+          {
+            "type": "take_profit",
+            "value": 1.83
+          },
+          {
+            "type": "indicator",
+            "value": 0.9,
+            "indicator_id": "STOCH_0",
+            "condition": "crosses_below"
+          },
+          {
+            "type": "stop_loss",
+            "value": 4.86
+          },
+          {
+            "type": "time_limit",
+            "value": 300
+          }
+        ],
+        "position_size_usd": 109.0,
+        "max_open_positions": 3,
+        "max_drawdown_pct": 7.3
+      },
+      "strategy_id": "EVO-996b958846a2",
+      "entered_at": 1773324230.0897272,
+      "generation": 0,
+      "n_trades": 12,
+      "total_pnl": 175.40439937792212,
+      "win_rate": 0.6564294215495204,
+      "sharpe": 0.2500663140086332,
+      "max_drawdown_pct": 9.110781712433653,
+      "last_evaluated": 1773416738.1045265,
+      "parent_ids": [
+        "97ca933570e5"
+      ],
+      "origin": "mutation"
+    },
+    "EVO-1b6e5e5a325a": {
+      "genome": {
+        "genome_id": "1b6e5e5a325a",
+        "generation": 0,
+        "parent_ids": [
+          "97ca933570e5"
+        ],
+        "symbols": [
+          "BTCUSDT"
+        ],
+        "bar_period_minutes": 15,
+        "indicators": [
+          {
+            "type": "WMA",
+            "params": {
+              "period": 70
+            },
+            "id": "WMA_70"
+          },
+          {
+            "type": "HMA",
+            "params": {
+              "period": 155
+            },
+            "id": "HMA_155"
+          },
+          {
+            "type": "STOCH",
+            "params": {
+              "period_k": 46,
+              "period_d": 8
+            },
+            "id": "STOCH_0"
+          },
+          {
+            "type": "CMO",
+            "params": {
+              "period": 100
+            },
+            "id": "CMO_100"
+          }
+        ],
+        "entry_rules": [
+          {
+            "indicator_id": "STOCH_0",
+            "condition": "greater_than",
+            "value": 16.108,
+            "side": "buy",
+            "compare_indicator_id": ""
+          },
+          {
+            "indicator_id": "CMO_100",
+            "condition": "less_than",
+            "value": 29.266,
+            "side": "buy",
+            "compare_indicator_id": ""
+          }
+        ],
+        "min_entry_matches": 1,
+        "exit_rules": [
+          {
+            "type": "take_profit",
+            "value": 1.91
+          },
+          {
+            "type": "indicator",
+            "value": 0.9,
+            "indicator_id": "STOCH_0",
+            "condition": "crosses_below"
+          },
+          {
+            "type": "stop_loss",
+            "value": 5.46
+          },
+          {
+            "type": "time_limit",
+            "value": 300
+          }
+        ],
+        "position_size_usd": 109.0,
+        "max_open_positions": 3,
+        "max_drawdown_pct": 7.3
+      },
+      "strategy_id": "EVO-1b6e5e5a325a",
+      "entered_at": 1773326738.103334,
+      "generation": 0,
+      "n_trades": 14,
+      "total_pnl": 97.49396063347811,
+      "win_rate": 0.36464335979564166,
+      "sharpe": 2.708891666939802,
+      "max_drawdown_pct": 8.471274567965715,
+      "last_evaluated": 1773416738.1045287,
+      "parent_ids": [
+        "97ca933570e5"
+      ],
+      "origin": "mutation"
+    },
+    "EVO-6bf91969b2e6": {
+      "genome": {
+        "genome_id": "6bf91969b2e6",
+        "generation": 0,
+        "parent_ids": [
+          "1b6e5e5a325a"
+        ],
+        "symbols": [
+          "BTCUSDT"
+        ],
+        "bar_period_minutes": 15,
+        "indicators": [
+          {
+            "type": "WMA",
+            "params": {
+              "period": 70
+            },
+            "id": "WMA_70"
+          },
+          {
+            "type": "HMA",
+            "params": {
+              "period": 155
+            },
+            "id": "HMA_155"
+          },
+          {
+            "type": "STOCH",
+            "params": {
+              "period_k": 46,
+              "period_d": 8
+            },
+            "id": "STOCH_0"
+          },
+          {
+            "type": "CMO",
+            "params": {
+              "period": 100
+            },
+            "id": "CMO_100"
+          }
+        ],
+        "entry_rules": [
+          {
+            "indicator_id": "STOCH_0",
+            "condition": "greater_than",
+            "value": 16.108,
+            "side": "buy",
+            "compare_indicator_id": ""
+          },
+          {
+            "indicator_id": "CMO_100",
+            "condition": "less_than",
+            "value": 29.266,
+            "side": "buy",
+            "compare_indicator_id": ""
+          }
+        ],
+        "min_entry_matches": 1,
+        "exit_rules": [
+          {
+            "type": "take_profit",
+            "value": 1.91
+          },
+          {
+            "type": "indicator",
+            "value": 0.9,
+            "indicator_id": "STOCH_0",
+            "condition": "crosses_below"
+          },
+          {
+            "type": "stop_loss",
+            "value": 5.62
+          },
+          {
+            "type": "time_limit",
+            "value": 120
+          }
+        ],
+        "position_size_usd": 109.0,
+        "max_open_positions": 3,
+        "max_drawdown_pct": 7.3
+      },
+      "strategy_id": "EVO-6bf91969b2e6",
+      "entered_at": 1773416738.1049504,
+      "generation": 0,
+      "n_trades": 0,
+      "total_pnl": 0.0,
+      "win_rate": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown_pct": 0.0,
+      "last_evaluated": 0.0,
+      "parent_ids": [
+        "1b6e5e5a325a"
+      ],
+      "origin": "mutation"
+    }
+  },
+  "config": {
+    "max_strategies": 5,
+    "min_strategies": 3,
+    "eval_interval_s": 3600,
+    "prune_pct": 0.3,
+    "symbols": [
+      "BTCUSDT"
+    ]
+  },
+  "history_last_10": [
+    {
+      "cycle": 23,
+      "timestamp": "2026-03-13T13:50:58.367536+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-038f637f38c2"
+      ],
+      "mutated": [
+        "EVO-570ca2c8ed14"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-d17460f1afaa",
+          "fitness": 2.8451909097411527,
+          "trades": 49,
+          "pnl": -23.42580835618523,
+          "wr": 0.31468994763548497,
+          "age_h": 51.5,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-b06337ef9aa2",
+          "fitness": 0.6505150791262211,
+          "trades": 37,
+          "pnl": -11.33762793592534,
+          "wr": 0.4436876195690356,
+          "age_h": 101.6,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": 0.6119378875960816,
+          "trades": 44,
+          "pnl": 157.97378485643384,
+          "wr": 0.4229537993690672,
+          "age_h": 26.5,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-038f637f38c2",
+          "fitness": 0.11330880417670422,
+          "trades": 30,
+          "pnl": 158.46168873673065,
+          "wr": 0.4970047540478756,
+          "age_h": 76.6,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-ba2b09911936",
+          "fitness": -10.0,
+          "trades": 0,
+          "pnl": 0.0,
+          "wr": 0.0,
+          "age_h": 1.5,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 24,
+      "timestamp": "2026-03-13T13:50:58.368512+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-ba2b09911936"
+      ],
+      "mutated": [
+        "EVO-133cd2dcd270"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-b06337ef9aa2",
+          "fitness": 2.599144031219706,
+          "trades": 5,
+          "pnl": 24.46272846504465,
+          "wr": 0.36831316096982736,
+          "age_h": 126.6,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-570ca2c8ed14",
+          "fitness": 2.5518727467006315,
+          "trades": 42,
+          "pnl": -60.99794938589954,
+          "wr": 0.35480970790573835,
+          "age_h": 25.0,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": 1.8904306172311967,
+          "trades": 36,
+          "pnl": 140.31694581307337,
+          "wr": 0.6006573465046952,
+          "age_h": 51.5,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-d17460f1afaa",
+          "fitness": 1.0354629044118324,
+          "trades": 14,
+          "pnl": -27.881823345581665,
+          "wr": 0.3123781463355913,
+          "age_h": 76.5,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-ba2b09911936",
+          "fitness": 0.2904071771614326,
+          "trades": 34,
+          "pnl": 44.67291172868113,
+          "wr": 0.521678557638813,
+          "age_h": 26.5,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 25,
+      "timestamp": "2026-03-13T14:03:26.154145+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-d17460f1afaa"
+      ],
+      "mutated": [
+        "EVO-ab5f32aeedb7"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-b06337ef9aa2",
+          "fitness": 2.599144031219706,
+          "trades": 5,
+          "pnl": 24.46272846504465,
+          "wr": 0.36831316096982736,
+          "age_h": 126.8,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-570ca2c8ed14",
+          "fitness": 2.5518727467006315,
+          "trades": 42,
+          "pnl": -60.99794938589954,
+          "wr": 0.35480970790573835,
+          "age_h": 25.2,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": 1.8904306172311967,
+          "trades": 36,
+          "pnl": 140.31694581307337,
+          "wr": 0.6006573465046952,
+          "age_h": 51.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-d17460f1afaa",
+          "fitness": 1.0354629044118324,
+          "trades": 14,
+          "pnl": -27.881823345581665,
+          "wr": 0.3123781463355913,
+          "age_h": 76.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": -10.0,
+          "trades": 0,
+          "pnl": 0.0,
+          "wr": 0.0,
+          "age_h": 0.2,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 26,
+      "timestamp": "2026-03-13T14:03:26.155265+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-b06337ef9aa2"
+      ],
+      "mutated": [
+        "EVO-dd5f77fdb01c"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-570ca2c8ed14",
+          "fitness": 2.384653341659183,
+          "trades": 28,
+          "pnl": 124.13738506828847,
+          "wr": 0.49089366246187854,
+          "age_h": 50.2,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": 2.3826215662984747,
+          "trades": 14,
+          "pnl": 158.6357588602773,
+          "wr": 0.3660881742265407,
+          "age_h": 76.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": 1.8861514153737655,
+          "trades": 45,
+          "pnl": 183.37555436173403,
+          "wr": 0.5708594420018627,
+          "age_h": 25.2,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-ab5f32aeedb7",
+          "fitness": 1.0862745170469652,
+          "trades": 47,
+          "pnl": 174.08077227343858,
+          "wr": 0.6940813543699551,
+          "age_h": 25.0,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-b06337ef9aa2",
+          "fitness": 0.3059519639558438,
+          "trades": 31,
+          "pnl": 127.08722205056861,
+          "wr": 0.31980328896801674,
+          "age_h": 151.8,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 27,
+      "timestamp": "2026-03-13T14:43:24.950936+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-ab5f32aeedb7"
+      ],
+      "mutated": [
+        "EVO-b9075912711b"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-570ca2c8ed14",
+          "fitness": 2.384653341659183,
+          "trades": 28,
+          "pnl": 124.13738506828847,
+          "wr": 0.49089366246187854,
+          "age_h": 50.9,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": 2.3826215662984747,
+          "trades": 14,
+          "pnl": 158.6357588602773,
+          "wr": 0.3660881742265407,
+          "age_h": 77.4,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": 1.8861514153737655,
+          "trades": 45,
+          "pnl": 183.37555436173403,
+          "wr": 0.5708594420018627,
+          "age_h": 25.9,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-ab5f32aeedb7",
+          "fitness": 1.0862745170469652,
+          "trades": 47,
+          "pnl": 174.08077227343858,
+          "wr": 0.6940813543699551,
+          "age_h": 25.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-dd5f77fdb01c",
+          "fitness": -10.0,
+          "trades": 0,
+          "pnl": 0.0,
+          "wr": 0.0,
+          "age_h": 0.7,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 28,
+      "timestamp": "2026-03-13T14:43:24.952048+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-dd5f77fdb01c"
+      ],
+      "mutated": [
+        "EVO-2cc4dc905577"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": 2.0762854515226916,
+          "trades": 42,
+          "pnl": 99.33991281953328,
+          "wr": 0.6361580669371272,
+          "age_h": 102.4,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": 1.3975372419539043,
+          "trades": 36,
+          "pnl": 197.25199038043036,
+          "wr": 0.40093054366674713,
+          "age_h": 50.9,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-570ca2c8ed14",
+          "fitness": -0.22371092914338506,
+          "trades": 17,
+          "pnl": 31.84903634814009,
+          "wr": 0.49874052765390364,
+          "age_h": 75.9,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-b9075912711b",
+          "fitness": -0.6294720022895827,
+          "trades": 37,
+          "pnl": 64.64290133195138,
+          "wr": 0.46958876187423837,
+          "age_h": 25.0,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-dd5f77fdb01c",
+          "fitness": -0.6786240404171903,
+          "trades": 6,
+          "pnl": 193.0221183329137,
+          "wr": 0.4233280359701156,
+          "age_h": 25.7,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 29,
+      "timestamp": "2026-03-13T15:03:50.088453+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-b9075912711b"
+      ],
+      "mutated": [
+        "EVO-97ca933570e5"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": 2.0762854515226916,
+          "trades": 42,
+          "pnl": 99.33991281953328,
+          "wr": 0.6361580669371272,
+          "age_h": 102.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": 1.3975372419539043,
+          "trades": 36,
+          "pnl": 197.25199038043036,
+          "wr": 0.40093054366674713,
+          "age_h": 51.2,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-570ca2c8ed14",
+          "fitness": -0.22371092914338506,
+          "trades": 17,
+          "pnl": 31.84903634814009,
+          "wr": 0.49874052765390364,
+          "age_h": 76.2,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-b9075912711b",
+          "fitness": -0.6294720022895827,
+          "trades": 37,
+          "pnl": 64.64290133195138,
+          "wr": 0.46958876187423837,
+          "age_h": 25.3,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-2cc4dc905577",
+          "fitness": -10.0,
+          "trades": 0,
+          "pnl": 0.0,
+          "wr": 0.0,
+          "age_h": 0.3,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 30,
+      "timestamp": "2026-03-13T15:03:50.089569+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-570ca2c8ed14"
+      ],
+      "mutated": [
+        "EVO-996b958846a2"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-97ca933570e5",
+          "fitness": 2.305476433379258,
+          "trades": 40,
+          "pnl": 193.72440151319722,
+          "wr": 0.39742111388565254,
+          "age_h": 25.0,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-2cc4dc905577",
+          "fitness": 1.8126388600985508,
+          "trades": 41,
+          "pnl": 126.45229808273115,
+          "wr": 0.6413848623233536,
+          "age_h": 25.3,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": 0.5096514579665982,
+          "trades": 50,
+          "pnl": 132.95301162914055,
+          "wr": 0.3629550892880783,
+          "age_h": 76.2,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": -0.18588804537650247,
+          "trades": 39,
+          "pnl": 77.32072612786209,
+          "wr": 0.5574178631511593,
+          "age_h": 127.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-570ca2c8ed14",
+          "fitness": -0.22109045115635748,
+          "trades": 17,
+          "pnl": 49.28289799249208,
+          "wr": 0.55509658977584,
+          "age_h": 101.2,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 31,
+      "timestamp": "2026-03-13T15:45:38.103132+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-a14eb0456e0e"
+      ],
+      "mutated": [
+        "EVO-1b6e5e5a325a"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-97ca933570e5",
+          "fitness": 2.305476433379258,
+          "trades": 40,
+          "pnl": 193.72440151319722,
+          "wr": 0.39742111388565254,
+          "age_h": 25.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-2cc4dc905577",
+          "fitness": 1.8126388600985508,
+          "trades": 41,
+          "pnl": 126.45229808273115,
+          "wr": 0.6413848623233536,
+          "age_h": 26.0,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": 0.5096514579665982,
+          "trades": 50,
+          "pnl": 132.95301162914055,
+          "wr": 0.3629550892880783,
+          "age_h": 76.9,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-a14eb0456e0e",
+          "fitness": -0.18588804537650247,
+          "trades": 39,
+          "pnl": 77.32072612786209,
+          "wr": 0.5574178631511593,
+          "age_h": 128.4,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-996b958846a2",
+          "fitness": -10.0,
+          "trades": 0,
+          "pnl": 0.0,
+          "wr": 0.0,
+          "age_h": 0.7,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    },
+    {
+      "cycle": 32,
+      "timestamp": "2026-03-13T15:45:38.104817+00:00",
+      "pre_count": 5,
+      "pruned": [
+        "EVO-2cc4dc905577"
+      ],
+      "mutated": [
+        "EVO-6bf91969b2e6"
+      ],
+      "injected": [],
+      "rankings": [
+        {
+          "id": "EVO-1b6e5e5a325a",
+          "fitness": 2.808891666939802,
+          "trades": 14,
+          "pnl": 97.49396063347811,
+          "wr": 0.36464335979564166,
+          "age_h": 25.0,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-133cd2dcd270",
+          "fitness": 1.1140776861182697,
+          "trades": 16,
+          "pnl": 191.25130167175297,
+          "wr": 0.5116932588786498,
+          "age_h": 101.9,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-97ca933570e5",
+          "fitness": 0.941366063185812,
+          "trades": 5,
+          "pnl": 128.95353501630973,
+          "wr": 0.4503519059615157,
+          "age_h": 50.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-996b958846a2",
+          "fitness": 0.3500663140086332,
+          "trades": 12,
+          "pnl": 175.40439937792212,
+          "wr": 0.6564294215495204,
+          "age_h": 25.7,
+          "origin": "mutation"
+        },
+        {
+          "id": "EVO-2cc4dc905577",
+          "fitness": -0.35225868797290405,
+          "trades": 27,
+          "pnl": 159.68285306377385,
+          "wr": 0.6200398421333599,
+          "age_h": 51.0,
+          "origin": "mutation"
+        }
+      ],
+      "random_fill": [],
+      "post_count": 5
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "genome_id": "202db4c943f4",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 30,
+  "indicators": [
+    {
+      "type": "CCI",
+      "params": {
+        "period": 53
+      },
+      "id": "CCI_53_d4da"
+    },
+    {
+      "type": "AROON",
+      "params": {
+        "period": 51
+      },
+      "id": "AROON_51_a532"
+    },
+    {
+      "type": "BB",
+      "params": {
+        "period": 66,
+        "k": 3.66
+      },
+      "id": "BB_66_2f18",
+      "band": "upper"
+    },
+    {
+      "type": "ADX",
+      "params": {
+        "period": 79
+      },
+      "id": "ADX_79_f35e"
+    },
+    {
+      "type": "CMO",
+      "params": {
+        "period": 99
+      },
+      "id": "CMO_99_3133"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "CMO_99_3133",
+      "condition": "crosses_above",
+      "value": -27.63,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "CCI_53_d4da",
+      "condition": "less_than",
+      "value": 72.246,
+      "side": "buy",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "CCI_53_d4da",
+      "condition": "crosses_above",
+      "value": 99.911,
+      "side": "buy",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "time_limit",
+      "value": 1800
+    },
+    {
+      "type": "stop_loss",
+      "value": 2.29
+    }
+  ],
+  "filter_rules": [
+    {
+      "indicator_id": "CMO_99_3133",
+      "condition": "greater_than",
+      "value": 24.473
+    }
+  ],
+  "position_size_usd": 463.0,
+  "max_open_positions": 2,
+  "max_drawdown_pct": 9.0,
+  "cooldown_bars": 0,
+  "direction_bias": "both"
+}

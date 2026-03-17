@@ -1,0 +1,54 @@
+{
+  "genome_id": "45001dc37a06",
+  "generation": 26,
+  "parent_ids": [
+    "72f3f2756dcd"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 60,
+  "indicators": [
+    {
+      "type": "AROON",
+      "params": {
+        "period": 99
+      },
+      "id": "AROON_91_cb3b"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "AROON_91_cb3b",
+      "condition": "greater_than",
+      "value": -19.69,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 8.97
+    },
+    {
+      "type": "take_profit",
+      "value": 10.29
+    },
+    {
+      "type": "take_profit",
+      "value": 6.98
+    },
+    {
+      "type": "stop_loss",
+      "value": 0.57
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 436.0,
+  "max_open_positions": 3,
+  "max_drawdown_pct": 10.8,
+  "cooldown_bars": 5,
+  "direction_bias": "short_only"
+}

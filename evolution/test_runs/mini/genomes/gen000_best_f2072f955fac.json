@@ -1,0 +1,93 @@
+{
+  "genome_id": "f2072f955fac",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 1,
+  "indicators": [
+    {
+      "type": "CMO",
+      "params": {
+        "period": 53
+      },
+      "id": "CMO_53_6ba8"
+    },
+    {
+      "type": "ROC",
+      "params": {
+        "period": 47
+      },
+      "id": "ROC_47_d952"
+    },
+    {
+      "type": "DEMA",
+      "params": {
+        "period": 5
+      },
+      "id": "DEMA_5_fa52"
+    },
+    {
+      "type": "HMA",
+      "params": {
+        "period": 40
+      },
+      "id": "HMA_40_e9c9"
+    },
+    {
+      "type": "VHF",
+      "params": {
+        "period": 8
+      },
+      "id": "VHF_8_d331"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "DEMA_5_fa52",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "HMA_40_e9c9"
+    },
+    {
+      "indicator_id": "HMA_40_e9c9",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "DEMA_5_fa52"
+    },
+    {
+      "indicator_id": "ROC_47_d952",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "buy",
+      "compare_indicator_id": "VHF_8_d331"
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 7.48
+    },
+    {
+      "type": "indicator",
+      "value": 0.699,
+      "indicator_id": "CMO_53_6ba8",
+      "condition": "less_than"
+    },
+    {
+      "type": "stop_loss",
+      "value": 4.82
+    },
+    {
+      "type": "time_limit",
+      "value": 1800
+    }
+  ],
+  "position_size_usd": 210.0,
+  "max_open_positions": 3,
+  "max_drawdown_pct": 11.3
+}

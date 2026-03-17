@@ -1,0 +1,56 @@
+{
+  "genome_id": "eaf502c24c66",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 5,
+  "indicators": [
+    {
+      "type": "DEMA",
+      "params": {
+        "period": 27
+      },
+      "id": "DEMA_27_5055"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 5,
+        "period_d": 5
+      },
+      "id": "STOCH_5_62f1"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "STOCH_5_62f1",
+      "condition": "crosses_above",
+      "value": 35.677,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "STOCH_5_62f1",
+      "condition": "crosses_above",
+      "value": 48.954,
+      "side": "buy",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "stop_loss",
+      "value": 3.9
+    },
+    {
+      "type": "time_limit",
+      "value": 1800
+    }
+  ],
+  "position_size_usd": 347.0,
+  "max_open_positions": 2,
+  "max_drawdown_pct": 13.8
+}

@@ -1,0 +1,82 @@
+{
+  "genome_id": "2d3024b36b3d",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 5,
+  "indicators": [
+    {
+      "type": "VHF",
+      "params": {
+        "period": 48
+      },
+      "id": "VHF_48_e058"
+    },
+    {
+      "type": "VHF",
+      "params": {
+        "period": 6
+      },
+      "id": "VHF_6_cf31"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 15
+      },
+      "id": "EMA_15_326c"
+    },
+    {
+      "type": "RSI",
+      "params": {
+        "period": 51
+      },
+      "id": "RSI_51_40b6"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "RSI_51_40b6",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "VHF_48_e058"
+    },
+    {
+      "indicator_id": "VHF_48_e058",
+      "condition": "crosses_below",
+      "value": 21.364,
+      "side": "buy",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "RSI_51_40b6",
+      "condition": "crossover_above",
+      "value": 0.0,
+      "side": "buy",
+      "compare_indicator_id": "VHF_48_e058"
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "indicator",
+      "value": -79.638,
+      "indicator_id": "VHF_48_e058",
+      "condition": "greater_than"
+    },
+    {
+      "type": "time_limit",
+      "value": 600
+    },
+    {
+      "type": "stop_loss",
+      "value": 3.9
+    }
+  ],
+  "position_size_usd": 113.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 9.6
+}

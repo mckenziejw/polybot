@@ -1,0 +1,73 @@
+{
+  "genome_id": "d34eb19b7133",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 5,
+  "indicators": [
+    {
+      "type": "RSI",
+      "params": {
+        "period": 37
+      },
+      "id": "RSI_37_ebc4"
+    },
+    {
+      "type": "ROC",
+      "params": {
+        "period": 2
+      },
+      "id": "ROC_2_d2b5"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 17,
+        "period_d": 12
+      },
+      "id": "STOCH_17_1177"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "STOCH_17_1177",
+      "condition": "crosses_above",
+      "value": 76.193,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "RSI_37_ebc4",
+      "condition": "greater_than",
+      "value": 0.548,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "stop_loss",
+      "value": 4.47
+    },
+    {
+      "type": "indicator",
+      "value": 4.112,
+      "indicator_id": "ROC_2_d2b5",
+      "condition": "crosses_above"
+    },
+    {
+      "type": "stop_loss",
+      "value": 3.21
+    },
+    {
+      "type": "time_limit",
+      "value": 1800
+    }
+  ],
+  "position_size_usd": 225.0,
+  "max_open_positions": 2,
+  "max_drawdown_pct": 10.0
+}

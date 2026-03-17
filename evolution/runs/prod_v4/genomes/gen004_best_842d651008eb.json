@@ -1,0 +1,69 @@
+{
+  "genome_id": "842d651008eb",
+  "generation": 4,
+  "parent_ids": [
+    "13d31d983ba7",
+    "d14c8b4e14ad"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 5,
+  "indicators": [
+    {
+      "type": "CCI",
+      "params": {
+        "period": 47
+      },
+      "id": "CCI_47_a192"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 22,
+        "period_d": 14
+      },
+      "id": "STOCH_22_afae"
+    },
+    {
+      "type": "BB",
+      "params": {
+        "period": 87,
+        "k": 1.43
+      },
+      "id": "BB_87_2b81",
+      "band": "upper"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "CCI_47_a192",
+      "condition": "greater_than",
+      "value": -1.94,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 1.95
+    },
+    {
+      "type": "take_profit",
+      "value": 9.37
+    },
+    {
+      "type": "stop_loss",
+      "value": 3.55
+    },
+    {
+      "type": "stop_loss",
+      "value": 2.14
+    }
+  ],
+  "position_size_usd": 318.0,
+  "max_open_positions": 3,
+  "max_drawdown_pct": 12.1
+}

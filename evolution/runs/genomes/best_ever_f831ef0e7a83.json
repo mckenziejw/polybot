@@ -1,0 +1,77 @@
+{
+  "genome_id": "f831ef0e7a83",
+  "generation": 7,
+  "parent_ids": [
+    "1efcfb59437d",
+    "5e812f54281c"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 60,
+  "indicators": [
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 42,
+        "period_d": 7
+      },
+      "id": "STOCH_46_d8c5"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 36,
+        "period_d": 19
+      },
+      "id": "STOCH_36_aced"
+    },
+    {
+      "type": "ADX",
+      "params": {
+        "period": 79
+      },
+      "id": "ADX_79_2466"
+    },
+    {
+      "type": "DEMA",
+      "params": {
+        "period": 29
+      },
+      "id": "DEMA_5_6a22"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "STOCH_36_aced",
+      "condition": "greater_than",
+      "value": 58.639,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "STOCH_36_aced",
+      "condition": "greater_than",
+      "value": 56.624,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "stop_loss",
+      "value": 2.67
+    },
+    {
+      "type": "take_profit",
+      "value": 4.98
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 314.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 11.5,
+  "cooldown_bars": 5,
+  "direction_bias": "both"
+}

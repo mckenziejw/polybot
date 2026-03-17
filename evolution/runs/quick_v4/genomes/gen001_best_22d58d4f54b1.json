@@ -1,0 +1,113 @@
+{
+  "genome_id": "22d58d4f54b1",
+  "generation": 1,
+  "parent_ids": [
+    "5c0dcd3112a1"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 5,
+  "indicators": [
+    {
+      "type": "CCI",
+      "params": {
+        "period": 61
+      },
+      "id": "CCI_61_60f1"
+    },
+    {
+      "type": "KC",
+      "params": {
+        "period": 43,
+        "k": 2.35
+      },
+      "id": "KC_43_2c01",
+      "band": "upper"
+    },
+    {
+      "type": "HMA",
+      "params": {
+        "period": 128
+      },
+      "id": "HMA_128_f7f5"
+    },
+    {
+      "type": "ROC",
+      "params": {
+        "period": 79
+      },
+      "id": "ROC_79_4058"
+    },
+    {
+      "type": "HMA",
+      "params": {
+        "period": 79
+      },
+      "id": "HMA_79_9208"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 31,
+        "period_d": 10
+      },
+      "id": "STOCH_31_e2d2"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "CCI_61_60f1",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "buy",
+      "compare_indicator_id": "HMA_128_f7f5"
+    },
+    {
+      "indicator_id": "KC_43_2c01",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "HMA_128_f7f5"
+    },
+    {
+      "indicator_id": "KC_43_2c01",
+      "condition": "crossover_above",
+      "value": 0.0,
+      "side": "buy",
+      "compare_indicator_id": "STOCH_31_e2d2"
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "indicator",
+      "value": 75.896,
+      "indicator_id": "STOCH_31_e2d2",
+      "condition": "greater_than"
+    },
+    {
+      "type": "indicator",
+      "value": 79.855,
+      "indicator_id": "ROC_79_4058",
+      "condition": "crosses_above"
+    },
+    {
+      "type": "indicator",
+      "value": 0.028,
+      "indicator_id": "ROC_79_4058",
+      "condition": "greater_than"
+    },
+    {
+      "type": "stop_loss",
+      "value": 2.84
+    },
+    {
+      "type": "time_limit",
+      "value": 3600
+    }
+  ],
+  "position_size_usd": 343.0,
+  "max_open_positions": 2,
+  "max_drawdown_pct": 16.9
+}

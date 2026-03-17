@@ -1,0 +1,69 @@
+{
+  "genome_id": "66b35d325354",
+  "generation": 6,
+  "parent_ids": [
+    "e29233cc2892",
+    "588145d44354"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 60,
+  "indicators": [
+    {
+      "type": "ATR",
+      "params": {
+        "period": 52
+      },
+      "id": "ATR_52_9948"
+    },
+    {
+      "type": "ADX",
+      "params": {
+        "period": 79
+      },
+      "id": "ADX_79_2466"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 42,
+        "period_d": 7
+      },
+      "id": "STOCH_46_d8c5"
+    },
+    {
+      "type": "CCI",
+      "params": {
+        "period": 23
+      },
+      "id": "CCI_23_80db"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "ATR_52_9948",
+      "condition": "greater_than",
+      "value": -68.625,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 8.84
+    },
+    {
+      "type": "stop_loss",
+      "value": 2.05
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 315.0,
+  "max_open_positions": 3,
+  "max_drawdown_pct": 11.2,
+  "cooldown_bars": 5,
+  "direction_bias": "both"
+}

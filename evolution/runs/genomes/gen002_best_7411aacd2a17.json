@@ -1,0 +1,74 @@
+{
+  "genome_id": "7411aacd2a17",
+  "generation": 2,
+  "parent_ids": [
+    "e6d7903f0888",
+    "dc5ede06449a"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 60,
+  "indicators": [
+    {
+      "type": "MACD",
+      "params": {
+        "fast_period": 27.68,
+        "slow_period": 40.66,
+        "signal_period": 6.42
+      },
+      "id": "MACD_27_9ae5"
+    },
+    {
+      "type": "ATR",
+      "params": {
+        "period": 52
+      },
+      "id": "ATR_52_9948"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 46,
+        "period_d": 7
+      },
+      "id": "STOCH_46_d8c5"
+    },
+    {
+      "type": "ADX",
+      "params": {
+        "period": 79
+      },
+      "id": "ADX_79_2466"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "ATR_52_9948",
+      "condition": "greater_than",
+      "value": -68.625,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "MACD_27_9ae5",
+      "condition": "crosses_below",
+      "value": 50.522,
+      "side": "buy",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "trailing_stop",
+      "value": 4.16
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 374.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 12.4,
+  "cooldown_bars": 5,
+  "direction_bias": "both"
+}

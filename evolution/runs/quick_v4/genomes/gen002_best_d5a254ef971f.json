@@ -1,0 +1,68 @@
+{
+  "genome_id": "d5a254ef971f",
+  "generation": 2,
+  "parent_ids": [
+    "a8e57a6afc3d"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 5,
+  "indicators": [
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 8,
+        "period_d": 5
+      },
+      "id": "STOCH_8_3eba"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 10
+      },
+      "id": "EMA_10_c28c"
+    },
+    {
+      "type": "HMA",
+      "params": {
+        "period": 69
+      },
+      "id": "HMA_69_8b37"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "HMA_69_8b37",
+      "condition": "crossover_below",
+      "value": 0.0,
+      "side": "sell",
+      "compare_indicator_id": "EMA_10_c28c"
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "time_limit",
+      "value": 3600
+    },
+    {
+      "type": "time_limit",
+      "value": 1800
+    },
+    {
+      "type": "indicator",
+      "value": 81.219,
+      "indicator_id": "STOCH_8_3eba",
+      "condition": "crosses_above"
+    },
+    {
+      "type": "stop_loss",
+      "value": 2.25
+    }
+  ],
+  "position_size_usd": 354.0,
+  "max_open_positions": 3,
+  "max_drawdown_pct": 7.9
+}

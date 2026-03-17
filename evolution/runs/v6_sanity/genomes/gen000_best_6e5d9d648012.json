@@ -1,0 +1,92 @@
+{
+  "genome_id": "6e5d9d648012",
+  "generation": 0,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 15,
+  "indicators": [
+    {
+      "type": "DC",
+      "params": {
+        "period": 91
+      },
+      "id": "DC_91_9efc",
+      "band": "upper"
+    },
+    {
+      "type": "CMO",
+      "params": {
+        "period": 18
+      },
+      "id": "CMO_18_4e79"
+    },
+    {
+      "type": "WMA",
+      "params": {
+        "period": 200
+      },
+      "id": "WMA_200_ad80"
+    },
+    {
+      "type": "ROC",
+      "params": {
+        "period": 48
+      },
+      "id": "ROC_48_c1c6"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 32,
+        "period_d": 17
+      },
+      "id": "STOCH_32_49b5"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "WMA_200_ad80",
+      "condition": "crossover_above",
+      "value": 0.0,
+      "side": "buy",
+      "compare_indicator_id": "STOCH_32_49b5"
+    },
+    {
+      "indicator_id": "STOCH_32_49b5",
+      "condition": "crosses_below",
+      "value": 49.867,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "indicator",
+      "value": -66.717,
+      "indicator_id": "CMO_18_4e79",
+      "condition": "greater_than"
+    },
+    {
+      "type": "take_profit",
+      "value": 6.69
+    },
+    {
+      "type": "take_profit",
+      "value": 3.18
+    },
+    {
+      "type": "stop_loss",
+      "value": 4.86
+    },
+    {
+      "type": "time_limit",
+      "value": 600
+    }
+  ],
+  "position_size_usd": 452.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 8.5
+}

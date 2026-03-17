@@ -1,0 +1,7588 @@
+{
+  "run_id": "9607b256",
+  "current_generation": 29,
+  "best_fitness_ever": 5.811728842897297,
+  "best_genome_ever": {
+    "genome_id": "a4bb2baec993",
+    "generation": 27,
+    "parent_ids": [
+      "4328bfe01dab"
+    ],
+    "symbols": [
+      "BTCUSDT"
+    ],
+    "bar_period_minutes": 15,
+    "indicators": [
+      {
+        "type": "RSI",
+        "params": {
+          "period": 2
+        },
+        "id": "RSI_28_6009"
+      },
+      {
+        "type": "SMA",
+        "params": {
+          "period": 135
+        },
+        "id": "SMA_135_99dc"
+      },
+      {
+        "type": "RSI",
+        "params": {
+          "period": 61
+        },
+        "id": "RSI_61_f658"
+      }
+    ],
+    "entry_rules": [
+      {
+        "indicator_id": "RSI_61_f658",
+        "condition": "greater_than",
+        "value": 0.649,
+        "side": "buy",
+        "compare_indicator_id": ""
+      },
+      {
+        "indicator_id": "RSI_28_6009",
+        "condition": "less_than",
+        "value": 0.597,
+        "side": "sell",
+        "compare_indicator_id": ""
+      }
+    ],
+    "min_entry_matches": 1,
+    "exit_rules": [
+      {
+        "type": "stop_loss",
+        "value": 2.86
+      },
+      {
+        "type": "indicator",
+        "value": 0.33,
+        "indicator_id": "RSI_61_f658",
+        "condition": "crosses_below"
+      }
+    ],
+    "position_size_usd": 292.0,
+    "max_open_positions": 1,
+    "max_drawdown_pct": 10.6
+  },
+  "generation_history": [
+    {
+      "generation": 0,
+      "best_fitness": -1.3916282029897966,
+      "avg_fitness": -281.61548725637925,
+      "best_genome_id": "39594e059467",
+      "n_trades_best": 45,
+      "total_pnl_best": -3.7017542199999998,
+      "elapsed_s": 129.48124885559082
+    },
+    {
+      "generation": 1,
+      "best_fitness": -0.10000000000000009,
+      "avg_fitness": -123.21725014682033,
+      "best_genome_id": "300f1516bad9",
+      "n_trades_best": 19,
+      "total_pnl_best": -91.79773555,
+      "elapsed_s": 98.68079686164856
+    },
+    {
+      "generation": 2,
+      "best_fitness": 3.72904338337156,
+      "avg_fitness": -99.76928847486812,
+      "best_genome_id": "d7c42b654c98",
+      "n_trades_best": 25,
+      "total_pnl_best": 1.50404676,
+      "elapsed_s": 72.77686476707458
+    },
+    {
+      "generation": 3,
+      "best_fitness": 3.842947985228278,
+      "avg_fitness": -77.20338101073293,
+      "best_genome_id": "c536a39771ca",
+      "n_trades_best": 45,
+      "total_pnl_best": 60.41923587,
+      "elapsed_s": 104.27668881416321
+    },
+    {
+      "generation": 4,
+      "best_fitness": 3.842947985228278,
+      "avg_fitness": -83.07925095624199,
+      "best_genome_id": "c536a39771ca",
+      "n_trades_best": 45,
+      "total_pnl_best": 60.41923587,
+      "elapsed_s": 120.07390522956848
+    },
+    {
+      "generation": 5,
+      "best_fitness": 3.842947985228278,
+      "avg_fitness": -93.99683158405237,
+      "best_genome_id": "c536a39771ca",
+      "n_trades_best": 45,
+      "total_pnl_best": 60.41923587,
+      "elapsed_s": 111.11773371696472
+    },
+    {
+      "generation": 6,
+      "best_fitness": 3.861893226096768,
+      "avg_fitness": -64.44533009420074,
+      "best_genome_id": "e5457faae158",
+      "n_trades_best": 45,
+      "total_pnl_best": 72.60155636,
+      "elapsed_s": 128.3169128894806
+    },
+    {
+      "generation": 7,
+      "best_fitness": 3.861893226096768,
+      "avg_fitness": -64.1050899301831,
+      "best_genome_id": "e5457faae158",
+      "n_trades_best": 45,
+      "total_pnl_best": 72.60155636,
+      "elapsed_s": 114.79557394981384
+    },
+    {
+      "generation": 8,
+      "best_fitness": 4.154886591553752,
+      "avg_fitness": -43.128612655660945,
+      "best_genome_id": "7aca45aa0436",
+      "n_trades_best": 200,
+      "total_pnl_best": 41.233298219999995,
+      "elapsed_s": 111.22658395767212
+    },
+    {
+      "generation": 9,
+      "best_fitness": 4.197584375280585,
+      "avg_fitness": -73.48049028886238,
+      "best_genome_id": "0f366a5dc64c",
+      "n_trades_best": 202,
+      "total_pnl_best": 42.79748906,
+      "elapsed_s": 116.23440742492676
+    },
+    {
+      "generation": 10,
+      "best_fitness": 4.859353265813402,
+      "avg_fitness": -24.851031196633556,
+      "best_genome_id": "591dcc2f63ef",
+      "n_trades_best": 76,
+      "total_pnl_best": 72.01523486,
+      "elapsed_s": 83.76352834701538
+    },
+    {
+      "generation": 11,
+      "best_fitness": 4.859353265813402,
+      "avg_fitness": -3.5863796440239137,
+      "best_genome_id": "591dcc2f63ef",
+      "n_trades_best": 76,
+      "total_pnl_best": 72.01523486,
+      "elapsed_s": 134.83197593688965
+    },
+    {
+      "generation": 12,
+      "best_fitness": 4.859353265813402,
+      "avg_fitness": -32.396058223005674,
+      "best_genome_id": "591dcc2f63ef",
+      "n_trades_best": 76,
+      "total_pnl_best": 72.01523486,
+      "elapsed_s": 119.04482984542847
+    },
+    {
+      "generation": 13,
+      "best_fitness": 4.859353265813402,
+      "avg_fitness": -41.286063226646654,
+      "best_genome_id": "591dcc2f63ef",
+      "n_trades_best": 76,
+      "total_pnl_best": 72.01523486,
+      "elapsed_s": 94.17150235176086
+    },
+    {
+      "generation": 14,
+      "best_fitness": 4.859353265813402,
+      "avg_fitness": -62.84428181281686,
+      "best_genome_id": "591dcc2f63ef",
+      "n_trades_best": 76,
+      "total_pnl_best": 72.01523486,
+      "elapsed_s": 89.97966408729553
+    },
+    {
+      "generation": 15,
+      "best_fitness": 5.015035359027882,
+      "avg_fitness": -40.76571529184084,
+      "best_genome_id": "f394c7237fe5",
+      "n_trades_best": 76,
+      "total_pnl_best": 69.75712652,
+      "elapsed_s": 96.26238465309143
+    },
+    {
+      "generation": 16,
+      "best_fitness": 5.015035359027882,
+      "avg_fitness": -55.47485708182125,
+      "best_genome_id": "f394c7237fe5",
+      "n_trades_best": 76,
+      "total_pnl_best": 69.75712652,
+      "elapsed_s": 178.71834540367126
+    },
+    {
+      "generation": 17,
+      "best_fitness": 5.095331584922874,
+      "avg_fitness": -63.697942618205104,
+      "best_genome_id": "71c31d490f23",
+      "n_trades_best": 60,
+      "total_pnl_best": 77.85998559,
+      "elapsed_s": 129.657897233963
+    },
+    {
+      "generation": 18,
+      "best_fitness": 5.095331584922874,
+      "avg_fitness": -28.134402806369188,
+      "best_genome_id": "71c31d490f23",
+      "n_trades_best": 60,
+      "total_pnl_best": 77.85998559,
+      "elapsed_s": 129.45043015480042
+    },
+    {
+      "generation": 19,
+      "best_fitness": 5.095331584922874,
+      "avg_fitness": -42.96545289645918,
+      "best_genome_id": "71c31d490f23",
+      "n_trades_best": 60,
+      "total_pnl_best": 77.85998559,
+      "elapsed_s": 133.71391797065735
+    },
+    {
+      "generation": 20,
+      "best_fitness": 5.4647570377835,
+      "avg_fitness": -72.11278630397284,
+      "best_genome_id": "ba799d009a98",
+      "n_trades_best": 72,
+      "total_pnl_best": 80.9399142,
+      "elapsed_s": 133.47904467582703
+    },
+    {
+      "generation": 21,
+      "best_fitness": 5.4647570377835,
+      "avg_fitness": -24.017587200208663,
+      "best_genome_id": "ba799d009a98",
+      "n_trades_best": 72,
+      "total_pnl_best": 80.9399142,
+      "elapsed_s": 150.031720161438
+    },
+    {
+      "generation": 22,
+      "best_fitness": 5.567651490980429,
+      "avg_fitness": -34.10667601199011,
+      "best_genome_id": "f5f0514229dc",
+      "n_trades_best": 59,
+      "total_pnl_best": 90.96783184,
+      "elapsed_s": 162.23957228660583
+    },
+    {
+      "generation": 23,
+      "best_fitness": 5.567651490980429,
+      "avg_fitness": -11.072472624247974,
+      "best_genome_id": "f5f0514229dc",
+      "n_trades_best": 59,
+      "total_pnl_best": 90.96783184,
+      "elapsed_s": 179.89712357521057
+    },
+    {
+      "generation": 24,
+      "best_fitness": 5.567651490980429,
+      "avg_fitness": -15.001843806218515,
+      "best_genome_id": "f5f0514229dc",
+      "n_trades_best": 59,
+      "total_pnl_best": 90.96783184,
+      "elapsed_s": 182.94708108901978
+    },
+    {
+      "generation": 25,
+      "best_fitness": 5.567651490980429,
+      "avg_fitness": -52.53011279368626,
+      "best_genome_id": "f5f0514229dc",
+      "n_trades_best": 59,
+      "total_pnl_best": 90.96783184,
+      "elapsed_s": 219.17584538459778
+    },
+    {
+      "generation": 26,
+      "best_fitness": 5.567651490980429,
+      "avg_fitness": -34.57479584371281,
+      "best_genome_id": "f5f0514229dc",
+      "n_trades_best": 59,
+      "total_pnl_best": 90.96783184,
+      "elapsed_s": 188.78299832344055
+    },
+    {
+      "generation": 27,
+      "best_fitness": 5.811728842897297,
+      "avg_fitness": -32.519788069974815,
+      "best_genome_id": "a4bb2baec993",
+      "n_trades_best": 58,
+      "total_pnl_best": 100.5362822,
+      "elapsed_s": 227.70363235473633
+    },
+    {
+      "generation": 28,
+      "best_fitness": 5.811728842897297,
+      "avg_fitness": -33.2264179526364,
+      "best_genome_id": "a4bb2baec993",
+      "n_trades_best": 58,
+      "total_pnl_best": 100.5362822,
+      "elapsed_s": 194.1694540977478
+    },
+    {
+      "generation": 29,
+      "best_fitness": 5.811728842897297,
+      "avg_fitness": -11.911156022146743,
+      "best_genome_id": "a4bb2baec993",
+      "n_trades_best": 58,
+      "total_pnl_best": 100.5362822,
+      "elapsed_s": 211.5060429573059
+    }
+  ],
+  "population": [
+    {
+      "genome_id": "a4bb2baec993",
+      "generation": 29,
+      "parent_ids": [
+        "4328bfe01dab"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 2
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "3638c39a3e3e",
+      "generation": 29,
+      "parent_ids": [
+        "22b91ffbda5b",
+        "ba799d009a98"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "5ed6c1119c5b",
+      "generation": 29,
+      "parent_ids": [
+        "0788fbc1dc60"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "daf4e60536fe",
+      "generation": 29,
+      "parent_ids": [
+        "5ed6c1119c5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "21dcbc998c9e",
+      "generation": 29,
+      "parent_ids": [
+        "5ed6c1119c5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "f5f0514229dc",
+      "generation": 29,
+      "parent_ids": [
+        "7b7a3d50005c"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "aa05224c18ec",
+      "generation": 29,
+      "parent_ids": [
+        "f5f0514229dc"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "4328bfe01dab",
+      "generation": 29,
+      "parent_ids": [
+        "f5f0514229dc"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "22b91ffbda5b",
+      "generation": 29,
+      "parent_ids": [
+        "4328bfe01dab"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "0788fbc1dc60",
+      "generation": 29,
+      "parent_ids": [
+        "f5f0514229dc"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "66326d1b438a",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 5,
+      "indicators": [
+        {
+          "type": "DEMA",
+          "params": {
+            "period": 62
+          },
+          "id": "DEMA_62_60c7"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 88
+          },
+          "id": "VHF_88_5ff2"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 6
+          },
+          "id": "SMA_6_8973"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 132
+          },
+          "id": "EMA_132_8f17"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 11,
+            "period_d": 14
+          },
+          "id": "STOCH_11_3a01"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "SMA_6_8973",
+          "condition": "crossover_below",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "EMA_132_8f17"
+        },
+        {
+          "indicator_id": "VHF_88_5ff2",
+          "condition": "crosses_below",
+          "value": 41.735,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "STOCH_11_3a01",
+          "condition": "greater_than",
+          "value": 36.627,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 2,
+      "exit_rules": [
+        {
+          "type": "time_limit",
+          "value": 1800
+        },
+        {
+          "type": "indicator",
+          "value": 62.079,
+          "indicator_id": "STOCH_11_3a01",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 25.341,
+          "indicator_id": "VHF_88_5ff2",
+          "condition": "greater_than"
+        },
+        {
+          "type": "stop_loss",
+          "value": 1.98
+        }
+      ],
+      "position_size_usd": 339.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 10.7
+    },
+    {
+      "genome_id": "64b59703ef48",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "VHF",
+          "params": {
+            "period": 69
+          },
+          "id": "VHF_69_505d"
+        },
+        {
+          "type": "CMO",
+          "params": {
+            "period": 57
+          },
+          "id": "CMO_57_b289"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 16,
+            "period_d": 4
+          },
+          "id": "STOCH_16_76ee"
+        },
+        {
+          "type": "DEMA",
+          "params": {
+            "period": 27
+          },
+          "id": "DEMA_27_d602"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "CMO_57_b289",
+          "condition": "crosses_below",
+          "value": -12.589,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "CMO_57_b289",
+          "condition": "crosses_below",
+          "value": 7.418,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "CMO_57_b289",
+          "condition": "less_than",
+          "value": 70.502,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 0.97
+        },
+        {
+          "type": "take_profit",
+          "value": 4.68
+        },
+        {
+          "type": "time_limit",
+          "value": 1800
+        }
+      ],
+      "position_size_usd": 456.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 8.6
+    },
+    {
+      "genome_id": "e92e251a46ac",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 9
+          },
+          "id": "RSI_9_018f"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 96
+          },
+          "id": "SMA_96_abb2"
+        },
+        {
+          "type": "DC",
+          "params": {
+            "period": 74
+          },
+          "id": "DC_74_0a71",
+          "band": "upper"
+        },
+        {
+          "type": "ATR",
+          "params": {
+            "period": 73
+          },
+          "id": "ATR_73_d8a3"
+        },
+        {
+          "type": "KC",
+          "params": {
+            "period": 8,
+            "k": 1.59
+          },
+          "id": "KC_8_53e3",
+          "band": "upper"
+        },
+        {
+          "type": "CCI",
+          "params": {
+            "period": 16
+          },
+          "id": "CCI_16_faa0"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "CCI_16_faa0",
+          "condition": "less_than",
+          "value": -61.373,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "KC_8_53e3",
+          "condition": "crossover_above",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "DC_74_0a71"
+        },
+        {
+          "indicator_id": "DC_74_0a71",
+          "condition": "crossover_below",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "KC_8_53e3"
+        }
+      ],
+      "min_entry_matches": 3,
+      "exit_rules": [
+        {
+          "type": "time_limit",
+          "value": 300
+        },
+        {
+          "type": "stop_loss",
+          "value": 3.51
+        }
+      ],
+      "position_size_usd": 72.0,
+      "max_open_positions": 2,
+      "max_drawdown_pct": 15.2
+    },
+    {
+      "genome_id": "f53a79015afb",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "CMO",
+          "params": {
+            "period": 71
+          },
+          "id": "CMO_71_6a82"
+        },
+        {
+          "type": "CCI",
+          "params": {
+            "period": 95
+          },
+          "id": "CCI_95_82ff"
+        },
+        {
+          "type": "HMA",
+          "params": {
+            "period": 132
+          },
+          "id": "HMA_132_0fe6"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 194
+          },
+          "id": "EMA_194_7bc7"
+        },
+        {
+          "type": "HMA",
+          "params": {
+            "period": 19
+          },
+          "id": "HMA_19_d6e2"
+        },
+        {
+          "type": "ROC",
+          "params": {
+            "period": 3
+          },
+          "id": "ROC_3_d2c4"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "CCI_95_82ff",
+          "condition": "less_than",
+          "value": 97.973,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "ROC_3_d2c4",
+          "condition": "crosses_above",
+          "value": -25.409,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.43
+        },
+        {
+          "type": "time_limit",
+          "value": 600
+        }
+      ],
+      "position_size_usd": 87.0,
+      "max_open_positions": 2,
+      "max_drawdown_pct": 16.1
+    },
+    {
+      "genome_id": "31a8120aaeda",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 76
+          },
+          "id": "RSI_76_de41"
+        },
+        {
+          "type": "DEMA",
+          "params": {
+            "period": 47
+          },
+          "id": "DEMA_47_460c"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_76_de41",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 7.19
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.92
+        },
+        {
+          "type": "time_limit",
+          "value": 300
+        }
+      ],
+      "position_size_usd": 227.0,
+      "max_open_positions": 2,
+      "max_drawdown_pct": 10.7
+    },
+    {
+      "genome_id": "70c4555bbaf8",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 5,
+      "indicators": [
+        {
+          "type": "DC",
+          "params": {
+            "period": 80
+          },
+          "id": "DC_80_4375",
+          "band": "middle"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 197
+          },
+          "id": "WMA_197_ff40"
+        },
+        {
+          "type": "BB",
+          "params": {
+            "period": 30,
+            "k": 0.98
+          },
+          "id": "BB_30_2f50",
+          "band": "middle"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 27,
+            "period_d": 19
+          },
+          "id": "STOCH_27_b78f"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "STOCH_27_b78f",
+          "condition": "crosses_below",
+          "value": 74.058,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "STOCH_27_b78f",
+          "condition": "less_than",
+          "value": 64.234,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "STOCH_27_b78f",
+          "condition": "greater_than",
+          "value": 14.783,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "time_limit",
+          "value": 120
+        },
+        {
+          "type": "take_profit",
+          "value": 3.04
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.14
+        }
+      ],
+      "position_size_usd": 395.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 13.9
+    },
+    {
+      "genome_id": "acb4c6114819",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "HMA",
+          "params": {
+            "period": 48
+          },
+          "id": "HMA_48_2572"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 90
+          },
+          "id": "RSI_90_e07f"
+        },
+        {
+          "type": "DEMA",
+          "params": {
+            "period": 117
+          },
+          "id": "DEMA_117_0703"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 60
+          },
+          "id": "VHF_60_fb64"
+        },
+        {
+          "type": "ATR",
+          "params": {
+            "period": 44
+          },
+          "id": "ATR_44_81a8"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "DEMA_117_0703",
+          "condition": "crossover_below",
+          "value": 0.0,
+          "side": "buy",
+          "compare_indicator_id": "HMA_48_2572"
+        },
+        {
+          "indicator_id": "RSI_90_e07f",
+          "condition": "crosses_below",
+          "value": 0.567,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 2,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 31.843,
+          "indicator_id": "ATR_44_81a8",
+          "condition": "less_than"
+        },
+        {
+          "type": "indicator",
+          "value": 0.404,
+          "indicator_id": "RSI_90_e07f",
+          "condition": "less_than"
+        },
+        {
+          "type": "stop_loss",
+          "value": 3.32
+        },
+        {
+          "type": "time_limit",
+          "value": 1800
+        }
+      ],
+      "position_size_usd": 91.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 7.7
+    },
+    {
+      "genome_id": "cba0571dc7b3",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "ATR",
+          "params": {
+            "period": 48
+          },
+          "id": "ATR_48_40b8"
+        },
+        {
+          "type": "DC",
+          "params": {
+            "period": 29
+          },
+          "id": "DC_29_9c55",
+          "band": "middle"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 78
+          },
+          "id": "VHF_78_c232"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 91
+          },
+          "id": "EMA_91_40b6"
+        },
+        {
+          "type": "CMO",
+          "params": {
+            "period": 89
+          },
+          "id": "CMO_89_747a"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "VHF_78_c232",
+          "condition": "less_than",
+          "value": 37.503,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "CMO_89_747a",
+          "condition": "crosses_above",
+          "value": 75.53,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.78
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        }
+      ],
+      "position_size_usd": 296.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 9.7
+    },
+    {
+      "genome_id": "56835ced138b",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "DEMA",
+          "params": {
+            "period": 49
+          },
+          "id": "DEMA_49_5437"
+        },
+        {
+          "type": "EMA",
+          "params": {
+            "period": 188
+          },
+          "id": "EMA_188_68b8"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 45,
+            "period_d": 5
+          },
+          "id": "STOCH_45_880c"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "STOCH_45_880c",
+          "condition": "greater_than",
+          "value": 77.792,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 9.65
+        },
+        {
+          "type": "take_profit",
+          "value": 8.93
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.16
+        },
+        {
+          "type": "time_limit",
+          "value": 300
+        }
+      ],
+      "position_size_usd": 128.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 5.8
+    },
+    {
+      "genome_id": "849e19fdff49",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "CMO",
+          "params": {
+            "period": 64
+          },
+          "id": "CMO_64_6211"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 60
+          },
+          "id": "RSI_60_707f"
+        },
+        {
+          "type": "DC",
+          "params": {
+            "period": 61
+          },
+          "id": "DC_61_b5a6",
+          "band": "middle"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 30
+          },
+          "id": "RSI_30_1f0f"
+        },
+        {
+          "type": "HMA",
+          "params": {
+            "period": 62
+          },
+          "id": "HMA_62_0018"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_30_1f0f",
+          "condition": "crosses_below",
+          "value": 0.634,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "CMO_64_6211",
+          "condition": "greater_than",
+          "value": 52.772,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 4.25
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        }
+      ],
+      "position_size_usd": 299.0,
+      "max_open_positions": 2,
+      "max_drawdown_pct": 15.0
+    },
+    {
+      "genome_id": "38b5f7bf6fd8",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 5,
+      "indicators": [
+        {
+          "type": "DC",
+          "params": {
+            "period": 32
+          },
+          "id": "DC_32_c6eb",
+          "band": "middle"
+        },
+        {
+          "type": "BB",
+          "params": {
+            "period": 23,
+            "k": 1.62
+          },
+          "id": "BB_23_36d5",
+          "band": "lower"
+        },
+        {
+          "type": "BB",
+          "params": {
+            "period": 5,
+            "k": 1.3
+          },
+          "id": "BB_5_ad5d",
+          "band": "upper"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 22,
+            "period_d": 10
+          },
+          "id": "STOCH_22_b989"
+        },
+        {
+          "type": "HMA",
+          "params": {
+            "period": 33
+          },
+          "id": "HMA_33_8ea4"
+        },
+        {
+          "type": "KC",
+          "params": {
+            "period": 19,
+            "k": 2.78
+          },
+          "id": "KC_19_9efd",
+          "band": "upper"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "STOCH_22_b989",
+          "condition": "greater_than",
+          "value": 72.085,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "STOCH_22_b989",
+          "condition": "crosses_below",
+          "value": 70.705,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "STOCH_22_b989",
+          "condition": "crosses_above",
+          "value": 24.221,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 1.04
+        },
+        {
+          "type": "stop_loss",
+          "value": 1.89
+        },
+        {
+          "type": "time_limit",
+          "value": 1800
+        }
+      ],
+      "position_size_usd": 454.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 6.3
+    },
+    {
+      "genome_id": "d31a6f429fe1",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "WMA",
+          "params": {
+            "period": 66
+          },
+          "id": "WMA_66_5105"
+        },
+        {
+          "type": "ATR",
+          "params": {
+            "period": 34
+          },
+          "id": "ATR_34_01cd"
+        },
+        {
+          "type": "BB",
+          "params": {
+            "period": 97,
+            "k": 3.2
+          },
+          "id": "BB_97_77bc",
+          "band": "upper"
+        },
+        {
+          "type": "BB",
+          "params": {
+            "period": 25,
+            "k": 2.53
+          },
+          "id": "BB_25_b209",
+          "band": "lower"
+        },
+        {
+          "type": "CMO",
+          "params": {
+            "period": 35
+          },
+          "id": "CMO_35_30f0"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "ATR_34_01cd",
+          "condition": "crosses_below",
+          "value": 90.497,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "CMO_35_30f0",
+          "condition": "greater_than",
+          "value": 26.721,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "take_profit",
+          "value": 4.26
+        },
+        {
+          "type": "stop_loss",
+          "value": 1.6
+        },
+        {
+          "type": "time_limit",
+          "value": 1800
+        }
+      ],
+      "position_size_usd": 352.0,
+      "max_open_positions": 3,
+      "max_drawdown_pct": 19.3
+    },
+    {
+      "genome_id": "f2a8a28627be",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 5,
+      "indicators": [
+        {
+          "type": "HMA",
+          "params": {
+            "period": 34
+          },
+          "id": "HMA_34_fa17"
+        },
+        {
+          "type": "HMA",
+          "params": {
+            "period": 174
+          },
+          "id": "HMA_174_a997"
+        },
+        {
+          "type": "BB",
+          "params": {
+            "period": 81,
+            "k": 3.7
+          },
+          "id": "BB_81_9959",
+          "band": "upper"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 66
+          },
+          "id": "RSI_66_21f9"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_66_21f9",
+          "condition": "crosses_below",
+          "value": 0.334,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "HMA_34_fa17",
+          "condition": "crossover_below",
+          "value": 0.0,
+          "side": "buy",
+          "compare_indicator_id": "BB_81_9959"
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.732,
+          "indicator_id": "RSI_66_21f9",
+          "condition": "crosses_above"
+        },
+        {
+          "type": "indicator",
+          "value": 0.459,
+          "indicator_id": "RSI_66_21f9",
+          "condition": "greater_than"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.93
+        },
+        {
+          "type": "time_limit",
+          "value": 3600
+        }
+      ],
+      "position_size_usd": 207.0,
+      "max_open_positions": 2,
+      "max_drawdown_pct": 17.3
+    },
+    {
+      "genome_id": "f855a327280a",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "VHF",
+          "params": {
+            "period": 89
+          },
+          "id": "VHF_89_d084"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 9,
+            "period_d": 16
+          },
+          "id": "STOCH_9_b8e2"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "STOCH_9_b8e2",
+          "condition": "crosses_above",
+          "value": 76.076,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "time_limit",
+          "value": 600
+        },
+        {
+          "type": "take_profit",
+          "value": 8.63
+        },
+        {
+          "type": "take_profit",
+          "value": 0.7
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.94
+        }
+      ],
+      "position_size_usd": 103.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 6.2
+    },
+    {
+      "genome_id": "88274b2f6812",
+      "generation": 29,
+      "parent_ids": [],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 1,
+      "indicators": [
+        {
+          "type": "WMA",
+          "params": {
+            "period": 146
+          },
+          "id": "WMA_146_fc09"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 27
+          },
+          "id": "WMA_27_2f1d"
+        },
+        {
+          "type": "STOCH",
+          "params": {
+            "period_k": 28,
+            "period_d": 9
+          },
+          "id": "STOCH_28_70ef"
+        },
+        {
+          "type": "ROC",
+          "params": {
+            "period": 20
+          },
+          "id": "ROC_20_5a49"
+        },
+        {
+          "type": "KC",
+          "params": {
+            "period": 19,
+            "k": 1.22
+          },
+          "id": "KC_19_e95b",
+          "band": "middle"
+        },
+        {
+          "type": "VHF",
+          "params": {
+            "period": 62
+          },
+          "id": "VHF_62_ffa7"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "ROC_20_5a49",
+          "condition": "crosses_below",
+          "value": -16.331,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "KC_19_e95b",
+          "condition": "crossover_above",
+          "value": 0.0,
+          "side": "sell",
+          "compare_indicator_id": "WMA_146_fc09"
+        },
+        {
+          "indicator_id": "VHF_62_ffa7",
+          "condition": "greater_than",
+          "value": -17.42,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "time_limit",
+          "value": 300
+        },
+        {
+          "type": "indicator",
+          "value": 62.866,
+          "indicator_id": "STOCH_28_70ef",
+          "condition": "less_than"
+        },
+        {
+          "type": "stop_loss",
+          "value": 1.96
+        }
+      ],
+      "position_size_usd": 368.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 16.3
+    },
+    {
+      "genome_id": "eebb7f03bfd3",
+      "generation": 29,
+      "parent_ids": [
+        "770424ef6107",
+        "3638c39a3e3e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 75
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 35
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.81
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 286.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "7d49f2d891e3",
+      "generation": 29,
+      "parent_ids": [
+        "37c43ca63a3a",
+        "f5f0514229dc"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_640c"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 288.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "e16f7073af00",
+      "generation": 29,
+      "parent_ids": [
+        "a4bb2baec993",
+        "0e3d84275630"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 2
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.327,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 290.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "b8a28a6d6d94",
+      "generation": 29,
+      "parent_ids": [
+        "e6a168d93705",
+        "ca565edb2c62"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 131
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_37e7"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.699,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.327,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 286.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "5e531467daa5",
+      "generation": 29,
+      "parent_ids": [
+        "8a2afc087362",
+        "abc7ad5d3340"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 58
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_88e1"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.646,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.646,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.2
+        }
+      ],
+      "position_size_usd": 286.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "80f10cd1445d",
+      "generation": 29,
+      "parent_ids": [
+        "1b393b1dca01",
+        "641bf5ca75ca"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.305,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 249.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "251fa31ad562",
+      "generation": 29,
+      "parent_ids": [
+        "a4bb2baec993",
+        "f80a0b49fb14"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 26
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.646,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 286.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "89f8e8e55c8e",
+      "generation": 29,
+      "parent_ids": [
+        "ae182e546e28",
+        "a4bb2baec993"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 2
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "1360e8fc9f58",
+      "generation": 29,
+      "parent_ids": [
+        "87ee68cc5ed5",
+        "615404ecf8f7"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_db7b"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.646,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 280.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "4069c50197cd",
+      "generation": 29,
+      "parent_ids": [
+        "efa0edaa2ce8",
+        "de3bb1affe33"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 42
+          },
+          "id": "RSI_42_0b02"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "8b371c68b525",
+      "generation": 29,
+      "parent_ids": [
+        "d76434e38f8d",
+        "6388cc68d5d9"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_da86"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 3.37
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.54
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 276.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "a6ee1c63805f",
+      "generation": 29,
+      "parent_ids": [
+        "21dcbc998c9e",
+        "aa05224c18ec"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "e327b9257eb5",
+      "generation": 29,
+      "parent_ids": [
+        "3638c39a3e3e",
+        "d76434e38f8d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_5e5c"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 3.37
+        }
+      ],
+      "position_size_usd": 280.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "13b006fe8034",
+      "generation": 29,
+      "parent_ids": [
+        "aa05224c18ec",
+        "22b91ffbda5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_10_9f21"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "eb04dd0640ce",
+      "generation": 29,
+      "parent_ids": [
+        "372bc903c78a",
+        "aa05224c18ec"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.04
+        }
+      ],
+      "position_size_usd": 288.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "487c9aac27fc",
+      "generation": 29,
+      "parent_ids": [
+        "e7d51330129a",
+        "f68c0c2c8a0d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 128
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 58
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 27
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.83
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "dcf3666e6c5a",
+      "generation": 29,
+      "parent_ids": [
+        "d76434e38f8d",
+        "21dcbc998c9e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "CCI",
+          "params": {
+            "period": 97
+          },
+          "id": "CCI_97_8fa7"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "24f1b5bc2ee8",
+      "generation": 29,
+      "parent_ids": [
+        "d1be9e38a656",
+        "87ee68cc5ed5"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_10_70c1"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.587,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "8fa96822e6c8",
+      "generation": 29,
+      "parent_ids": [
+        "f68c0c2c8a0d",
+        "21dcbc998c9e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 2
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_5b2b"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.485,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.612,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.83
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 245.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "559376b0227e",
+      "generation": 29,
+      "parent_ids": [
+        "37c43ca63a3a",
+        "87ee68cc5ed5"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_10_0d90"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 280.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "4a43b5c5a05c",
+      "generation": 29,
+      "parent_ids": [
+        "d1be9e38a656",
+        "40982c2bf555"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_2bd8"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.546,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.75
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "0876a3fab192",
+      "generation": 29,
+      "parent_ids": [
+        "5ed6c1119c5b",
+        "95857fc90447"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_2e16"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.85
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "c7a6c61c4676",
+      "generation": 29,
+      "parent_ids": [
+        "87ee68cc5ed5",
+        "246501d7ae9d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 131
+          },
+          "id": "SMA_131_60ac"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 281.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "f1c4f93dae98",
+      "generation": 29,
+      "parent_ids": [
+        "f6149b29903b",
+        "24ef17a78d8d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_7117"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.81
+        }
+      ],
+      "position_size_usd": 264.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "fc45fb555c3d",
+      "generation": 29,
+      "parent_ids": [
+        "19e93d4be14e",
+        "4328bfe01dab"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_cfb8"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.81
+        }
+      ],
+      "position_size_usd": 288.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "1059ab9b4041",
+      "generation": 29,
+      "parent_ids": [
+        "6e23048b50ba",
+        "19e93d4be14e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.625,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.04
+        }
+      ],
+      "position_size_usd": 280.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "a3694ef12c09",
+      "generation": 29,
+      "parent_ids": [
+        "0788fbc1dc60",
+        "ca565edb2c62"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.699,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.8
+        }
+      ],
+      "position_size_usd": 286.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "69f8e7de60d5",
+      "generation": 29,
+      "parent_ids": [
+        "e7d51330129a",
+        "5ed6c1119c5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 27
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 128
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 58
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 290.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "45d0f3ac6ff6",
+      "generation": 29,
+      "parent_ids": [
+        "95857fc90447",
+        "de3bb1affe33"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 42
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 1.93
+        }
+      ],
+      "position_size_usd": 276.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "7a37b4366b8d",
+      "generation": 29,
+      "parent_ids": [
+        "efa0edaa2ce8",
+        "f6149b29903b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_9689"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 266.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "311f316fa258",
+      "generation": 29,
+      "parent_ids": [
+        "0788fbc1dc60",
+        "22b91ffbda5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.321,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "1645bb8831c6",
+      "generation": 29,
+      "parent_ids": [
+        "95857fc90447",
+        "f5f0514229dc"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_3f9d"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "5a4eb0ecdea6",
+      "generation": 29,
+      "parent_ids": [
+        "d7281bbacf65",
+        "1b393b1dca01"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_9a41"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.646,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 4.7
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.25,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 248.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "37304a5f01b8",
+      "generation": 29,
+      "parent_ids": [
+        "f5f0514229dc",
+        "5ed6c1119c5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_db83"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 1.7
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "9f6fd3f0fcbf",
+      "generation": 29,
+      "parent_ids": [
+        "efa0edaa2ce8",
+        "e6a168d93705"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_2fb5"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.613,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "b45ff7590554",
+      "generation": 29,
+      "parent_ids": [
+        "9612da1d99ee",
+        "f68c0c2c8a0d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 2
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 288.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "da318746caaa",
+      "generation": 29,
+      "parent_ids": [
+        "95857fc90447",
+        "8e048afc10d2"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 27
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 58
+          },
+          "id": "RSI_58_1d0b"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.505,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 289.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "95fc9411953b",
+      "generation": 29,
+      "parent_ids": [
+        "6b18e7b85e47",
+        "21dcbc998c9e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_1646"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 2
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.9
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "df2c6fbf2973",
+      "generation": 29,
+      "parent_ids": [
+        "95857fc90447",
+        "2ebde8255c06"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_1a50"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.551,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.81
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 288.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "71a7b673cd82",
+      "generation": 29,
+      "parent_ids": [
+        "ae182e546e28",
+        "95857fc90447"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "501ebb485912",
+      "generation": 29,
+      "parent_ids": [
+        "e6a168d93705",
+        "95857fc90447"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_65e6"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "470ae8ebab51",
+      "generation": 29,
+      "parent_ids": [
+        "f6149b29903b",
+        "470ef30a5c4d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_75b7"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 266.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "1cb670ddbd1e",
+      "generation": 29,
+      "parent_ids": [
+        "2ebde8255c06",
+        "18844e60d719"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_81ca"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.82
+        }
+      ],
+      "position_size_usd": 288.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "21dbd2eb7446",
+      "generation": 29,
+      "parent_ids": [
+        "de3bb1affe33",
+        "641bf5ca75ca"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_7852"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 42
+          },
+          "id": "RSI_42_7bb3"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.653,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 283.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "d341d6119802",
+      "generation": 29,
+      "parent_ids": [
+        "2be8c412e5c2",
+        "2ebde8255c06"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 35
+          },
+          "id": "RSI_35_83fd"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.551,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.546,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.82
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.81
+        }
+      ],
+      "position_size_usd": 293.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "9e7200aee018",
+      "generation": 29,
+      "parent_ids": [
+        "efa0edaa2ce8"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.47,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.74
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "9be9cacf8bc1",
+      "generation": 29,
+      "parent_ids": [
+        "030af04f4b00"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 35
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 136
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.34
+        },
+        {
+          "type": "indicator",
+          "value": 0.31,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 282.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "7d221b97cc9d",
+      "generation": 29,
+      "parent_ids": [
+        "f6149b29903b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.588,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.66
+        }
+      ],
+      "position_size_usd": 244.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "39106ae28b44",
+      "generation": 29,
+      "parent_ids": [
+        "f6149b29903b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.588,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 241.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "99a130b2756d",
+      "generation": 29,
+      "parent_ids": [
+        "2daabffc968a"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_de9c"
+        },
+        {
+          "type": "WMA",
+          "params": {
+            "period": 57
+          },
+          "id": "WMA_57_eef6"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        },
+        {
+          "type": "indicator",
+          "value": 0.306,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 269.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "03ca74ad3fd4",
+      "generation": 29,
+      "parent_ids": [
+        "3638c39a3e3e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "b05e3a70bac5",
+      "generation": 29,
+      "parent_ids": [
+        "efa0edaa2ce8"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "579aefec2a6f",
+      "generation": 29,
+      "parent_ids": [
+        "641bf5ca75ca"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_7852"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.653,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.493,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 290.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "15c407e9c9a6",
+      "generation": 29,
+      "parent_ids": [
+        "030af04f4b00"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 35
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 136
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 282.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "5ec06b58ee6f",
+      "generation": 29,
+      "parent_ids": [
+        "470ef30a5c4d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 115
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.649,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "87d47727e44d",
+      "generation": 29,
+      "parent_ids": [
+        "ca565edb2c62"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 35
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 131
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.699,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.81
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.327,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 280.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "ab2711c78c8b",
+      "generation": 29,
+      "parent_ids": [
+        "96cffb5a179c"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_10_0d90"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 48
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.625,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.69,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.308,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "d8cf105c3be0",
+      "generation": 29,
+      "parent_ids": [
+        "5ed6c1119c5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "8b8cacd114a6",
+      "generation": 29,
+      "parent_ids": [
+        "21dcbc998c9e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "1d6cd88bdb21",
+      "generation": 29,
+      "parent_ids": [
+        "030af04f4b00"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 35
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 136
+          },
+          "id": "SMA_135_99dc"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.501,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 282.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "e8517180de36",
+      "generation": 29,
+      "parent_ids": [
+        "37c43ca63a3a"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_10_0d90"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.625,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "b8f7366127df",
+      "generation": 29,
+      "parent_ids": [
+        "d830e1ba8f14"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_47df"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.599,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.41
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.63
+        }
+      ],
+      "position_size_usd": 339.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "9afed17a40b7",
+      "generation": 29,
+      "parent_ids": [
+        "76a3028e7fb8"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 21
+          },
+          "id": "RSI_28_ee9f"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 65
+          },
+          "id": "RSI_61_4fab"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 63
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.66,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 282.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "4f8943faafd7",
+      "generation": 29,
+      "parent_ids": [
+        "d76434e38f8d"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "CCI",
+          "params": {
+            "period": 97
+          },
+          "id": "CCI_97_8fa7"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 3.37
+        },
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 200.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "96b099074da2",
+      "generation": 29,
+      "parent_ids": [
+        "5ed6c1119c5b"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 25
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.9
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "db1de991c6d5",
+      "generation": 29,
+      "parent_ids": [
+        "21dcbc998c9e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.677,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "a7092624f24a",
+      "generation": 29,
+      "parent_ids": [
+        "8a2afc087362"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_9c64"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.646,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.546,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.81
+        }
+      ],
+      "position_size_usd": 291.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "5c2994d0f315",
+      "generation": 29,
+      "parent_ids": [
+        "daf4e60536fe"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 6
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "5f70f9761093",
+      "generation": 29,
+      "parent_ids": [
+        "d7281bbacf65"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_9a41"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.572,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.646,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.336,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 4.7
+        }
+      ],
+      "position_size_usd": 288.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "61fdebd84d31",
+      "generation": 29,
+      "parent_ids": [
+        "1e1a54f02893"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_44c0"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.588,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 1.92
+        }
+      ],
+      "position_size_usd": 266.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "c9fa24d3093d",
+      "generation": 29,
+      "parent_ids": [
+        "9f4534f96ed0"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_525e"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.597,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 292.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "dbccfd7db824",
+      "generation": 29,
+      "parent_ids": [
+        "19e93d4be14e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_10_0d90"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.625,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.651,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "cecab55e7f55",
+      "generation": 29,
+      "parent_ids": [
+        "40982c2bf555"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 2
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_be2b"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.546,
+          "side": "sell",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.75
+        }
+      ],
+      "position_size_usd": 294.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "b99e3954c33b",
+      "generation": 29,
+      "parent_ids": [
+        "1b393b1dca01"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        },
+        {
+          "type": "SMA",
+          "params": {
+            "period": 135
+          },
+          "id": "SMA_135_99dc"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_28_6009"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.57,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.305,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.313,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.72
+        }
+      ],
+      "position_size_usd": 208.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    },
+    {
+      "genome_id": "1460befcda6b",
+      "generation": 29,
+      "parent_ids": [
+        "19e93d4be14e"
+      ],
+      "symbols": [
+        "BTCUSDT"
+      ],
+      "bar_period_minutes": 15,
+      "indicators": [
+        {
+          "type": "RSI",
+          "params": {
+            "period": 28
+          },
+          "id": "RSI_28_6009"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 10
+          },
+          "id": "RSI_10_0d90"
+        },
+        {
+          "type": "RSI",
+          "params": {
+            "period": 61
+          },
+          "id": "RSI_61_f658"
+        }
+      ],
+      "entry_rules": [
+        {
+          "indicator_id": "RSI_28_6009",
+          "condition": "less_than",
+          "value": 0.625,
+          "side": "sell",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        },
+        {
+          "indicator_id": "RSI_61_f658",
+          "condition": "greater_than",
+          "value": 0.649,
+          "side": "buy",
+          "compare_indicator_id": ""
+        }
+      ],
+      "min_entry_matches": 1,
+      "exit_rules": [
+        {
+          "type": "indicator",
+          "value": 0.329,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.33,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "indicator",
+          "value": 0.314,
+          "indicator_id": "RSI_61_f658",
+          "condition": "crosses_below"
+        },
+        {
+          "type": "stop_loss",
+          "value": 2.86
+        }
+      ],
+      "position_size_usd": 284.0,
+      "max_open_positions": 1,
+      "max_drawdown_pct": 10.6
+    }
+  ]
+}

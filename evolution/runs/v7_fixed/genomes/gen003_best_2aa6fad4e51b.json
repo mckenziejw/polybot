@@ -1,0 +1,69 @@
+{
+  "genome_id": "2aa6fad4e51b",
+  "generation": 3,
+  "parent_ids": [
+    "0d853e788129",
+    "3cefd31d8229"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 5,
+  "indicators": [
+    {
+      "type": "DEMA",
+      "params": {
+        "period": 113
+      },
+      "id": "DEMA_113_1fdd"
+    },
+    {
+      "type": "CMO",
+      "params": {
+        "period": 79
+      },
+      "id": "CMO_79_b215"
+    },
+    {
+      "type": "ROC",
+      "params": {
+        "period": 64
+      },
+      "id": "ROC_64_76cc"
+    },
+    {
+      "type": "CMO",
+      "params": {
+        "period": 46
+      },
+      "id": "CMO_46_9d01"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "CMO_46_9d01",
+      "condition": "crosses_below",
+      "value": -7.025,
+      "side": "buy",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "time_limit",
+      "value": 3600
+    },
+    {
+      "type": "stop_loss",
+      "value": 4.74
+    },
+    {
+      "type": "stop_loss",
+      "value": 4.98
+    }
+  ],
+  "position_size_usd": 266.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 10.4
+}

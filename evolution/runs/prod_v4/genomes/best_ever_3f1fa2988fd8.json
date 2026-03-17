@@ -1,0 +1,74 @@
+{
+  "genome_id": "3f1fa2988fd8",
+  "generation": 5,
+  "parent_ids": [
+    "6a8ff189a17d",
+    "df34f439ea76"
+  ],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 15,
+  "indicators": [
+    {
+      "type": "DC",
+      "params": {
+        "period": 78
+      },
+      "id": "DC_78_e8b7",
+      "band": "middle"
+    },
+    {
+      "type": "CCI",
+      "params": {
+        "period": 47
+      },
+      "id": "CCI_47_a192"
+    },
+    {
+      "type": "HMA",
+      "params": {
+        "period": 61
+      },
+      "id": "HMA_61_5389"
+    },
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 9,
+        "period_d": 4
+      },
+      "id": "STOCH_9_7fd2"
+    },
+    {
+      "type": "EMA",
+      "params": {
+        "period": 37
+      },
+      "id": "EMA_37_c2f8"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "CCI_47_a192",
+      "condition": "greater_than",
+      "value": -1.94,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "take_profit",
+      "value": 3.6
+    },
+    {
+      "type": "stop_loss",
+      "value": 3.44
+    }
+  ],
+  "position_size_usd": 374.0,
+  "max_open_positions": 3,
+  "max_drawdown_pct": 14.7
+}

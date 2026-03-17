@@ -1,0 +1,78 @@
+{
+  "genome_id": "9eec5ab15d72",
+  "generation": 1,
+  "parent_ids": [],
+  "symbols": [
+    "BTCUSDT"
+  ],
+  "bar_period_minutes": 240,
+  "indicators": [
+    {
+      "type": "STOCH",
+      "params": {
+        "period_k": 19,
+        "period_d": 6
+      },
+      "id": "STOCH_19_6d04"
+    },
+    {
+      "type": "KC",
+      "params": {
+        "period": 89,
+        "k": 2.53
+      },
+      "id": "KC_89_2daa",
+      "band": "lower"
+    }
+  ],
+  "entry_rules": [
+    {
+      "indicator_id": "STOCH_19_6d04",
+      "condition": "crosses_above",
+      "value": 51.451,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "STOCH_19_6d04",
+      "condition": "less_than",
+      "value": 16.033,
+      "side": "sell",
+      "compare_indicator_id": ""
+    },
+    {
+      "indicator_id": "STOCH_19_6d04",
+      "condition": "crosses_above",
+      "value": 45.419,
+      "side": "sell",
+      "compare_indicator_id": ""
+    }
+  ],
+  "min_entry_matches": 1,
+  "exit_rules": [
+    {
+      "type": "trailing_stop",
+      "value": 4.34
+    },
+    {
+      "type": "indicator",
+      "value": 15.127,
+      "indicator_id": "STOCH_19_6d04",
+      "condition": "crosses_below"
+    },
+    {
+      "type": "stop_loss",
+      "value": 0.65
+    },
+    {
+      "type": "time_limit",
+      "value": 300
+    }
+  ],
+  "filter_rules": [],
+  "position_size_usd": 103.0,
+  "max_open_positions": 1,
+  "max_drawdown_pct": 12.5,
+  "cooldown_bars": 5,
+  "direction_bias": "both"
+}
