@@ -63,7 +63,7 @@ export function loadConfig(configPath?: string): AppConfig {
   const modeRaw = String(marketMakerRaw.mode || "mint-and-sell");
   const mode = (modeRaw === "traditional" ? "traditional" : "mint-and-sell") as MarketMakerMode;
   const pricingRaw = String(marketMakerRaw.pricing || "inventory-skew");
-  const pricing = (pricingRaw === "whale-front" ? "whale-front" : "inventory-skew") as import("./types.ts").PricingMode;
+  const pricing = (["whale-front", "black-scholes"].includes(pricingRaw) ? pricingRaw : "inventory-skew") as import("./types.ts").PricingMode;
   const marketMaker: MarketMakerConfig = {
     mode,
     pricing,
@@ -76,6 +76,12 @@ export function loadConfig(configPath?: string): AppConfig {
     whaleThreshold: Number(marketMakerRaw.whale_threshold ?? 1000),
     whalePullCooldownMs: Number(marketMakerRaw.whale_pull_cooldown_ms ?? 3000),
     whaleMoveTicks: Number(marketMakerRaw.whale_move_ticks ?? 3),
+    // Black-Scholes pricing
+    bsVolWindowS: Number(marketMakerRaw.bs_vol_window_s ?? 300),
+    bsSpreadMultiplier: Number(marketMakerRaw.bs_spread_multiplier ?? 1.0),
+    bsMinSpread: Number(marketMakerRaw.bs_min_spread ?? 0.02),
+    bsExternalFeed: String(marketMakerRaw.bs_external_feed ?? "binance-btcusdt"),
+    bsTDof: Number(marketMakerRaw.bs_t_dof ?? 4),
     // Legacy fields for other strategies
     orderSize: Number(marketMakerRaw.order_size) || 5.0,
     cancelWindowS: Number(marketMakerRaw.cancel_window_s) || 6.0,

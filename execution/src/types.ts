@@ -282,7 +282,7 @@ export interface PolymarketConfig {
 
 export type MarketMakerMode = "mint-and-sell" | "traditional";
 
-export type PricingMode = "inventory-skew" | "whale-front";
+export type PricingMode = "inventory-skew" | "whale-front" | "black-scholes";
 
 export interface MarketMakerConfig {
   mode: MarketMakerMode;
@@ -296,6 +296,12 @@ export interface MarketMakerConfig {
   whaleThreshold: number;        // min size to identify a whale resting order
   whalePullCooldownMs: number;   // how long to pull our orders after whale signal (ms)
   whaleMoveTicks: number;        // whale bid/ask move >= this many ticks triggers cooldown
+  // Black-Scholes pricing mode
+  bsVolWindowS: number;          // seconds of price history for realized vol estimate
+  bsSpreadMultiplier: number;    // spread = multiplier * sigma * sqrt(tau)
+  bsMinSpread: number;           // minimum half-spread in cents (floor)
+  bsExternalFeed: string;        // which external feed provides the underlying price
+  bsTDof: number;                // Student's t degrees of freedom (0 = normal, 3-5 for crypto fat tails)
   // Legacy fields kept for other strategies (smoke-test, xgb)
   orderSize: number;
   cancelWindowS: number;

@@ -103,18 +103,33 @@ export class MintAndSellMaker implements Strategy {
   private lastWhaleBidDown: number | null = null;
   private whalePullUntilMs = 0;  // cancel our orders until this timestamp (cooldown after whale signal)
 
+  // ── Black-Scholes pricing state ──
+  private readonly bsVolWindowS: number;
+  private readonly bsSpreadMultiplier: number;
+  private readonly bsMinSpread: number;
+  private readonly bsExternalFeed: string;
+  private readonly bsTDof: number;                 // Student's t degrees of freedom (0 = normal)
+  private bsStrike = 0;                           // BTC price at market open (the binary option strike)
+  private bsMarketDurationMs = 0;                  // total market duration for annualization
+  private bsPriceHistory: { ts: number; price: number }[] = [];  // ring buffer for vol estimation
+
   constructor(
     mode: MarketMakerMode = "mint-and-sell",
     k = 0.005,
     initialPairs = 100,
     maxTotalInventory = 200,
-    maxUnhedgedExposure = 50,
+    maxUnhedgedExposure = 20,
     replenishThreshold = 20,
     requoteThreshold = 0.005,
-    pricing: PricingMode = "inventory-skew",
-    whaleThreshold = 1000,
+    pricing: PricingMode = "whale-front",
+    whaleThreshold = 2000,
     whalePullCooldownMs = 3000,
     whaleMoveTicks = 3,
+    bsVolWindowS = 300,
+    bsSpreadMultiplier = 1.0,
+    bsMinSpread = 0.02,
+    bsExternalFeed = "binance-btcusdt",
+    bsTDof = 4,
   ) {
     this.mode = mode;
     this.pricing = pricing;
@@ -127,6 +142,11 @@ export class MintAndSellMaker implements Strategy {
     this.whaleThreshold = whaleThreshold;
     this.whalePullCooldownMs = whalePullCooldownMs;
     this.whaleMoveTicks = whaleMoveTicks;
+    this.bsVolWindowS = bsVolWindowS;
+    this.bsSpreadMultiplier = bsSpreadMultiplier;
+    this.bsMinSpread = bsMinSpread;
+    this.bsExternalFeed = bsExternalFeed;
+    this.bsTDof = bsTDof;
   }
 
   // ── Strategy interface ──
@@ -160,6 +180,18 @@ export class MintAndSellMaker implements Strategy {
     this.lastWhaleBidUp = null;
     this.lastWhaleBidDown = null;
     this.whalePullUntilMs = 0;
+    this.bsPriceHistory = [];
+    this.bsStrike = 0;
+    this.bsMarketDurationMs = state.timeRemainingMs;
+
+    // Capture strike price from external feed at market open
+    if (this.pricing === "black-scholes" && state.externalData) {
+      const feed = state.externalData[this.bsExternalFeed];
+      if (feed) {
+        this.bsStrike = feed.price;
+        console.log(`[MM/BS] Strike set from ${this.bsExternalFeed}: $${this.bsStrike.toFixed(2)}`);
+      }
+    }
 
     console.log(
       `[MM] Market open: ${market.slug} | mode=${this.mode} pricing=${this.pricing} | ` +
@@ -252,19 +284,12 @@ export class MintAndSellMaker implements Strategy {
       const whaleBidUp = this.findWhaleLevel(upBook.bids, this.whaleThreshold);
       const whaleBidDown = this.findWhaleLevel(downBook.bids, this.whaleThreshold);
 
-      // ── Whale signal detection ──
-      // Signals that whales have advance info and we should pull our orders:
-      //   1. Whale ask disappears (pulled entirely)
-      //   2. Whale bid drops N+ ticks (retreating from a side = expects it to lose)
-      //   3. Whale ask drops N+ ticks toward mid (rushing to sell = expects it to be worthless)
+      // ── Whale movement logging (no cooldown — just reposition alongside them) ──
       const moveThreshold = this.whaleMoveTicks * tick;
       const signals: string[] = [];
 
-      // Ask pulls
       if (this.lastWhaleAskUp !== null && whaleAskUp === null) signals.push("Up ask GONE");
       if (this.lastWhaleAskDown !== null && whaleAskDown === null) signals.push("Down ask GONE");
-
-      // Bid retreats (price drops = pulling back)
       if (this.lastWhaleBidUp !== null && whaleBidUp !== null &&
           this.lastWhaleBidUp - whaleBidUp >= moveThreshold) {
         signals.push(`Up bid dropped ${((this.lastWhaleBidUp - whaleBidUp) / tick).toFixed(0)} ticks`);
@@ -273,11 +298,8 @@ export class MintAndSellMaker implements Strategy {
           this.lastWhaleBidDown - whaleBidDown >= moveThreshold) {
         signals.push(`Down bid dropped ${((this.lastWhaleBidDown - whaleBidDown) / tick).toFixed(0)} ticks`);
       }
-      // Bid pulls
       if (this.lastWhaleBidUp !== null && whaleBidUp === null) signals.push("Up bid GONE");
       if (this.lastWhaleBidDown !== null && whaleBidDown === null) signals.push("Down bid GONE");
-
-      // Ask tightening toward mid (rushing to dump = expects token to lose value)
       if (this.lastWhaleAskUp !== null && whaleAskUp !== null &&
           this.lastWhaleAskUp - whaleAskUp >= moveThreshold) {
         signals.push(`Up ask tightened ${((this.lastWhaleAskUp - whaleAskUp) / tick).toFixed(0)} ticks`);
@@ -288,8 +310,7 @@ export class MintAndSellMaker implements Strategy {
       }
 
       if (signals.length > 0) {
-        this.whalePullUntilMs = now + this.whalePullCooldownMs;
-        console.log(`[MM] Whale signal: [${signals.join(", ")}] — cooldown ${this.whalePullCooldownMs}ms`);
+        console.log(`[MM] Whale move: [${signals.join(", ")}] — repositioning`);
       }
 
       // Update tracking for next tick
@@ -298,20 +319,65 @@ export class MintAndSellMaker implements Strategy {
       this.lastWhaleBidUp = whaleBidUp;
       this.lastWhaleBidDown = whaleBidDown;
 
-      // During cooldown, cancel all our orders and skip quoting
-      if (now < this.whalePullUntilMs) {
-        if (openOrders.length > 0) {
-          return [{ type: "CANCEL_ALL" }];
-        }
-        return [{ type: "NOOP" }];
+      // Only use whale levels that are competitive — within maxWhaleSpread of
+      // the best bid. Whale asks deep in the book (e.g. 0.98 when mid is 0.64)
+      // are not meaningful levels to front-run.
+      const maxWhaleSpread = 0.15; // ignore whale asks more than 15c above best bid
+      const defaultSpread = 0.04;  // fallback: 4c above best bid when no usable whale
+
+      const usableWhaleUp = whaleAskUp !== null && bestBidUp > 0 &&
+        (whaleAskUp - bestBidUp) <= maxWhaleSpread ? whaleAskUp : null;
+      const usableWhaleDown = whaleAskDown !== null && bestBidDown > 0 &&
+        (whaleAskDown - bestBidDown) <= maxWhaleSpread ? whaleAskDown : null;
+
+      if (usableWhaleUp !== null) {
+        ourAskUp = usableWhaleUp - tick;
+      } else {
+        ourAskUp = bestBidUp > 0 ? bestBidUp + defaultSpread : bestAskUp;
+      }
+      if (usableWhaleDown !== null) {
+        ourAskDown = usableWhaleDown - tick;
+      } else {
+        ourAskDown = bestBidDown > 0 ? bestBidDown + defaultSpread : bestAskDown;
       }
 
-      ourAskUp = (whaleAskUp ?? bestAskUp) - tick;
-      ourAskDown = (whaleAskDown ?? bestAskDown) - tick;
-
-      // Still apply inventory skew on top — nudge the side we're long
+      // Apply inventory skew on top — nudge the side we're long
       ourAskUp -= this.k * imbalance;
       ourAskDown += this.k * imbalance;
+    } else if (this.pricing === "black-scholes") {
+      // ── Black-Scholes binary option pricing ──
+      // Fair value = N(d2) for a cash-or-nothing binary call.
+      // Ask = fair + halfSpread (we're selling), with inventory skew on top.
+      const bs = this.bsUpdate(state.externalData, timeRemainingMs);
+
+      if (bs === null) {
+        // Not enough data yet — fall back to inventory-skew
+        ourAskUp = bestAskUp - this.k * imbalance;
+        ourAskDown = bestAskDown + this.k * imbalance;
+      } else {
+        ourAskUp = bs.fairUp + bs.halfSpread;
+        ourAskDown = bs.fairDown + bs.halfSpread;
+
+        // Inventory skew on top
+        ourAskUp -= this.k * imbalance;
+        ourAskDown += this.k * imbalance;
+
+        // Never ask below fair value — we'd be giving away edge
+        ourAskUp = Math.max(ourAskUp, bs.fairUp + tick);
+        ourAskDown = Math.max(ourAskDown, bs.fairDown + tick);
+
+        // Periodic BS-specific logging
+        if (now - this.lastLogMs > 10_000) {
+          const moneyness = ((bs.spot - this.bsStrike) / this.bsStrike * 100).toFixed(3);
+          console.log(
+            `[MM/BS] spot=$${bs.spot.toFixed(1)} strike=$${this.bsStrike.toFixed(1)} ` +
+            `moneyness=${moneyness}% σ=${(bs.sigma * 100).toFixed(1)}% ` +
+            `fair=(${bs.fairUp.toFixed(3)}/${bs.fairDown.toFixed(3)}) ` +
+            `spread=${(bs.halfSpread * 2).toFixed(3)} ` +
+            `ask=(${ourAskUp.toFixed(3)}/${ourAskDown.toFixed(3)})`
+          );
+        }
+      }
     } else {
       // ── Inventory-skew pricing (Avellaneda-Stoikov) ──
       ourAskUp = bestAskUp - this.k * imbalance;
@@ -342,42 +408,50 @@ export class MintAndSellMaker implements Strategy {
 
     // ── Reconcile asks (both modes) ──
     // In mint-and-sell, cap sell size so imbalance doesn't exceed maxUnhedgedExposure.
-    // Selling n tokens from one side increases imbalance by n (when that side is
-    // already shorter or equal). Cap: n <= maxUnhedgedExposure - currentImbalance.
+    // Must account for outstanding sell orders that haven't filled yet — if they
+    // fill while our new order is also live, the combined exposure could blow
+    // past the cap.
     const unhedged = Math.abs(imbalance);
     let sellableUp = this.inventoryUp;
     let sellableDown = this.inventoryDown;
+
+    // Subtract outstanding sell order sizes — these tokens are "spoken for"
+    const outstandingSellUp = openOrders
+      .filter(o => o.assetId === this.upTokenId && o.side === "SELL")
+      .reduce((sum, o) => sum + o.remainingSize, 0);
+    const outstandingSellDown = openOrders
+      .filter(o => o.assetId === this.downTokenId && o.side === "SELL")
+      .reduce((sum, o) => sum + o.remainingSize, 0);
+
     if (this.mode === "mint-and-sell") {
       // Cap sell sizes so that if ONE side fills completely while the other gets
       // ZERO fills, the resulting imbalance stays within maxUnhedgedExposure.
       //
-      // Selling the longer side first reduces imbalance toward zero, then if we
-      // sell past the balance point it creates imbalance in the other direction.
-      // So the max we can sell of the longer side = imbalance + maxUnhedgedExposure.
-      //
-      // Selling the shorter side always increases imbalance, so cap = headroom.
-      if (unhedged < MIN_ORDER_SIZE) {
-        // Effectively balanced (dust imbalance from CLOB rounding).
-        // Treat as balanced so both sides can post at least MIN_ORDER_SIZE.
+      // Treat outstanding orders as if already sold for imbalance purposes:
+      // effective imbalance after all outstanding orders fill =
+      //   (inventoryUp - outstandingSellUp) - (inventoryDown - outstandingSellDown)
+      const effectiveImbalance = (this.inventoryUp - outstandingSellUp) -
+                                  (this.inventoryDown - outstandingSellDown);
+      const effectiveUnhedged = Math.abs(effectiveImbalance);
+
+      if (effectiveUnhedged < MIN_ORDER_SIZE) {
         sellableUp = Math.min(this.inventoryUp, this.maxUnhedgedExposure);
         sellableDown = Math.min(this.inventoryDown, this.maxUnhedgedExposure);
-      } else if (this.inventoryUp > this.inventoryDown) {
-        // Long Up — can sell up to (imbalance + maxUnhedged) before flipping too far
-        sellableUp = Math.min(this.inventoryUp, unhedged + this.maxUnhedgedExposure);
-        // Short Down — selling increases imbalance
-        const headroom = Math.max(0, this.maxUnhedgedExposure - unhedged);
+      } else if (effectiveImbalance > 0) {
+        // Effectively long Up after outstanding fills
+        sellableUp = Math.min(this.inventoryUp, effectiveUnhedged + this.maxUnhedgedExposure);
+        const headroom = Math.max(0, this.maxUnhedgedExposure - effectiveUnhedged);
         sellableDown = Math.min(this.inventoryDown, headroom);
-      } else if (this.inventoryDown > this.inventoryUp) {
-        // Long Down — can sell up to (imbalance + maxUnhedged) before flipping too far
-        sellableDown = Math.min(this.inventoryDown, unhedged + this.maxUnhedgedExposure);
-        // Short Up — selling increases imbalance
-        const headroom = Math.max(0, this.maxUnhedgedExposure - unhedged);
-        sellableUp = Math.min(this.inventoryUp, headroom);
       } else {
-        // Perfectly balanced — selling either side creates imbalance from zero
-        sellableUp = Math.min(this.inventoryUp, this.maxUnhedgedExposure);
-        sellableDown = Math.min(this.inventoryDown, this.maxUnhedgedExposure);
+        // Effectively long Down after outstanding fills
+        sellableDown = Math.min(this.inventoryDown, effectiveUnhedged + this.maxUnhedgedExposure);
+        const headroom = Math.max(0, this.maxUnhedgedExposure - effectiveUnhedged);
+        sellableUp = Math.min(this.inventoryUp, headroom);
       }
+
+      // Subtract what's already posted — sellable is the NEW amount we can add
+      sellableUp = Math.max(0, sellableUp - outstandingSellUp);
+      sellableDown = Math.max(0, sellableDown - outstandingSellDown);
     }
     this.reconcileAsk(actions, openOrders, this.upTokenId, ourAskUp, sellableUp);
     this.reconcileAsk(actions, openOrders, this.downTokenId, ourAskDown, sellableDown);
@@ -674,6 +748,8 @@ export class MintAndSellMaker implements Strategy {
       realizedPnl: this.computeRealizedPnl(),
       pendingMint: this.pendingMint,
       redeemablePairs: Math.min(this.inventoryUp, this.inventoryDown),
+      bsStrike: this.bsStrike,
+      bsVolSamples: this.bsPriceHistory.length,
     };
   }
 
@@ -716,6 +792,253 @@ export class MintAndSellMaker implements Strategy {
     } else {
       console.error(`[MM] Mint FAILED for ${pairsMinted} pairs — inventory NOT credited`);
     }
+  }
+
+  // ── Black-Scholes helpers ──
+
+  /**
+   * Update the price history buffer and compute realized vol.
+   * Returns { spot, sigma, fairUp, fairDown, halfSpread } or null if insufficient data.
+   */
+  private bsUpdate(
+    externalData: Record<string, import("../types.ts").ExternalDataPoint> | undefined,
+    timeRemainingMs: number,
+  ): {
+    spot: number;
+    sigma: number;
+    fairUp: number;
+    fairDown: number;
+    halfSpread: number;
+  } | null {
+    if (!externalData) return null;
+    const feed = externalData[this.bsExternalFeed];
+    if (!feed) return null;
+
+    const spot = feed.price;
+    const now = feed.timestamp;
+
+    // Capture strike on first price if not set in onMarketOpen
+    if (this.bsStrike === 0) {
+      this.bsStrike = spot;
+      console.log(`[MM/BS] Strike set (deferred): $${this.bsStrike.toFixed(2)}`);
+    }
+
+    // Add to price history (keep only bsVolWindowS worth)
+    this.bsPriceHistory.push({ ts: now, price: spot });
+    const cutoff = now - this.bsVolWindowS * 1000;
+    while (this.bsPriceHistory.length > 0 && this.bsPriceHistory[0]!.ts < cutoff) {
+      this.bsPriceHistory.shift();
+    }
+
+    // Need at least 10 samples for a vol estimate
+    if (this.bsPriceHistory.length < 10) return null;
+
+    // Compute realized vol from log returns, sampled at 1-second intervals
+    const sigma = this.computeRealizedVol();
+    if (sigma <= 0) return null;
+
+    // Time to expiry as fraction of a year
+    const tau = Math.max(timeRemainingMs / (365.25 * 24 * 3600 * 1000), 1e-10);
+
+    // Binary call fair value: N(d2) where d2 = (ln(S/K) + (r - σ²/2)τ) / (σ√τ)
+    // r = 0 for short-duration contracts
+    const sqrtTau = Math.sqrt(tau);
+    const d2 = (Math.log(spot / this.bsStrike) - (sigma * sigma / 2) * tau) / (sigma * sqrtTau);
+    const fairUp = this.bsTDof > 0 ? this.studentTCdf(d2, this.bsTDof) : this.normalCdf(d2);
+    const fairDown = 1 - fairUp;
+
+    // Half-spread proportional to uncertainty: σ√τ scaled to option-price space
+    // The vega of a binary option ≈ n(d2)/(σ√τ), so spread ~ multiplier * n(d2)
+    // Simpler: spread = multiplier * sigma * sqrt(tau) * scaling factor
+    // Scale factor converts annualized vol to option-price movement
+    const halfSpread = Math.max(
+      this.bsMinSpread,
+      this.bsSpreadMultiplier * sigma * sqrtTau,
+    );
+
+    return { spot, sigma, fairUp, fairDown, halfSpread };
+  }
+
+  /**
+   * Compute annualized realized volatility from the price history buffer.
+   * Uses 1-second sampled log returns.
+   */
+  private computeRealizedVol(): number {
+    const h = this.bsPriceHistory;
+    if (h.length < 10) return 0;
+
+    // Sample at ~1 second intervals to avoid microstructure noise
+    const sampleIntervalMs = 1000;
+    const sampledPrices: number[] = [h[0]!.price];
+    let lastSampleTs = h[0]!.ts;
+
+    for (let i = 1; i < h.length; i++) {
+      if (h[i]!.ts - lastSampleTs >= sampleIntervalMs) {
+        sampledPrices.push(h[i]!.price);
+        lastSampleTs = h[i]!.ts;
+      }
+    }
+
+    if (sampledPrices.length < 5) return 0;
+
+    // Log returns
+    const returns: number[] = [];
+    for (let i = 1; i < sampledPrices.length; i++) {
+      returns.push(Math.log(sampledPrices[i]! / sampledPrices[i - 1]!));
+    }
+
+    // Variance of returns
+    const mean = returns.reduce((s, r) => s + r, 0) / returns.length;
+    const variance = returns.reduce((s, r) => s + (r - mean) ** 2, 0) / (returns.length - 1);
+
+    // Annualize: each return spans ~1 second, so multiply by seconds-per-year
+    const secondsPerYear = 365.25 * 24 * 3600;
+    return Math.sqrt(variance * secondsPerYear);
+  }
+
+  /**
+   * Approximation of the standard normal CDF.
+   * Abramowitz & Stegun formula 26.2.17, accurate to ~1.5e-7.
+   */
+  private normalCdf(x: number): number {
+    if (x > 6) return 1;
+    if (x < -6) return 0;
+
+    const a1 = 0.254829592;
+    const a2 = -0.284496736;
+    const a3 = 1.421413741;
+    const a4 = -1.453152027;
+    const a5 = 1.061405429;
+    const p = 0.3275911;
+
+    const sign = x < 0 ? -1 : 1;
+    // A&S formula 7.1.26 — input must be |x|/√2
+    const z = Math.abs(x) / Math.SQRT2;
+    const t = 1.0 / (1.0 + p * z);
+    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+
+    return 0.5 * (1.0 + sign * y);
+  }
+
+  /**
+   * Student's t distribution CDF.
+   * Uses the regularized incomplete beta function for accuracy.
+   * Fat tails (low ν) assign more probability to extreme moves,
+   * which widens fair-value uncertainty and thus our spread.
+   *
+   * @param x - the quantile (d2 in our BS model)
+   * @param nu - degrees of freedom (lower = fatter tails; 3-5 typical for crypto)
+   */
+  private studentTCdf(x: number, nu: number): number {
+    if (x === 0) return 0.5;
+
+    const t2 = x * x;
+    const betaVal = this.regIncBeta(nu / (nu + t2), nu / 2, 0.5);
+
+    if (x > 0) {
+      return 1 - 0.5 * betaVal;
+    } else {
+      return 0.5 * betaVal;
+    }
+  }
+
+  /**
+   * Regularized incomplete beta function I_x(a, b).
+   * Continued fraction evaluation based on Numerical Recipes (betacf).
+   */
+  private regIncBeta(x: number, a: number, b: number): number {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+
+    // Use symmetry relation when x > (a+1)/(a+b+2) for better convergence
+    if (x > (a + 1) / (a + b + 2)) {
+      return 1 - this.regIncBeta(1 - x, b, a);
+    }
+
+    const lnBeta = this.logBeta(a, b);
+    const front = Math.exp(Math.log(x) * a + Math.log(1 - x) * b - lnBeta) / a;
+
+    return front * this.betacf(a, b, x);
+  }
+
+  /** Continued fraction for incomplete beta (Numerical Recipes). */
+  private betacf(a: number, b: number, x: number): number {
+    const TINY = 1e-30;
+    const EPS = 1e-14;
+    const qab = a + b;
+    const qap = a + 1;
+    const qam = a - 1;
+
+    let c = 1;
+    let d = 1 - qab * x / qap;
+    if (Math.abs(d) < TINY) d = TINY;
+    d = 1 / d;
+    let h = d;
+
+    for (let m = 1; m <= 300; m++) {
+      const m2 = 2 * m;
+
+      // Even step
+      let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+      d = 1 + aa * d;
+      if (Math.abs(d) < TINY) d = TINY;
+      c = 1 + aa / c;
+      if (Math.abs(c) < TINY) c = TINY;
+      d = 1 / d;
+      h *= d * c;
+
+      // Odd step
+      aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+      d = 1 + aa * d;
+      if (Math.abs(d) < TINY) d = TINY;
+      c = 1 + aa / c;
+      if (Math.abs(c) < TINY) c = TINY;
+      d = 1 / d;
+      const del = d * c;
+      h *= del;
+
+      if (Math.abs(del - 1) < EPS) break;
+    }
+
+    return h;
+  }
+
+  /**
+   * Log of the beta function: ln(B(a,b)) = lnΓ(a) + lnΓ(b) - lnΓ(a+b)
+   */
+  private logBeta(a: number, b: number): number {
+    return this.logGamma(a) + this.logGamma(b) - this.logGamma(a + b);
+  }
+
+  /**
+   * Lanczos approximation to ln(Γ(x)), accurate to ~15 digits.
+   */
+  private logGamma(x: number): number {
+    const g = 7;
+    const coefs = [
+      0.99999999999980993,
+      676.5203681218851,
+      -1259.1392167224028,
+      771.32342877765313,
+      -176.61502916214059,
+      12.507343278686905,
+      -0.13857109526572012,
+      9.9843695780195716e-6,
+      1.5056327351493116e-7,
+    ];
+
+    if (x < 0.5) {
+      // Reflection formula: Γ(x)Γ(1-x) = π / sin(πx)
+      return Math.log(Math.PI / Math.sin(Math.PI * x)) - this.logGamma(1 - x);
+    }
+
+    x -= 1;
+    let sum = coefs[0]!;
+    for (let i = 1; i < g + 2; i++) {
+      sum += coefs[i]! / (x + i);
+    }
+    const t = x + g + 0.5;
+    return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(sum);
   }
 
   private logSessionSummary(): void {
@@ -767,5 +1090,10 @@ registerStrategy("market-maker", () => {
     mm.whaleThreshold ?? 1000,
     mm.whalePullCooldownMs ?? 3000,
     mm.whaleMoveTicks ?? 3,
+    mm.bsVolWindowS ?? 300,
+    mm.bsSpreadMultiplier ?? 1.0,
+    mm.bsMinSpread ?? 0.02,
+    mm.bsExternalFeed ?? "binance-btcusdt",
+    mm.bsTDof ?? 4,
   );
 });
